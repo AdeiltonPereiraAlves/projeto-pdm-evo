@@ -49,7 +49,7 @@ export default function Login() {
                         />
                     </View>
                    <View style={{flexDirection:'column', alignItems:'flex-start', width:'100%', paddingLeft:30,paddingRight:30, marginBottom:10}}> 
-                    <Text>Senha:</Text>
+                    <Text style={{fontSize: 20,fontWeight:"bold" }}>Senha:</Text>
                     <TextInput
                         style={styles.input}
                         placeholder="***************"
