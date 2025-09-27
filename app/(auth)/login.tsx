@@ -1,9 +1,8 @@
 // app/(auth)/login.tsx
 import Botao from "@/components/ui/Botao";
 import RodapeLogin from "@/components/ui/RodapeLogin";
-import { useState, useContext } from "react";
-import { View, TextInput, StyleSheet ,Button, Text } from "react-native";
-import { red } from "react-native-reanimated/lib/typescript/Colors";
+import { useState } from "react";
+import { StyleSheet, Text, TextInput, View } from "react-native";
 // import { AuthContext } from "../../context/AuthContext";
 
 export default function Login() {
