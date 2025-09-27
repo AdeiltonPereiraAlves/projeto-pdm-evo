@@ -1,33 +1,39 @@
 // app/(auth)/login.tsx
 import Botao from "@/components/ui/Botao";
 import RodapeLogin from "@/components/ui/RodapeLogin";
-import { useState, useContext } from "react";
-import { View, TextInput, StyleSheet ,Button, Text } from "react-native";
-import { red } from "react-native-reanimated/lib/typescript/Colors";
-// import { AuthContext } from "../../context/AuthContext";
+import { useContext, useState } from "react";
+import { StyleSheet, Text, TextInput, View } from "react-native";
+import { AuthContext } from "../../context/AuthContext";
 
 export default function Login() {
-    //   const { login } = useContext(AuthContext);
+      const { login } = useContext(AuthContext);
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
 
     const handleLogin = async () => {
-        // try {
-        //   const res = await fetch("http://localhost:3000/auth/login", {
-        //     method: "POST",
-        //     headers: { "Content-Type": "application/json" },
-        //     body: JSON.stringify({ email, senha }),
-        //   });
-
-        //   const data = await res.json();
-        //   if (res.ok) {
-        //     login(data.token, data.tipoUsuario);
-        //   } else {
-        //     alert(data.msg || "Erro ao logar");
-        //   }
-        // } catch (err) {
-        //   console.log(err);
-        // }
+        try {
+            console.log("começo", email, senha)
+          const res = await fetch("http://192.168.0.108:3000/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, senha }),
+          });
+          console.log(res, "res")
+          
+          const data = await res.json();
+          console.log(data, "data")
+          if (res.ok) {
+             const tipoUsuario = data.usuario.tipo as "ONG" | "VOLUNTARIO";
+            login(String(data.token),tipoUsuario as "ONG" | "VOLUNTARIO");
+            console.log("chegou aqui", tipoUsuario)
+             alert(data.msg || " logou");
+          } else {
+            alert(data.msg || "Erro ao logar");
+          }
+        } catch (err) {
+          console.log(err);
+        }
+        
     };
 
     return (
