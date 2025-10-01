@@ -1,19 +1,21 @@
 // app/(auth)/login.tsx
-import Botao from "@/components/ui/Botao";
-import RodapeLogin from "@/components/ui/RodapeLogin";
+import Botao from "../../../components/ui/Botao";
+import RodapeLogin from "../../../components/ui/RodapeLogin";
 import { useContext, useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
-import { AuthContext } from "../../context/AuthContext";
+import { AuthContext } from "@/src/data/context/AuthContext";
+import { useNavigation } from '@react-navigation/native';
+
 
 export default function Login() {
       const { login } = useContext(AuthContext);
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
-
+    const navigation = useNavigation<any>()
     const handleLogin = async () => {
         try {
             console.log("começo", email, senha)
-          const res = await fetch("http://192.168.0.108:3000/login", {
+          const res = await fetch("http://192.168.0.104:3001/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, senha }),
@@ -24,9 +26,15 @@ export default function Login() {
           console.log(data, "data")
           if (res.ok) {
              const tipoUsuario = data.usuario.tipo as "ONG" | "VOLUNTARIO";
-            login(String(data.token),tipoUsuario as "ONG" | "VOLUNTARIO");
+           await login(data.token, data.usuario.tipo);
             console.log("chegou aqui", tipoUsuario)
-             alert(data.msg || " logou");
+            //  alert(data.msg || " logou");
+            navigation.reset({
+                index: 0,
+                routes: [
+                  { name: tipoUsuario === "ONG" ? "Dashboard" : "Home" }
+                ],
+              });
           } else {
             alert(data.msg || "Erro ao logar");
           }
