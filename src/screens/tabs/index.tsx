@@ -1,8 +1,8 @@
-import { createBottomTabNavigator,  } from "@react-navigation/bottom-tabs"
-import Perfil from "./Perfil";
+import { createBottomTabNavigator, } from "@react-navigation/bottom-tabs";
+import { StyleSheet, Text, View } from 'react-native';
 import Inicio from "./Inicio";
-import {View, Text, StyleSheet} from 'react-native'
 import Dashboard from "./ongs/Dashboard";
+import Perfil from "./Perfil";
 
 const Tab = createBottomTabNavigator();
 
