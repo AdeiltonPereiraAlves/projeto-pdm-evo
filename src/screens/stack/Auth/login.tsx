@@ -15,7 +15,7 @@ export default function Login() {
     const handleLogin = async () => {
         try {
             console.log("começo", email, senha)
-          const res = await fetch("http://192.168.0.104:3001/login", {
+          const res = await fetch("http://192.168.0.106:3001/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, senha }),
