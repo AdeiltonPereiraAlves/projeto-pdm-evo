@@ -1,5 +1,4 @@
-import { View,Text } from 'react-native';
-
+import { Text, TouchableOpacity, View } from 'react-native';
 
 export interface RodapeLoginProps {
     title?: string;
@@ -7,13 +6,17 @@ export interface RodapeLoginProps {
     onPress?: () => void;
 }
 
-
-
 export default function RodapeLogin({ title, subtitle, onPress }: RodapeLoginProps) {
     return (
         <View style={{flexDirection:'row', justifyContent:'center', alignItems:'center', marginTop:20}}>
             <Text style={{color:'#939EAA'}}>{title}</Text>
-            <Text style={{color:'#0A2472', fontWeight:'bold',textDecorationLine: 'underline'}}>{subtitle}</Text>
+            {subtitle && onPress ? (
+                <TouchableOpacity onPress={onPress}>
+                    <Text style={{color:'#0A2472', fontWeight:'bold',textDecorationLine: 'underline'}}>{subtitle}</Text>
+                </TouchableOpacity>
+            ) : (
+                <Text style={{color:'#0A2472', fontWeight:'bold',textDecorationLine: 'underline'}}>{subtitle}</Text>
+            )}
         </View>
     )
 }
