@@ -48,10 +48,14 @@ export default function Abas({navigation}:any) {
             screenOptions={{
                 headerShown: false,
                 tabBarShowLabel: false,
-                tabBarActiveBackgroundColor: '#222',
-                tabBarInactiveBackgroundColor: '#222',
+                tabBarActiveBackgroundColor: '#F8F9FA',
+                tabBarInactiveBackgroundColor: '#F8F9FA',
                 tabBarStyle: {
-                    backgroundColor: '#E6F4FE',
+                    backgroundColor: '#F8F9FA',
+                    height: 100,
+                    paddingBottom: 20,
+                    paddingTop: 15,
+                    paddingHorizontal: 20,
                 }
             }}
         >
@@ -68,10 +72,14 @@ export default function Abas({navigation}:any) {
             screenOptions={{
                 headerShown: false,
                 tabBarShowLabel: false,
-                tabBarActiveBackgroundColor: '#222',
-                tabBarInactiveBackgroundColor: '#222',
+                tabBarActiveBackgroundColor: '#F8F9FA',
+                tabBarInactiveBackgroundColor: '#F8F9FA',
                 tabBarStyle: {
-                    backgroundColor: '#E6F4FE',
+                    backgroundColor: '#F8F9FA',
+                    height: 100,
+                    paddingBottom: 20,
+                    paddingTop: 15,
+                    paddingHorizontal: 20,
                 }
             }}
         >
