@@ -1,6 +1,6 @@
-import { View, Text, Button, StyleSheet } from "react-native";
+import { Button, StyleSheet, Text, View } from "react-native";
 
-export default function Welcome({ navigation }: any) {
+export default function TelaInicial({ navigation }: any) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Bem-vindo ao App!</Text>

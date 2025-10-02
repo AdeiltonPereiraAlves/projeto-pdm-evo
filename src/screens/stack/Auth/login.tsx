@@ -1,10 +1,10 @@
 // app/(auth)/login.tsx
-import Botao from "../../../components/ui/Botao";
-import RodapeLogin from "../../../components/ui/RodapeLogin";
-import { useContext, useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
 import { AuthContext } from "@/src/data/context/AuthContext";
 import { useNavigation } from '@react-navigation/native';
+import { useContext, useState } from "react";
+import { StyleSheet, Text, TextInput, View } from "react-native";
+import Botao from "../../../components/ui/Botao";
+import RodapeLogin from "../../../components/ui/RodapeLogin";
 
 
 export default function Login() {
@@ -32,7 +32,7 @@ export default function Login() {
             navigation.reset({
                 index: 0,
                 routes: [
-                  { name: tipoUsuario === "ONG" ? "Dashboard" : "Home" }
+                  { name: "Abas" }
                 ],
               });
           } else {

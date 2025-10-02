@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 
 
 export interface BotaoProps {
@@ -8,11 +8,12 @@ export interface BotaoProps {
     altura?: number;
     textColor?: string | undefined;
     onPress: () => void;
+    disabled?: boolean;
 }
 
 
 
-export default function Botao({ title, color, largura,altura, textColor, onPress }: BotaoProps) {
+export default function Botao({ title, color, largura,altura, textColor, onPress, disabled = false }: BotaoProps) {
 
     return (
         <View className="flex-1 justify-center items-center bg-blue-500 h-full ">
@@ -26,9 +27,11 @@ export default function Botao({ title, color, largura,altura, textColor, onPress
                     alignItems: "center",
                     justifyContent: "center",
                     height: altura,
+                    opacity: disabled ? 0.6 : 1,
 
                 }}
-                onPress={onPress}
+                onPress={disabled ? undefined : onPress}
+                disabled={disabled}
             >
 
                 <Text style={{
