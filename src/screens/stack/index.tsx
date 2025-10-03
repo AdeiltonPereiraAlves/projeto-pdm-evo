@@ -8,6 +8,9 @@ import Cadastro from "./Auth/Cadastro";
 import Inicio from "./Auth/Inicio";
 import Login from "./Auth/login";
 const Stack = createNativeStackNavigator();
+
+
+
 function AppNavigator() {
     const { token, tipoUsuario, loading } = useContext(AuthContext);
   
@@ -32,6 +35,7 @@ function AppNavigator() {
     );
   }
 export default function App() {
+
   return (
     <AuthProvider>
       <NavigationContainer>

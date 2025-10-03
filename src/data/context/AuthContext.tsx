@@ -65,8 +65,8 @@
 // };
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { jwtDecode } from "jwt-decode"; // precisa instalar: npm i jwt-decode
 import React, { createContext, useEffect, useState } from "react";
-import {jwtDecode} from "jwt-decode"; // precisa instalar: npm i jwt-decode
 
 export interface AuthContextType {
   token: string | null;
@@ -105,6 +105,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             // token expirado → limpa
             await AsyncStorage.removeItem("token");
             await AsyncStorage.removeItem("tipoUsuario");
+            await logout();
             setToken(null);
             setTipoUsuario(null);
           }
@@ -115,6 +116,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setLoading(false);
       }
     };
+
 
     checkToken();
   }, []);
@@ -140,6 +142,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error("Erro ao limpar AsyncStorage:", error);
     }
   };
+
+
+  
 
   return (
     <AuthContext.Provider value={{ token, tipoUsuario, login, logout, loading }}>
