@@ -76,5 +76,43 @@ export default function useAPI() {
         }
     }, [])
 
+    // pega vaga por id
+    const vagaPorId = useCallback(async function (token: string): Promise<any> {
+        console.log('listarVagas called with token:', token);
+        try {
+            const response = await fetch(`${URL_BASE}/listar/vagas`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            console.log('listarVagas response:', response);
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log('listarVagas data:', data);
+                
+                // Verificar se a resposta tem o formato esperado
+                // if (Array.isArray(data)) {
+                //     return data;
+                // } else if (data && Array.isArray(data.vagas)) {
+                //     return data.vagas;
+                // } else if (data && Array.isArray(data.data)) {
+                //     return data.data;
+                // } else {
+                //     console.warn('Formato de resposta inesperado:', data);
+                //     return [];
+                // }
+            } else {
+                const errorText = await response.text();
+                console.error('Erro na resposta:', response.status, errorText);
+                throw new Error(`Erro ao listar vagas: ${response.status}`);
+            }
+        } catch (error) {
+            console.error('Erro ao listar vagas:', error);
+            throw error;
+        }
+    }, [])
     return { httpGet, httpPost, listarVagas }
 }

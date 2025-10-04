@@ -1,12 +1,22 @@
 
+import { formatarData } from "@/src/components/shared/FormatarData";
 import CategoryFilter from "@/src/components/ui/CategoryFilter";
 import HeaderHome from "@/src/components/ui/HeaderHome";
 import SearchBar from "@/src/components/ui/SearchBar";
 import VagaCard from "@/src/components/ui/VagaCard";
 import { AuthContext } from "@/src/data/context/AuthContext";
 import useAPI from "@/src/data/hooks/useAPI";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useNavigation } from "expo-router";
 import React, { useContext, useEffect, useState } from "react";
 import { Alert, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+type StackParamList = {
+  Abas: undefined;
+  DetalheVaga: { vagaId: string }; // Passando o ID da vaga
+};
+
+type HomeNavigationProp = NativeStackNavigationProp<StackParamList, "Abas">;
+
 
 interface Vaga {
     id: string;
@@ -24,6 +34,7 @@ interface Vaga {
 }
 
 export default function Home() {
+    const navigation = useNavigation<HomeNavigationProp>();
     const { token, tipoUsuario, loading, logout } = useContext(AuthContext);
     const { listarVagas } = useAPI();
     
@@ -46,14 +57,7 @@ export default function Home() {
         filtrarVagas();
     }, [vagas, searchText, selectedCategory]);
   // formatar data
-  function formatarData(data:any){
-    const dataFormatada = new Date(data).toLocaleDateString("pt-BR", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      });
-      return dataFormatada
-  }
+
     const carregarVagas = async () => {
         try {
             setLoadingVagas(true);
@@ -61,7 +65,7 @@ export default function Home() {
                 throw new Error("Token não disponível");
             }
             const response = await listarVagas(token);
-            console.log("Vagas carregadas:", response);
+           
             
             // Verificar se a resposta é um array
             if (!Array.isArray(response)) {
@@ -138,7 +142,8 @@ export default function Home() {
     };
 
     const handleVagaPress = (vaga: Vaga) => {
-        Alert.alert("Vaga", `Detalhes da vaga: ${vaga.titulo}`);
+      
+        navigation.navigate("DetalheVaga", { vagaId: vaga.id });
     };
 
     const handleCandidatar = (vaga: Vaga) => {

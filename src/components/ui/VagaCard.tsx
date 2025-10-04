@@ -28,9 +28,9 @@ export default function VagaCard({
                     <Text style={styles.titulo}>{titulo}</Text>
                     <Text style={styles.ong}>{ong}</Text>
                 </View>
-                <View style={styles.favoritoContainer}>
+                {/* <View style={styles.favoritoContainer}>
                     <Icone nome="heart-outline" tamanho={20} color="#666" />
-                </View>
+                </View> */}
             </View>
             
             <View style={styles.infoContainer}>
