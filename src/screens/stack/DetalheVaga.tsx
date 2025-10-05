@@ -15,7 +15,8 @@ export type vagaDetalhe = {
     descricao: string;
     localizacao: string;
     tipoTrabalho: string;
-    ong: { nome: string; imagem: string }; // ✅ aqui sim
+    ong: { nome: string; imagem: string };
+    requisitos: [], // ✅ aqui sim
     quantidade: number;
     status: string;
     duracao: string;
@@ -55,7 +56,7 @@ export default function DetalheVaga() {
                     <Text>Status: {vaga.status}</Text>
                     <Text>Duração: {vaga.duracao}</Text> */}
                       <BotaoVoltar/>
-                     <VagaDetalhe titulo={vaga.titulo} descricao={vaga.descricao} localizacao={vaga.localizacao} ong={vaga.ong}
+                     <VagaDetalhe titulo={vaga.titulo} descricao={vaga.descricao} localizacao={vaga.localizacao} ong={vaga.ong} requisitos={vaga.requisitos}
                      tipoTrabalho={vaga.tipoTrabalho} quantidade={vaga.quantidade} status={vaga.status} duracao={vaga.duracao}
                       
                      />
