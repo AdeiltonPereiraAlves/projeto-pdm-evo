@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-const URL_BASE = 'http://192.168.0.101:3001' // process.env.URL_BASE
+const URL_BASE ='http://192.168.0.104:3001' // process.env.URL_BASE
 
 export default function useAPI() {
     const httpGet = useCallback(async function (uri: string, token?: string): Promise<any> {
@@ -114,5 +114,5 @@ export default function useAPI() {
             throw error;
         }
     }, [])
-    return { httpGet, httpPost, listarVagas }
+    return { httpGet, httpPost, listarVagas}
 }

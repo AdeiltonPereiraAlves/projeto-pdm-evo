@@ -1,10 +1,11 @@
 import React from "react";
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 import Icone from "../components/shared/Icone";
 import { vagaDetalhe } from "../screens/stack/DetalheVaga";
@@ -14,19 +15,26 @@ export default function VagaDetalhe({
   localizacao,
   tipoTrabalho,
   ong,
+
   quantidade,
   status,
   duracao,
 }: vagaDetalhe) {
+  const baseURL = "http://192.168.0.104:3001"
+  const imagemURL = `${baseURL}/images/${ong.imagem}`;
   return (
     <View style={styles.container}>
-       
+
       {/* Conteúdo rolável */}
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
+          <Image
+            source={{ uri: imagemURL }}
+            style={{ width: 100, height: 100, borderRadius: 60, backgroundColor: "#f5f5f5", marginRight: 8 }}
+          />
           <View style={styles.tituloContainer}>
             <Text style={styles.titulo}>{titulo}</Text>
-            <Text style={styles.ong}>{ong.nome}</Text>
+            <Text style={styles.ong}>{ong.nome || "ong"}</Text>
           </View>
           <View style={styles.favoritoContainer}>
             <Icone nome="heart-outline" tamanho={24} color="#666" />
@@ -83,7 +91,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,  
+    elevation: 3,
   },
   scrollContent: {
     padding: 16,

@@ -7,6 +7,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useContext, useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { RootStackParamList } from "../stack/index"; // ou caminho correto
+
 type DetalheVagaNavigationProp = NativeStackNavigationProp<RootStackParamList, "DetalheVaga">;
 type DetalheVagaRouteProp = RouteProp<{ DetalheVaga: { vagaId: string } }, "DetalheVaga">;
 export type vagaDetalhe = {
@@ -14,12 +15,12 @@ export type vagaDetalhe = {
     descricao: string;
     localizacao: string;
     tipoTrabalho: string;
-    ong: { nome:any  };
+    ong: { nome: string; imagem: string }; // ✅ aqui sim
     quantidade: number;
     status: string;
     duracao: string;
-    
-}
+  };
+
 export default function DetalheVaga() {
     const navigation = useNavigation<DetalheVagaNavigationProp>();
     const route = useRoute<DetalheVagaRouteProp>();
@@ -27,15 +28,12 @@ export default function DetalheVaga() {
     const { vagaId } = route.params;
     const { token } = useContext(AuthContext)
     const { httpGet } = useAPI()
-   
-    type vaga = {
-        nome: string
-    }
+
     useEffect(() => {
         const fetchVaga = async () => {
             const vaga = await httpGet(`buscar/vaga/${vagaId}`, token!);
 
-            console.log(vaga.data, "vaga")
+            console.log(vaga, "vaga")
             setVaga(vaga);
         };
         fetchVaga();

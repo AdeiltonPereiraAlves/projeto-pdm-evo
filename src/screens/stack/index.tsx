@@ -1,4 +1,5 @@
 import { AuthContext, AuthProvider } from "@/src/data/context/AuthContext";
+import { VagaProvider } from "@/src/data/context/VagaContext";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useContext } from "react";
@@ -21,38 +22,41 @@ export type RootStackParamList = {
 
 
 function AppNavigator() {
-    const { token, tipoUsuario, loading } = useContext(AuthContext);
-  
-    if (loading) {
-      return <Autenticacao />; // Splash enquanto carrega do AsyncStorage
-    }
-  
-    return (
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {!token ? (
-          // 🔹 Usuário sem token válido → começa no Welcome
-          <>
-            <Stack.Screen name="Inicio" component={Inicio} />
-            <Stack.Screen name="Login" component={Login} />
-            <Stack.Screen name="Cadastro" component={Cadastro} />
-          </>
-        ) : (
-          // 🔹 Usuário logado (ONG ou Voluntário) → vai para Abas
-          <>
-          <Stack.Screen name="Abas" component={Abas}/>
-          <Stack.Screen name="DetalheVaga" component={DetalheVaga} options={{ title: "Detalhe da Vaga" }} />
-          </>
-        )}
-      </Stack.Navigator>
-    );
+  const { token, tipoUsuario, loading } = useContext(AuthContext);
+
+  if (loading) {
+    return <Autenticacao />; // Splash enquanto carrega do AsyncStorage
   }
+
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {!token ? (
+        // 🔹 Usuário sem token válido → começa no Welcome
+        <>
+          <Stack.Screen name="Inicio" component={Inicio} />
+          <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="Cadastro" component={Cadastro} />
+        </>
+      ) : (
+        // 🔹 Usuário logado (ONG ou Voluntário) → vai para Abas
+        <>
+          <Stack.Screen name="Abas" component={Abas} />
+          <Stack.Screen name="DetalheVaga" component={DetalheVaga} options={{ title: "Detalhe da Vaga" }} />
+        </>
+      )}
+    </Stack.Navigator>
+  );
+}
 export default function App() {
 
   return (
     <AuthProvider>
-      <NavigationContainer>
-        <AppNavigator />
-      </NavigationContainer>
+      <VagaProvider>
+
+        <NavigationContainer>
+          <AppNavigator />
+        </NavigationContainer>
+      </VagaProvider>
     </AuthProvider>
   );
 }

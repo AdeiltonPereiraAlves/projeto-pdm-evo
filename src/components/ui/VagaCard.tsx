@@ -1,38 +1,50 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icone from '../shared/Icone';
 
 export interface VagaCardProps {
     titulo: string;
-    ong: string;
+    nomeOng: string;
+    imagemOng: string;
+    areaAtuacao: [];
     localizacao: string;
     data: string;
     descricao: string;
-    tag?:string;
+    tag?: string;
     onPress?: () => void;
 }
 
-export default function VagaCard({ 
-    titulo, 
-    ong, 
-    localizacao, 
-    data, 
+export default function VagaCard({
+    titulo,
+    nomeOng,
+    imagemOng,
+    areaAtuacao,
+    localizacao,
+    data,
     descricao,
     tag,
-    onPress 
+    onPress
 }: VagaCardProps) {
+    const baseURL = "http://192.168.0.104:3001"; // seu backend
+    const imagemURL = `${baseURL}/images/${imagemOng}`;
+ 
     return (
         <TouchableOpacity style={styles.card} onPress={onPress}>
             <View style={styles.header}>
+                    <Image
+                        source={{ uri: imagemURL }}
+                        style={{ width: 100, height: 100, borderRadius: 60 , backgroundColor:"#f5f5f5", marginRight:8}}
+                    />
                 <View style={styles.tituloContainer}>
                     <Text style={styles.titulo}>{titulo}</Text>
-                    <Text style={styles.ong}>{ong}</Text>
+                    <Text style={styles.ong}>{nomeOng}</Text>
+                    <Text style={styles.ong}>{imagemOng}</Text>
                 </View>
                 {/* <View style={styles.favoritoContainer}>
                     <Icone nome="heart-outline" tamanho={20} color="#666" />
                 </View> */}
             </View>
-            
+
             <View style={styles.infoContainer}>
                 <View style={styles.infoItem}>
                     <Icone nome="location-outline" tamanho={16} color="#666" />
@@ -43,11 +55,11 @@ export default function VagaCard({
                     <Text style={styles.infoText} numberOfLines={1}>{data}</Text>
                 </View>
             </View>
-            
-            <Text style={styles.descricao} numberOfLines={2}>
+
+            {/* <Text style={styles.descricao} numberOfLines={2}>
                 {descricao}
-            </Text>
-            
+            </Text> */}
+
             <View style={styles.footer}>
                 <View style={styles.tagsContainer}>
                     <View style={styles.tag}>
