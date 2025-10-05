@@ -1,6 +1,6 @@
-import { View, Text, Pressable, StyleSheet } from "react-native";
-import { AuthContext} from "@/src/data/context/AuthContext";
+import { AuthContext } from "@/data/context/AuthContext";
 import { useContext } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 export default function Dashboard() {
     const { token, tipoUsuario, loading, logout } = useContext(AuthContext);
     return (

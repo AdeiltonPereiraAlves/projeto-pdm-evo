@@ -35,7 +35,7 @@ type RootStackParamList = {
 type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
 export default function Login() {
-    const { login } = useContext(AuthContext);
+      const { login } = useContext(AuthContext);
     const { httpPost } = useAPI();
     const navigation = useNavigation<LoginScreenNavigationProp>();
 
@@ -56,9 +56,9 @@ export default function Login() {
             console.log("Dados do formulário:", data);
             const res = await httpPost("login", data);
 
-            console.log(res, "res")
-
-            if (res.ok) {
+          console.log(res, "res")
+          
+          if (res.ok) {
                 const responseData = await res.json();
                 console.log(responseData, "data")
                 
@@ -66,13 +66,13 @@ export default function Login() {
                 await login(responseData.token, responseData.usuario.tipo);
                 console.log("Login realizado com sucesso", tipoUsuario);
                 
-                navigation.reset({
-                    index: 0,
-                    routes: [
-                        { name: "Abas" }
-                    ],
-                });
-            } else {
+            navigation.reset({
+                index: 0,
+                routes: [
+                  { name: "Abas" }
+                ],
+              });
+          } else {
                 // Capturar erro do backend
                 try {
                     const errorData = await res.json();
@@ -87,7 +87,7 @@ export default function Login() {
                     console.log("Erro como texto:", errorText);
                     Alert.alert("Erro", errorText || "Erro ao fazer login");
                 }
-            }
+          }
         } catch (err) {
             console.log("Erro de conexão:", err);
             Alert.alert("Erro", "Erro de conexão. Verifique sua internet e tente novamente.");
@@ -109,9 +109,9 @@ export default function Login() {
                             control={control}
                             name="email"
                             render={({ field: { onChange, onBlur, value } }) => (
-                                <TextInput
+                        <TextInput
                                     style={[styles.input, errors.email && styles.inputError]}
-                                    placeholder="seu.email@exemplo.com"
+                            placeholder="seu.email@exemplo.com"
                                     value={value}
                                     onChangeText={onChange}
                                     onBlur={onBlur}
@@ -130,10 +130,10 @@ export default function Login() {
                             control={control}
                             name="senha"
                             render={({ field: { onChange, onBlur, value } }) => (
-                                <TextInput
+                    <TextInput
                                     style={[styles.input, errors.senha && styles.inputError]}
-                                    placeholder="***************"
-                                    secureTextEntry
+                        placeholder="***************"
+                        secureTextEntry
                                     value={value}
                                     onChangeText={onChange}
                                     onBlur={onBlur}

@@ -1,6 +1,6 @@
-import Icone from "@/src/components/shared/Icone";
-import Botao from "@/src/components/ui/Botao";
-import { AuthContext } from "@/src/data/context/AuthContext";
+import Icone from "@/components/shared/Icone";
+import Botao from "@/components/ui/Botao";
+import { AuthContext } from "@/data/context/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 import { useContext, useState } from "react";
 import {
