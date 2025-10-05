@@ -1,9 +1,9 @@
-import { AuthContext, AuthProvider } from "@/src/data/context/AuthContext";
-import { VagaProvider } from "@/src/data/context/VagaContext";
+import { AuthContext, AuthProvider } from "@/data/context/AuthContext";
+import { VagaProvider } from "@/data/context/VagaContext";
+import DetalheVaga from "@/screens/stack/DetalheVaga";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useContext } from "react";
-import DetalheVaga from "../../screens/stack/DetalheVaga";
 import Abas from "../tabs/index";
 import Autenticacao from "./Autenticacao";
 import Cadastro from "./Auth/Cadastro";

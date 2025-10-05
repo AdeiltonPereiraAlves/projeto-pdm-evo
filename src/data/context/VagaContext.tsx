@@ -1,4 +1,4 @@
-// import { Vaga } from "@/src/screens/tabs/voluntario/Home";
+// import { Vaga } from "@/screens/tabs/voluntario/Home";
 // import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
 // import useAPI from "../hooks/useAPI";
 // import { AuthContext } from "./AuthContext";
@@ -51,8 +51,8 @@
 //   if (!context) throw new Error("useVagas deve ser usado dentro de VagaProvider");
 //   return context;
 // };
-import { formatarData } from "@/src/components/shared/FormatarData";
-import { Vaga } from "@/src/screens/tabs/voluntario/Home";
+import { formatarData } from "@/components/shared/FormatarData";
+import { Vaga } from "@/screens/tabs/voluntario/Home";
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import useAPI from "../hooks/useAPI";
 import { AuthContext } from "./AuthContext";

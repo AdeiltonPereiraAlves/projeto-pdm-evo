@@ -1,7 +1,7 @@
-import BotaoVoltar from "@/src/components/ui/BotaoVoltar";
-import VagaDetalhe from "@/src/components/VagaDetalhe";
-import { AuthContext } from "@/src/data/context/AuthContext";
-import useAPI from "@/src/data/hooks/useAPI";
+import BotaoVoltar from "@/components/ui/BotaoVoltar";
+import VagaDetalhe from "@/components/vagas/VagaDetalhe";
+import { AuthContext } from "@/data/context/AuthContext";
+import useAPI from "@/data/hooks/useAPI";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useContext, useEffect, useState } from "react";

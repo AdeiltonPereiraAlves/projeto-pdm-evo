@@ -1,14 +1,14 @@
 import React from "react";
 import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
-import Icone from "../components/shared/Icone";
-import { vagaDetalhe } from "../screens/stack/DetalheVaga";
+import { vagaDetalhe } from "../../screens/stack/DetalheVaga";
+import Icone from "../shared/Icone";
 export default function VagaDetalhe({
   titulo,
   descricao,

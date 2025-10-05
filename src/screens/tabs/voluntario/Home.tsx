@@ -1,9 +1,9 @@
-import CategoryFilter from "@/src/components/ui/CategoryFilter";
-import HeaderHome from "@/src/components/ui/HeaderHome";
-import SearchBar from "@/src/components/ui/SearchBar";
-import VagaCard from "@/src/components/ui/VagaCard";
-import { AuthContext } from "@/src/data/context/AuthContext";
-import { useVagas } from "@/src/data/context/VagaContext";
+import CategoryFilter from "@/components/ui/CategoryFilter";
+import HeaderHome from "@/components/ui/HeaderHome";
+import SearchBar from "@/components/ui/SearchBar";
+import VagaCard from "@/components/vagas/VagaCard";
+import { AuthContext } from "@/data/context/AuthContext";
+import { useVagas } from "@/data/context/VagaContext";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "expo-router";
 import React, { useContext, useEffect, useState } from "react";
