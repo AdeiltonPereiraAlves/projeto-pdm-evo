@@ -1,11 +1,11 @@
 import React from "react";
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { vagaDetalhe } from "../../screens/stack/DetalheVaga";
 import Icone from "../shared/Icone";
@@ -15,14 +15,16 @@ export default function VagaDetalhe({
   localizacao,
   tipoTrabalho,
   ong,
-
+ requisitos,
   quantidade,
   status,
   duracao,
 }: vagaDetalhe) {
   const baseURL = "http://192.168.0.104:3001"
   const imagemURL = `${baseURL}/images/${ong.imagem}`;
+ 
   return (
+
     <View style={styles.container}>
 
       {/* Conteúdo rolável */}
@@ -36,15 +38,15 @@ export default function VagaDetalhe({
             <Text style={styles.titulo}>{titulo}</Text>
             <Text style={styles.ong}>{ong.nome || "ong"}</Text>
           </View>
-          <View style={styles.favoritoContainer}>
+          {/* <View style={styles.favoritoContainer}>
             <Icone nome="heart-outline" tamanho={24} color="#666" />
-          </View>
+          </View> */}
         </View>
 
         <View style={styles.infoContainer}>
           <View style={styles.infoItem}>
             <Icone nome="location-outline" tamanho={16} color="#666" />
-            <Text style={styles.infoText}>{localizacao}</Text>
+            <Text style={styles.infoText}  numberOfLines={2}>{localizacao}</Text>
           </View>
           <View style={styles.infoItem}>
             <Icone nome="briefcase-outline" tamanho={16} color="#666" />
@@ -59,8 +61,25 @@ export default function VagaDetalhe({
             <Text style={styles.infoText}>{duracao}</Text>
           </View>
         </View>
-
+       
+        <View style={styles.decricaoContainer}>
+        <Text style={styles.labelDescricao}>Sobre essa oportunidade</Text>
         <Text style={styles.descricao}>{descricao}</Text>
+        </View>
+        <View style={styles.decricaoContainer}>
+        <Text style={styles.labelDescricao}>Requesitos</Text>
+        <Text style={styles.requesitos}>{
+          requisitos?(
+            requisitos!.map((item:any, index) => (
+              <View key={index} style={styles.lista}>
+                <Icone nome="ellipse" tamanho={8} color="#000"/>
+                <Text style={{marginLeft:8}}>{item}</Text>
+                
+              </View>
+            ))
+          ):([])}
+          </Text>
+        </View>
 
         <View style={styles.tagsContainer}>
           <View style={styles.tag}>
@@ -100,7 +119,10 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
+    paddingBottom: 12,
     marginBottom: 16,
+     borderBottomWidth: 1,
+    borderBottomColor: "#eeeeeeff"
   },
   tituloContainer: {
     flex: 1,
@@ -122,22 +144,55 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     marginBottom: 16,
+    flexDirection: 'row',   // organiza os itens em linha
+    flexWrap: 'wrap',       // permite que quebre para a próxima linha
+    justifyContent: 'space-between',
+    
   },
   infoItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 6,
+    width: '48%',
+    height:"48%",           // cada item ocupa aproximadamente metade do container
+    flexDirection: 'row',    // ícone e texto lado a lado
+    alignItems: 'center',
+    marginBottom: 8, 
   },
   infoText: {
-    fontSize: 15,
-    color: "#444",
-    marginLeft: 6,
+    marginLeft: 4,           // espaço entre ícone e texto
+    fontSize: 14,
+    color: '#333',
   },
   descricao: {
     fontSize: 15,
     color: "#444",
     lineHeight: 22,
     marginBottom: 16,
+  },
+  requesitos: {
+    flex:1,
+    flexDirection:'column',
+    fontSize: 15,
+    height:"38%",
+    width:"88%",
+    color: "#444",
+    lineHeight: 22,
+    marginBottom: 16,
+  },
+  lista:{
+    flex:1,
+    width:"80%",
+    flexDirection:'row',
+    alignItems:'center',
+    margin: 4,
+    padding:4,
+   
+  },
+  decricaoContainer:{
+    flex:1,
+    height:"48%",
+    paddingVertical: 30,
+    flexDirection:'column',
+    
+
   },
   tagsContainer: {
     flexDirection: "row",
@@ -175,4 +230,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
+  labelDescricao:{
+    fontWeight:'bold',
+    paddingBottom:10,
+    fontSize:22,
+    color: "#295CA9"
+  }
 });

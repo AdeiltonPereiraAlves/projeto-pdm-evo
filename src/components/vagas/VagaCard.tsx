@@ -123,9 +123,11 @@ const styles = StyleSheet.create({
     infoItem: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent:'space-evenly',
         flex: 1,
         minWidth: 0,
-        maxWidth: '48%',
+        maxWidth: '35%',
+        
     },
     infoText: {
         fontSize: 14,
