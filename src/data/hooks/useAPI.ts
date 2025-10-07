@@ -114,5 +114,10 @@ export default function useAPI() {
             throw error;
         }
     }, [])
-    return { httpGet, httpPost, listarVagas}
+    const buscarStatusIncricao = async (uri: string, token?: string): Promise<Response> => {
+        const headers: HeadersInit = { "Content-Type": "application/json" };
+        if (token) headers.Authorization = `Bearer ${token}`;
+        return fetch(`${URL_BASE}/${uri}`, { method: "GET", headers });
+      };
+    return { httpGet, httpPost, listarVagas,buscarStatusIncricao}
 }

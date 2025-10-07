@@ -1,102 +1,3 @@
-import React from "react";
-import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
-} from "react-native";
-import { vagaDetalhe } from "../../screens/stack/DetalheVaga";
-import Icone from "../shared/Icone";
-export default function VagaDetalhe({
-  titulo,
-  descricao,
-  localizacao,
-  tipoTrabalho,
-  ong,
- requisitos,
-  quantidade,
-  status,
-  duracao,
-}: vagaDetalhe) {
-  const baseURL = "http://192.168.0.104:3001"
-  const imagemURL = `${baseURL}/images/${ong.imagem}`;
- 
-  return (
-
-    <View style={styles.container}>
-
-      {/* Conteúdo rolável */}
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <Image
-            source={{ uri: imagemURL }}
-            style={{ width: 100, height: 100, borderRadius: 60, backgroundColor: "#f5f5f5", marginRight: 8 }}
-          />
-          <View style={styles.tituloContainer}>
-            <Text style={styles.titulo}>{titulo}</Text>
-            <Text style={styles.ong}>{ong.nome || "ong"}</Text>
-          </View>
-          {/* <View style={styles.favoritoContainer}>
-            <Icone nome="heart-outline" tamanho={24} color="#666" />
-          </View> */}
-        </View>
-
-        <View style={styles.infoContainer}>
-          <View style={styles.infoItem}>
-            <Icone nome="location-outline" tamanho={16} color="#666" />
-            <Text style={styles.infoText}  numberOfLines={2}>{localizacao}</Text>
-          </View>
-          <View style={styles.infoItem}>
-            <Icone nome="briefcase-outline" tamanho={16} color="#666" />
-            <Text style={styles.infoText}>{tipoTrabalho}</Text>
-          </View>
-          <View style={styles.infoItem}>
-            <Icone nome="people-outline" tamanho={16} color="#666" />
-            <Text style={styles.infoText}>{quantidade}</Text>
-          </View>
-          <View style={styles.infoItem}>
-            <Icone nome="time-outline" tamanho={16} color="#666" />
-            <Text style={styles.infoText}>{duracao}</Text>
-          </View>
-        </View>
-       
-        <View style={styles.decricaoContainer}>
-        <Text style={styles.labelDescricao}>Sobre essa oportunidade</Text>
-        <Text style={styles.descricao}>{descricao}</Text>
-        </View>
-        <View style={styles.decricaoContainer}>
-        <Text style={styles.labelDescricao}>Requesitos</Text>
-        <Text style={styles.requesitos}>{
-          requisitos?(
-            requisitos!.map((item:any, index) => (
-              <View key={index} style={styles.lista}>
-                <Icone nome="ellipse" tamanho={8} color="#000"/>
-                <Text style={{marginLeft:8}}>{item}</Text>
-                
-              </View>
-            ))
-          ):([])}
-          </Text>
-        </View>
-
-        <View style={styles.tagsContainer}>
-          <View style={styles.tag}>
-            <Text style={styles.tagText}>{status}</Text>
-          </View>
-        </View>
-      </ScrollView>
-
-      {/* Botão fixo no rodapé */}
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.botaoCandidatar}>
-          <Text style={styles.botaoText}>Candidatar-se</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-}
 
 const styles = StyleSheet.create({
   container: {
@@ -121,7 +22,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingBottom: 12,
     marginBottom: 16,
-     borderBottomWidth: 1,
+    borderBottomWidth: 1,
     borderBottomColor: "#eeeeeeff"
   },
   tituloContainer: {
@@ -147,14 +48,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',   // organiza os itens em linha
     flexWrap: 'wrap',       // permite que quebre para a próxima linha
     justifyContent: 'space-between',
-    
+
   },
   infoItem: {
     width: '48%',
-    height:"48%",           // cada item ocupa aproximadamente metade do container
+    height: "48%",           // cada item ocupa aproximadamente metade do container
     flexDirection: 'row',    // ícone e texto lado a lado
     alignItems: 'center',
-    marginBottom: 8, 
+    marginBottom: 8,
   },
   infoText: {
     marginLeft: 4,           // espaço entre ícone e texto
@@ -168,30 +69,30 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   requesitos: {
-    flex:1,
-    flexDirection:'column',
+    flex: 1,
+    flexDirection: 'column',
     fontSize: 15,
-    height:"38%",
-    width:"88%",
+    height: "38%",
+    width: "88%",
     color: "#444",
     lineHeight: 22,
     marginBottom: 16,
   },
-  lista:{
-    flex:1,
-    width:"80%",
-    flexDirection:'row',
-    alignItems:'center',
+  lista: {
+    flex: 1,
+    width: "80%",
+    flexDirection: 'row',
+    alignItems: 'center',
     margin: 4,
-    padding:4,
-   
+    padding: 4,
+
   },
-  decricaoContainer:{
-    flex:1,
-    height:"48%",
+  decricaoContainer: {
+    flex: 1,
+    height: "48%",
     paddingVertical: 30,
-    flexDirection:'column',
-    
+    flexDirection: 'column',
+
 
   },
   tagsContainer: {
@@ -230,10 +131,180 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
-  labelDescricao:{
-    fontWeight:'bold',
-    paddingBottom:10,
-    fontSize:22,
+  labelDescricao: {
+    fontWeight: 'bold',
+    paddingBottom: 10,
+    fontSize: 22,
     color: "#295CA9"
   }
 });
+import { AuthContext } from "@/data/context/AuthContext";
+import useAPI from "@/data/hooks/useAPI";
+import React, { useContext, useEffect, useState } from "react";
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { vagaDetalhe } from "../../screens/stack/DetalheVaga";
+import Icone from "../shared/Icone";
+
+export interface Inscricao {
+  vagaId: string;
+  ativo: boolean;
+}
+
+export default function VagaDetalhe({
+  id,
+  titulo,
+  descricao,
+  localizacao,
+  tipoTrabalho,
+  ong,
+  requisitos,
+  quantidade,
+  status,
+  duracao,
+}: vagaDetalhe) {
+  const [ativo, setAtivo] = useState<boolean | undefined>(undefined);
+  const texto = ativo === undefined ? "Carregando..." : ativo ? "Inscrito" : "Candidatar-se";
+ const [idVaga, setIdVaga] = useState(id)
+  const { token } = useContext(AuthContext);
+  const { httpPost, httpGet,buscarStatusIncricao } = useAPI();
+  const baseURL = "http://192.168.0.104:3001";
+  const imagemURL = `${baseURL}/images/${ong.imagem}`;
+  const [loading, setLoading] = useState<boolean>(false);
+  // 🔹 Buscar status atual da inscrição quando entrar na tela
+  useEffect(() => {
+    if (!token) return;
+  
+    setAtivo(undefined); // resetar estado quando muda de vaga
+    let mounted = true;
+    
+    const buscarStatus = async () => {
+      try {
+        const res = await buscarStatusIncricao(`inscricao/status/${id}`, token);
+        if (!res.ok) return;
+        const data = await res.json();
+
+        console.log(data, "datascr")
+        if (mounted) setAtivo(Boolean(data.ativo));
+      } catch (err) {
+        console.log("Erro buscar status:", err);
+        if (mounted) setAtivo(false);
+      }
+    };
+  
+    buscarStatus();
+    return () => { mounted = false; };
+  }, [id, token]);
+  
+  // 2) Toggle inscrição
+  const handleInscricao = async () => {
+    if (!token) {
+      // redirecionar para login ou mostrar mensagem
+      console.log("Usuário não autenticado");
+      return;
+    }
+    if (loading) return;
+    setLoading(true);
+
+    const previous = ativo;
+    const novo = !previous; // optimistic
+
+    console.log(novo, "novo")
+    setAtivo(novo);
+
+    try {
+      const res = await httpPost(`inscricao/${id}`, { ativo: novo }, token);
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`HTTP ${res.status}: ${text}`);
+      }
+      const data = await res.json();
+      setAtivo(Boolean(data.ativo)); // garante alinhamento com backend
+    } catch (err) {
+      console.log("Erro ao togglear inscrição:", err);
+      setAtivo(previous); // rollback
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.header}>
+          <Image
+            source={{ uri: imagemURL }}
+            style={{
+              width: 100,
+              height: 100,
+              borderRadius: 60,
+              backgroundColor: "#f5f5f5",
+              marginRight: 8,
+            }}
+          />
+          <View style={styles.tituloContainer}>
+            <Text style={styles.titulo}>{titulo}</Text>
+            <Text style={styles.ong}>{ong.nome || "ONG"}</Text>
+          </View>
+        </View>
+
+        <View style={styles.infoContainer}>
+          <View style={styles.infoItem}>
+            <Icone nome="location-outline" tamanho={16} color="#666" />
+            <Text style={styles.infoText}>{localizacao}</Text>
+          </View>
+          <View style={styles.infoItem}>
+            <Icone nome="briefcase-outline" tamanho={16} color="#666" />
+            <Text style={styles.infoText}>{tipoTrabalho}</Text>
+          </View>
+          <View style={styles.infoItem}>
+            <Icone nome="people-outline" tamanho={16} color="#666" />
+            <Text style={styles.infoText}>{quantidade}</Text>
+          </View>
+          <View style={styles.infoItem}>
+            <Icone nome="time-outline" tamanho={16} color="#666" />
+            <Text style={styles.infoText}>{duracao}</Text>
+          </View>
+        </View>
+
+        <View style={styles.decricaoContainer}>
+          <Text style={styles.labelDescricao}>Sobre essa oportunidade</Text>
+          <Text style={styles.descricao}>{descricao}</Text>
+        </View>
+
+        <View style={styles.decricaoContainer}>
+          <Text style={styles.labelDescricao}>Requisitos</Text>
+          {requisitos?.map((item: any, index) => (
+            <View key={index} style={styles.lista}>
+              <Icone nome="ellipse" tamanho={8} color="#000" />
+              <Text style={{ marginLeft: 8 }}>{item}</Text>
+            </View>
+          ))}
+        </View>
+
+        <View style={styles.tagsContainer}>
+          <View style={styles.tag}>
+            <Text style={styles.tagText}>{status}</Text>
+          </View>
+        </View>
+      </ScrollView>
+
+      {/* Botão fixo */}
+      <View style={styles.footer}>
+        <TouchableOpacity
+          style={[styles.botaoCandidatar, ativo ? { backgroundColor: "#008EFF" } : undefined]}
+          onPress={handleInscricao}
+          disabled={loading}
+        >
+          <Text style={styles.botaoText}>{ativo ? "Inscrito" : "Candidatar-se"}</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
