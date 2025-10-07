@@ -1,6 +1,7 @@
 import Icone from "@/components/shared/Icone";
 import Botao from "@/components/ui/Botao";
 import { AuthContext } from "@/data/context/AuthContext";
+import { mascaraCNPJ, mascaraCPF, mascaraTelefone } from "@/utils/masks";
 import { useNavigation } from "@react-navigation/native";
 import { useContext, useState } from "react";
 import {
@@ -67,7 +68,7 @@ export default function Cadastro() {
         ? { nome, email, senha, cnpj, areaAtuacao, endereco, tipo: "ONG" }
         : { nome, email, senha, cpf, contato, habilidades, tipo: "VOLUNTARIO" };
 
-      const res = await fetch("http://192.168.0.104:3001/cadastro", {
+      const res = await fetch("http://10.3.147.119:3000/cadastro", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -184,9 +185,10 @@ export default function Cadastro() {
                     style={styles.input}
                     placeholder="00.000.000/0000-00"
                     value={cnpj}
-                    onChangeText={setCnpj}
+                    onChangeText={(text) => setCnpj(mascaraCNPJ(text))}
                     keyboardType="numeric"
                     placeholderTextColor="#939EAA"
+                    maxLength={18}
                   />
                 </View>
 
@@ -223,9 +225,10 @@ export default function Cadastro() {
                     style={styles.input}
                     placeholder="000.000.000-00"
                     value={cpf}
-                    onChangeText={setCpf}
+                    onChangeText={(text) => setCpf(mascaraCPF(text))}
                     keyboardType="numeric"
                     placeholderTextColor="#939EAA"
+                    maxLength={14}
                   />
                 </View>
 
@@ -236,9 +239,10 @@ export default function Cadastro() {
                     style={styles.input}
                     placeholder="(00) 00000-0000"
                     value={contato}
-                    onChangeText={setContato}
+                    onChangeText={(text) => setContato(mascaraTelefone(text))}
                     keyboardType="phone-pad"
                     placeholderTextColor="#939EAA"
+                    maxLength={15}
                   />
                 </View>
 
