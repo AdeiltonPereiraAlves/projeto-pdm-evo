@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-const URL_BASE ='http://192.168.0.104:3001' // process.env.URL_BASE
+const URL_BASE ='http://172.20.10.4:3001' // process.env.URL_BASE
 
 export default function useAPI() {
     const httpGet = useCallback(async function (uri: string, token?: string): Promise<any> {
@@ -31,6 +31,30 @@ export default function useAPI() {
                 body: JSON.stringify(body),
             });
             console.log('httpPost response:', response);
+            return response;
+        } catch (error) {
+            console.error('Erro na requisição:', error);
+            throw error;
+        }
+    }, [])
+
+    const httpPut = useCallback(async function (uri: string, body: any, token?: string): Promise<Response> {
+        console.log('httpPut called with:', uri, body);
+        try {
+            const headers: HeadersInit = {
+                'Content-Type': 'application/json',
+            }
+            
+            if (token) {
+                headers.Authorization = `Bearer ${token}`
+            }
+            
+            const response = await fetch(`${URL_BASE}/${uri}`, {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify(body),
+            });
+            console.log('httpPut response:', response);
             return response;
         } catch (error) {
             console.error('Erro na requisição:', error);
@@ -114,5 +138,5 @@ export default function useAPI() {
             throw error;
         }
     }, [])
-    return { httpGet, httpPost, listarVagas}
+    return { httpGet, httpPost, httpPut, listarVagas }
 }
