@@ -26,7 +26,7 @@ interface VoluntarioData {
     cpf: string;
     contato: string;
     habilidades: string;
-    fotoPerfil?: string;
+    imagem?: string;
 }
 
 export default function Perfil() {
@@ -44,7 +44,7 @@ export default function Perfil() {
         cpf: "",
         contato: "",
         habilidades: "",
-        fotoPerfil: "",
+        imagem: "",
     });
 
     const [editData, setEditData] = useState<VoluntarioData>({
@@ -54,7 +54,7 @@ export default function Perfil() {
         cpf: "",
         contato: "",
         habilidades: "",
-        fotoPerfil: "",
+        imagem: "",
     });
 
     useEffect(() => {
@@ -72,7 +72,7 @@ export default function Perfil() {
                 cpf: mascaraCPF(data.cpf || ""),
                 contato: mascaraTelefone(data.contato || ""),
             };
-            
+            console.log(data,"dataPerfil")
             setPerfil(dataFormatada);
             setEditData(dataFormatada);
         } catch (error) {
@@ -153,12 +153,15 @@ export default function Perfil() {
             >
                 {/* Foto de Perfil */}
                 <View style={styles.profileImageContainer}>
+
+                  
                     <Avatar
-                        uri={perfil.fotoPerfil}
+                        uri={perfil.imagem}
                         size={120}
                         iconName="person"
                         editable={editMode}
-                        onPress={() => Alert.alert("Foto", "Funcionalidade de troca de foto em desenvolvimento")}
+                        // onPress={() => Alert.alert("Foto", "Funcionalidade de troca de foto em desenvolvimento",)}
+                        onPress={()=> console.log(perfil.imagem, "perfil")}
                     />
                     <Text style={styles.profileName}>{perfil.nome}</Text>
                     <Text style={styles.profileType}>Voluntário</Text>

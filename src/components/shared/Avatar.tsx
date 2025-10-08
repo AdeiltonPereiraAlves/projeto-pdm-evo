@@ -26,12 +26,21 @@ export default function Avatar({
 }: AvatarProps) {
     const calculatedIconSize = iconSize || size / 2;
     const borderRadius = size / 2;
+    const baseURL = "http://192.168.0.104:3001"; // seu backend
+    const imagemURL = `${baseURL}/images/${uri}`;
+
 
     const content = (
         <View style={styles.container}>
-            {uri ? (
+         
+            {/* <Image
+
+                source={{ uri: imagemURL }}
+                style={{ width: 100, height: 100, borderRadius: 60, backgroundColor: "#f5f5f5", marginRight: 8 }}
+            /> */}
+            {imagemURL ? (
                 <Image 
-                    source={{ uri }} 
+                    source={{ uri:imagemURL}} 
                     style={[
                         styles.image,
                         {
@@ -58,15 +67,15 @@ export default function Avatar({
                     ]}
                 >
                     <Icone 
-                        nome={iconName} 
+                        nome="arrow-back-circle"
                         tamanho={calculatedIconSize} 
                         color="#fff" 
                     />
                 </View>
             )}
-            
+
             {editable && (
-                <Pressable 
+                <Pressable
                     style={[
                         styles.editButton,
                         {
@@ -77,10 +86,10 @@ export default function Avatar({
                     ]}
                     onPress={onPress}
                 >
-                    <Icone 
-                        nome="camera" 
-                        tamanho={size / 6} 
-                        color="#fff" 
+                    <Icone
+                        nome="camera"
+                        tamanho={size / 6}
+                        color="#fff"
                     />
                 </Pressable>
             )}

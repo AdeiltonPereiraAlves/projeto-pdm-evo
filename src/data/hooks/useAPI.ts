@@ -1,9 +1,12 @@
-import { useCallback } from 'react'
+import { API_URL } from '@env';
+import { useCallback } from 'react';
 
-const URL_BASE ='http://172.20.10.4:3001' // process.env.URL_BASE
+const URL_BASE = API_URL
 
 export default function useAPI() {
+
     const httpGet = useCallback(async function (uri: string, token?: string): Promise<any> {
+
         const headers: HeadersInit = {}
         if (token) {
             headers.Authorization = `Bearer ${token}`
@@ -15,7 +18,7 @@ export default function useAPI() {
     }, [])
 
     const httpPost = useCallback(async function (uri: string, body: any, token?: string): Promise<Response> {
-        console.log('httpPost called with:', uri, body);
+        console.log('httpPost called with:',URL_BASE,uri, body);
         try {
             const headers: HeadersInit = {
                 'Content-Type': 'application/json',
@@ -138,11 +141,11 @@ export default function useAPI() {
             throw error;
         }
     }, [])
-    return { httpGet, httpPost, httpPut, listarVagas }
     const buscarStatusIncricao = async (uri: string, token?: string): Promise<Response> => {
         const headers: HeadersInit = { "Content-Type": "application/json" };
         if (token) headers.Authorization = `Bearer ${token}`;
         return fetch(`${URL_BASE}/${uri}`, { method: "GET", headers });
       };
-    return { httpGet, httpPost, listarVagas,buscarStatusIncricao}
+    return { httpGet, httpPost, httpPut, listarVagas, buscarStatusIncricao}
+   
 }
