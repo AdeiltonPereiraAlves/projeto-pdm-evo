@@ -142,12 +142,12 @@ import { AuthContext } from "@/data/context/AuthContext";
 import useAPI from "@/data/hooks/useAPI";
 import React, { useContext, useEffect, useState } from "react";
 import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { vagaDetalhe } from "../../screens/stack/DetalheVaga";
 import Icone from "../shared/Icone";
@@ -173,7 +173,7 @@ export default function VagaDetalhe({
   const texto = ativo === undefined ? "Carregando..." : ativo ? "Inscrito" : "Candidatar-se";
  const [idVaga, setIdVaga] = useState(id)
   const { token } = useContext(AuthContext);
-  const { httpPost, httpGet,buscarStatusIncricao } = useAPI();
+  const { httpPost, httpGet, buscarStatusInscricao } = useAPI();
   const baseURL = "http://192.168.0.104:3001";
   const imagemURL = `${baseURL}/images/${ong.imagem}`;
   const [loading, setLoading] = useState<boolean>(false);
@@ -186,7 +186,7 @@ export default function VagaDetalhe({
     
     const buscarStatus = async () => {
       try {
-        const res = await buscarStatusIncricao(`inscricao/status/${id}`, token);
+        const res = await buscarStatusInscricao(`inscricao/status/${id}`, token);
         if (!res.ok) return;
         const data = await res.json();
 
