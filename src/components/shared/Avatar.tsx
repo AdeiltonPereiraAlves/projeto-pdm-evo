@@ -1,6 +1,8 @@
 import Icone from "@/components/shared/Icone";
+import { useVagas } from "@/data/context/VagaContext";
+import { API_URL } from '@env';
+import { useEffect } from "react";
 import { Image, Pressable, StyleSheet, View } from "react-native";
-
 export interface AvatarProps {
     uri?: string;
     size?: number;
@@ -26,9 +28,12 @@ export default function Avatar({
 }: AvatarProps) {
     const calculatedIconSize = iconSize || size / 2;
     const borderRadius = size / 2;
-    const baseURL = "http://192.168.0.104:3001"; // seu backend
+    const baseURL = API_URL// seu backend
     const imagemURL = `${baseURL}/images/${uri}`;
-
+    const{carregarFotoPerfil } = useVagas()
+    useEffect(()=> {
+        carregarFotoPerfil(imagemURL)
+    },[])
 
     const content = (
         <View style={styles.container}>

@@ -2,9 +2,7 @@
   "name": "evo",
   "main": "index.js",
   "version": "1.0.0",
-  "extra": {
-      "API_URL": "http://192.168.0.104:3001"
-    },
+
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
