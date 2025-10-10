@@ -32,7 +32,7 @@ interface OngData {
 
 export default function PerfilOng() {
     const { token, logout } = useContext(AuthContext);
-    const { httpGet, httpPost } = useAPI();
+    const { httpGet, httpPut } = useAPI();
     
     const [loading, setLoading] = useState(true);
     const [editMode, setEditMode] = useState(false);
@@ -88,7 +88,7 @@ export default function PerfilOng() {
     const handleSalvar = async () => {
         try {
             setSaving(true);
-            const response = await httpPost("perfil/ong/atualizar", editData, token || "");
+            const response = await httpPut("ong/editar", editData, token || "");
             
             if (response.ok) {
                 const data = await response.json();

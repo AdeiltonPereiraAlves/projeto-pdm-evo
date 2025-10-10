@@ -141,11 +141,32 @@ export default function useAPI() {
             throw error;
         }
     }, [])
-    const buscarStatusIncricao = async (uri: string, token?: string): Promise<Response> => {
+    const httpDelete = useCallback(async function (uri: string, token?: string): Promise<Response> {
+        console.log('httpDelete called with:', uri);
+        try {
+            const headers: HeadersInit = {}
+            
+            if (token) {
+                headers.Authorization = `Bearer ${token}`
+            }
+            
+            const response = await fetch(`${URL_BASE}/${uri}`, {
+                method: 'DELETE',
+                headers,
+            });
+            console.log('httpDelete response:', response);
+            return response;
+        } catch (error) {
+            console.error('Erro na requisição:', error);
+            throw error;
+        }
+    }, [])
+
+    const buscarStatusInscricao = async (uri: string, token?: string): Promise<Response> => {
         const headers: HeadersInit = { "Content-Type": "application/json" };
         if (token) headers.Authorization = `Bearer ${token}`;
         return fetch(`${URL_BASE}/${uri}`, { method: "GET", headers });
-      };
-    return { httpGet, httpPost, httpPut, listarVagas, buscarStatusIncricao}
-   
+    };
+    
+    return { httpGet, httpPost, httpPut, httpDelete, listarVagas, buscarStatusInscricao }
 }
