@@ -174,8 +174,8 @@ export default function VagaDetalhe({
  const [idVaga, setIdVaga] = useState(id)
   const { token } = useContext(AuthContext);
   const { httpPost, httpGet,buscarStatusIncricao } = useAPI();
-  const baseURL = "http://192.168.0.104:3001";
-  const imagemURL = `${baseURL}/images/${ong.imagem}`;
+  
+  const imagemURL = ong.imagem!;
   const [loading, setLoading] = useState<boolean>(false);
   // 🔹 Buscar status atual da inscrição quando entrar na tela
   useEffect(() => {

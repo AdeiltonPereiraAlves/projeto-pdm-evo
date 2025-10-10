@@ -29,25 +29,26 @@ export default function Avatar({
     const calculatedIconSize = iconSize || size / 2;
     const borderRadius = size / 2;
     const baseURL = API_URL// seu backend
-    const imagemURL = `${baseURL}/images/${uri}`;
-    const{carregarFotoPerfil } = useVagas()
-    useEffect(()=> {
+    const imagemURL = uri;
+    const { carregarFotoPerfil } = useVagas()
+    useEffect(() => {
+        
         carregarFotoPerfil(imagemURL)
-    },[])
+    }, [])
 
     const content = (
         <View style={styles.container}>
-         
+      
             {/* <Image
 
                 source={{ uri: imagemURL }}
                 style={{ width: 100, height: 100, borderRadius: 60, backgroundColor: "#f5f5f5", marginRight: 8 }}
             /> */}
             {imagemURL ? (
-                <Image 
-                    source={{ uri:imagemURL}} 
+                <Image
+                    source={{ uri: imagemURL }}
+                    resizeMode="cover"
                     style={[
-                        styles.image,
                         {
                             width: size,
                             height: size,
@@ -71,10 +72,10 @@ export default function Avatar({
                         }
                     ]}
                 >
-                    <Icone 
+                    <Icone
                         nome="arrow-back-circle"
-                        tamanho={calculatedIconSize} 
-                        color="#fff" 
+                        tamanho={calculatedIconSize}
+                        color="#f5f5f5"
                     />
                 </View>
             )}
@@ -111,9 +112,6 @@ export default function Avatar({
 const styles = StyleSheet.create({
     container: {
         position: "relative",
-    },
-    image: {
-        resizeMode: "cover",
     },
     placeholder: {
         justifyContent: "center",
