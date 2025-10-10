@@ -1,7 +1,7 @@
 import FormatarData from "@/components/shared/FormatarData";
 import Icone from "@/components/shared/Icone";
+import { Ionicons } from '@expo/vector-icons';
 import { Dimensions, Image, Pressable, StyleSheet, Text, View } from "react-native";
-
 const { width: screenWidth } = Dimensions.get("window");
 
 export type StatusInscricao = "pendente" | "aprovado" | "rejeitado";
@@ -27,8 +27,10 @@ export default function CandidaturaCard({
     onPress,
     onCancelar,
 }: CandidaturaCardProps) {
+    type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
     
-    const getStatusInfo = () => {
+
+    const getStatusInfo = (): { color: string; backgroundColor: string; icon: IoniconsName; text: string } => {
         switch (status) {
             case "aprovado":
                 return {
@@ -53,7 +55,6 @@ export default function CandidaturaCard({
                 };
         }
     };
-
     const statusInfo = getStatusInfo();
 
     return (

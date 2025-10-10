@@ -31,7 +31,7 @@ interface VoluntarioData {
 
 export default function Perfil() {
     const { token, logout } = useContext(AuthContext);
-    const { httpGet, httpPut } = useAPI();
+    
     const { httpGet, httpPost,httpPut } = useAPI();
     
     const [loading, setLoading] = useState(true);
@@ -98,7 +98,7 @@ export default function Perfil() {
                 // disponibilidade: stringParaArray(editData.disponibilidade),
               };
            
-            const response = await httpPut("voluntario/editar", dataParaSalvar, token || "");
+          
             
             if (response.ok) {
                 const data = await response.json();

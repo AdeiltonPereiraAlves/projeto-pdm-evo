@@ -142,12 +142,12 @@ import { AuthContext } from "@/data/context/AuthContext";
 import useAPI from "@/data/hooks/useAPI";
 import React, { useContext, useEffect, useState } from "react";
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { vagaDetalhe } from "../../screens/stack/DetalheVaga";
 import Icone from "../shared/Icone";
@@ -174,9 +174,8 @@ export default function VagaDetalhe({
  const [idVaga, setIdVaga] = useState(id)
   const { token } = useContext(AuthContext);
   const { httpPost, httpGet, buscarStatusInscricao } = useAPI();
-  const baseURL = "http://192.168.0.104:3001";
-  const imagemURL = `${baseURL}/images/${ong.imagem}`;
-  const { httpPost, httpGet,buscarStatusIncricao } = useAPI();
+ 
+ 
   
   const imagemURL = ong.imagem!;
   const [loading, setLoading] = useState<boolean>(false);

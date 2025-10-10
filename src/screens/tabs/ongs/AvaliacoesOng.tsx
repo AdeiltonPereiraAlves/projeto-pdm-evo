@@ -71,11 +71,12 @@ export default function AvaliacoesOng() {
 
     const avaliacoesExibidas = abaAtiva === "feitas" ? avaliacoesFeitas : avaliacoesRecebidas;
 
-    const calcularMediaNotas = () => {
-        if (avaliacoesRecebidas.length === 0) return 0;
+    const calcularMediaNotas = (): string => {
+        if (avaliacoesRecebidas.length === 0) return "0"; // string
         const soma = avaliacoesRecebidas.reduce((acc, av) => acc + av.nota, 0);
-        return (soma / avaliacoesRecebidas.length).toFixed(1);
+        return (soma / avaliacoesRecebidas.length).toFixed(1); // string
     };
+    
 
     if (loading && avaliacoesExibidas.length === 0) {
         return (
@@ -191,7 +192,7 @@ export default function AvaliacoesOng() {
                                 nota={avaliacao.nota}
                                 comentario={avaliacao.comentario}
                                 data={avaliacao.createdAt}
-                                tipo={abaAtiva}
+                                tipo={abaAtiva === "feitas" ? "feita" : "recebida"}
                                 onDelete={
                                     abaAtiva === "feitas"
                                         ? () => handleExcluir(avaliacao.id, avaliacao.voluntario?.nome || "Voluntário")

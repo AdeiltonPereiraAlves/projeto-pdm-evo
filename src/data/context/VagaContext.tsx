@@ -51,7 +51,7 @@
 //   if (!context) throw new Error("useVagas deve ser usado dentro de VagaProvider");
 //   return context;
 // };
-import { formatarData } from "@/components/shared/FormatarData";
+import { formatarData } from "@/components/shared/DataFormatada";
 import { Vaga } from "@/screens/tabs/voluntario/Home";
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import useAPI from "../hooks/useAPI";

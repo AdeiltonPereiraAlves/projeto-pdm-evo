@@ -38,7 +38,7 @@ export default function VagaCard({
                 <View style={styles.tituloContainer}>
                     <Text style={styles.titulo}>{titulo}</Text>
                     <Text style={styles.ong}>{nomeOng}</Text>
-                    <Text style={styles.ong}>{imagemOng}</Text>
+                   
                 </View>
                 {/* <View style={styles.favoritoContainer}>
                     <Icone nome="heart-outline" tamanho={20} color="#666" />

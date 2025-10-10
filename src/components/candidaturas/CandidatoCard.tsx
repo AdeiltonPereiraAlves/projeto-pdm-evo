@@ -1,7 +1,7 @@
 import Avatar from "@/components/shared/Avatar";
 import Icone from "@/components/shared/Icone";
+import { Ionicons } from '@expo/vector-icons';
 import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native";
-
 const { width: screenWidth } = Dimensions.get("window");
 
 export interface CandidatoCardProps {
@@ -26,7 +26,10 @@ export default function CandidatoCard({
     onRejeitar,
 }: CandidatoCardProps) {
     
-    const getStatusInfo = () => {
+    type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
+    
+
+    const getStatusInfo = (): { color: string; backgroundColor: string; icon: IoniconsName; text: string } => {
         switch (status) {
             case "aprovado":
                 return {
