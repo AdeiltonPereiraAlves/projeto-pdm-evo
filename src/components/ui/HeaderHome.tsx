@@ -1,5 +1,6 @@
+import { useVagas } from '@/data/context/VagaContext';
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Icone from '../shared/Icone';
 
 export interface HeaderHomeProps {
@@ -8,31 +9,38 @@ export interface HeaderHomeProps {
     onNotificationPress?: () => void;
 }
 
-export default function HeaderHome({ 
-    nomeUsuario, 
-    onProfilePress, 
-    onNotificationPress 
+export default function HeaderHome({
+    nomeUsuario,
+    onProfilePress,
+    onNotificationPress
 }: HeaderHomeProps) {
+    const { imagem } = useVagas()
     return (
         <View style={styles.container}>
             <View style={styles.greetingContainer}>
                 {/* <Text style={styles.greeting}>Olá,</Text>
                 <Text style={styles.nome}>{nomeUsuario}</Text> */}
+                
             </View>
-            
+
             <View style={styles.actionsContainer}>
-                <TouchableOpacity 
-                    style={styles.actionButton} 
+                <TouchableOpacity
+                    style={styles.actionButton}
                     onPress={onNotificationPress}
                 >
                     <Icone nome="notifications-outline" tamanho={24} color="#666" />
                 </TouchableOpacity>
-                
-                <TouchableOpacity 
-                    style={styles.profileButton} 
+
+                <TouchableOpacity
+                    style={styles.profileButton}
                     onPress={onProfilePress}
                 >
-                    <Icone nome="person-circle-outline" tamanho={32} color="#295CA9" />
+                    {imagem ?
+                        (<Image
+
+                            source={{ uri: imagem }}
+                            style={{ width: 40, height: 40, borderRadius: 60, backgroundColor: "#f5f5f5", marginRight: 8 }}
+                        />) : (<Icone nome="person-circle-outline" tamanho={32} color="#295CA9" />)}
                 </TouchableOpacity>
             </View>
         </View>
@@ -49,7 +57,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderBottomWidth: 1,
         borderBottomColor: '#f0f0f0',
-       paddingTop: 30
+        paddingTop: 30
     },
     greetingContainer: {
         flex: 1,

@@ -25,14 +25,14 @@ export default function VagaCard({
     tag,
     onPress
 }: VagaCardProps) {
-    const baseURL = "http://192.168.0.104:3001"; // seu backend
-    const imagemURL = `${baseURL}/images/${imagemOng}`;
+    // const baseURL = "http://192.168.0.104:3001"; // seu backend
+    // const imagemURL = `${baseURL}/images/${imagemOng}`;
  
     return (
         <TouchableOpacity style={styles.card} onPress={onPress}>
             <View style={styles.header}>
                     <Image
-                        source={{ uri: imagemURL }}
+                        source={{ uri:imagemOng }}
                         style={{ width: 100, height: 100, borderRadius: 60 , backgroundColor:"#f5f5f5", marginRight:8}}
                     />
                 <View style={styles.tituloContainer}>

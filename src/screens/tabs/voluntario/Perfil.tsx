@@ -3,7 +3,7 @@ import Icone from "@/components/shared/Icone";
 import Botao from "@/components/ui/Botao";
 import { AuthContext } from "@/data/context/AuthContext";
 import useAPI from "@/data/hooks/useAPI";
-import { mascaraCPF, mascaraTelefone } from "@/utils/masks";
+import { arrayParaString, mascaraCPF, mascaraTelefone, stringParaArray } from "@/utils/masks";
 import { useContext, useEffect, useState } from "react";
 import {
     ActivityIndicator,
@@ -32,10 +32,12 @@ interface VoluntarioData {
 export default function Perfil() {
     const { token, logout } = useContext(AuthContext);
     const { httpGet, httpPut } = useAPI();
+    const { httpGet, httpPost,httpPut } = useAPI();
     
     const [loading, setLoading] = useState(true);
     const [editMode, setEditMode] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [lista, setLista] = useState([]);
     
     const [perfil, setPerfil] = useState<VoluntarioData>({
         id: "",
@@ -64,13 +66,14 @@ export default function Perfil() {
     const carregarPerfil = async () => {
         try {
             setLoading(true);
-            const data = await httpGet("perfil/voluntario", token || "");
+            const data = await httpGet("buscar", token || "");
             
             // Aplica máscaras nos dados recebidos
             const dataFormatada = {
                 ...data,
                 cpf: mascaraCPF(data.cpf || ""),
                 contato: mascaraTelefone(data.contato || ""),
+                habilidades:arrayParaString(data.habilidades)
             };
             console.log(data,"dataPerfil")
             setPerfil(dataFormatada);
@@ -87,12 +90,22 @@ export default function Perfil() {
         try {
             setSaving(true);
             const response = await httpPut("voluntario/editar", editData, token || "");
+            console.log(editData, "editeData")
+            const dataParaSalvar = {
+                ...editData,
+                // interesses: stringParaArray(editData.interesses),
+                habilidades: stringParaArray(editData.habilidades),
+                // disponibilidade: stringParaArray(editData.disponibilidade),
+              };
+           
+            const response = await httpPut("voluntario/editar", dataParaSalvar, token || "");
             
             if (response.ok) {
                 const data = await response.json();
                 setPerfil(data);
                 setEditMode(false);
                 Alert.alert("Sucesso", "Perfil atualizado com sucesso!");
+                await carregarPerfil()
             } else {
                 Alert.alert("Erro", "Não foi possível atualizar o perfil");
             }
@@ -160,8 +173,8 @@ export default function Perfil() {
                         size={120}
                         iconName="person"
                         editable={editMode}
-                        // onPress={() => Alert.alert("Foto", "Funcionalidade de troca de foto em desenvolvimento",)}
-                        onPress={()=> console.log(perfil.imagem, "perfil")}
+                        onPress={() => Alert.alert("Foto", "Funcionalidade de troca de foto em desenvolvimento",)}
+                       
                     />
                     <Text style={styles.profileName}>{perfil.nome}</Text>
                     <Text style={styles.profileType}>Voluntário</Text>
@@ -433,6 +446,7 @@ const styles = StyleSheet.create({
         fontSize: screenWidth < 350 ? 14 : 16,
         color: "#1A1A1A",
         flex: 1,
+        margin:4,
         lineHeight: screenWidth < 350 ? 20 : 22,
     },
     buttonContainer: {

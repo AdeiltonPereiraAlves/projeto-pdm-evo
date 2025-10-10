@@ -161,4 +161,18 @@ export function validarTelefone(telefone: string): boolean {
     
     return true;
 }
-
+export function formatarArrays(dados:any) {
+    return {
+      ...dados,
+      habilidades: dados.habilidades?.join(", ") || "",
+     
+    };
+  }
+  export function arrayParaString(array: string[] | null | undefined): string {
+    if (!array || array.length === 0) return "";
+    return array.join(", "); // Ex: ["Educação", "Tecnologia"] → "Educação, Tecnologia"
+  }
+  export function stringParaArray(texto: string | null | undefined): string[] {
+    if (!texto) return [];
+    return texto.split(",").map((item) => item.trim()); // "Educação, Tecnologia" → ["Educação", "Tecnologia"]
+  }

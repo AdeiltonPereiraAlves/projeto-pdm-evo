@@ -32,7 +32,7 @@ export interface Vaga {
 export default function Home() {
     const navigation = useNavigation<HomeNavigationProp>();
     const { token } = useContext(AuthContext);
-    const { vagas, atualizarVagas, loading } = useVagas(); // ✅ pega tudo do contexto
+    const { vagas, atualizarVagas, loading, carregarFotoPerfil, imagem } = useVagas(); // ✅ pega tudo do contexto
 
     const [vagasFiltradas, setVagasFiltradas] = useState<Vaga[]>([]);
     const [searchText, setSearchText] = useState("");
@@ -94,10 +94,13 @@ export default function Home() {
     return (
         <View style={styles.container}>
             <HeaderHome
+              
                 nomeUsuario="Voluntário"
+                 
                 onProfilePress={() => Alert.alert("Perfil", "Abrir perfil")}
                 onNotificationPress={() => Alert.alert("Notificações", "Ver notificações")}
             />
+              
 
             <SearchBar
                 value={searchText}

@@ -1,6 +1,8 @@
 import Icone from "@/components/shared/Icone";
+import { useVagas } from "@/data/context/VagaContext";
+import { API_URL } from '@env';
+import { useEffect } from "react";
 import { Image, Pressable, StyleSheet, View } from "react-native";
-
 export interface AvatarProps {
     uri?: string;
     size?: number;
@@ -26,23 +28,27 @@ export default function Avatar({
 }: AvatarProps) {
     const calculatedIconSize = iconSize || size / 2;
     const borderRadius = size / 2;
-    const baseURL = "http://192.168.0.104:3001"; // seu backend
-    const imagemURL = `${baseURL}/images/${uri}`;
-
+    const baseURL = API_URL// seu backend
+    const imagemURL = uri;
+    const { carregarFotoPerfil } = useVagas()
+    useEffect(() => {
+        
+        carregarFotoPerfil(imagemURL)
+    }, [])
 
     const content = (
         <View style={styles.container}>
-         
+      
             {/* <Image
 
                 source={{ uri: imagemURL }}
                 style={{ width: 100, height: 100, borderRadius: 60, backgroundColor: "#f5f5f5", marginRight: 8 }}
             /> */}
             {imagemURL ? (
-                <Image 
-                    source={{ uri:imagemURL}} 
+                <Image
+                    source={{ uri: imagemURL }}
+                    resizeMode="cover"
                     style={[
-                        styles.image,
                         {
                             width: size,
                             height: size,
@@ -66,10 +72,10 @@ export default function Avatar({
                         }
                     ]}
                 >
-                    <Icone 
+                    <Icone
                         nome="arrow-back-circle"
-                        tamanho={calculatedIconSize} 
-                        color="#fff" 
+                        tamanho={calculatedIconSize}
+                        color="#f5f5f5"
                     />
                 </View>
             )}
@@ -106,9 +112,6 @@ export default function Avatar({
 const styles = StyleSheet.create({
     container: {
         position: "relative",
-    },
-    image: {
-        resizeMode: "cover",
     },
     placeholder: {
         justifyContent: "center",

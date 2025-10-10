@@ -61,6 +61,8 @@ interface VagaContextType {
   vagas: Vaga[];
   atualizarVagas: () => Promise<void>;
   loading: boolean;
+  imagem: any, 
+  carregarFotoPerfil: (imagem:any)=> any
 }
 
 export const VagaContext = createContext<VagaContextType | undefined>(undefined);
@@ -69,7 +71,14 @@ export const VagaProvider = ({ children }: { children: ReactNode }) => {
   const { logout, token } = useContext(AuthContext);
   const [vagas, setVagas] = useState<Vaga[]>([]);
   const [loading, setLoading] = useState(false);
+  const [imagem, setImagem] = useState()
   const { listarVagas } = useAPI();
+ 
+function carregarFotoPerfil(imagem:any){
+     setImagem(imagem)
+  }
+ 
+
 
   const atualizarVagas = async () => {
     if (!token) return;
@@ -105,7 +114,7 @@ export const VagaProvider = ({ children }: { children: ReactNode }) => {
   }, [token]);
 
   return (
-    <VagaContext.Provider value={{ vagas, atualizarVagas, loading }}>
+    <VagaContext.Provider value={{ vagas, atualizarVagas, loading ,carregarFotoPerfil, imagem}}>
       {children}
     </VagaContext.Provider>
   );
