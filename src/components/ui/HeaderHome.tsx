@@ -1,4 +1,3 @@
-import { useVagas } from '@/data/context/VagaContext';
 import React from 'react';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Icone from '../shared/Icone';
@@ -7,14 +6,16 @@ export interface HeaderHomeProps {
     nomeUsuario: string;
     onProfilePress?: () => void;
     onNotificationPress?: () => void;
+    imagem: any
 }
 
 export default function HeaderHome({
     nomeUsuario,
+    imagem,
     onProfilePress,
     onNotificationPress
 }: HeaderHomeProps) {
-    const { imagem } = useVagas()
+ 
     return (
         <View style={styles.container}>
             <View style={styles.greetingContainer}>

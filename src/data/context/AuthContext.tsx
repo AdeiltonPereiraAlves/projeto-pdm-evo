@@ -87,28 +87,59 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [tipoUsuario, setTipoUsuario] = useState<"ONG" | "VOLUNTARIO" | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // useEffect(() => {
+  //   const checkToken = async () => {
+  //     try {
+  //       const savedToken = await AsyncStorage.getItem("token");
+  //       const savedTipo = await AsyncStorage.getItem("tipoUsuario");
+
+  //       if (savedToken) {
+  //         // verifica expiração
+  //         const decoded: JWTPayload = jwtDecode(savedToken);
+  //         const now = Date.now() / 1000; // segundos
+
+  //         if (decoded.exp && decoded.exp > now) {
+  //           setToken(savedToken);
+  //           if (savedTipo) setTipoUsuario(savedTipo as "ONG" | "VOLUNTARIO");
+  //         } else {
+  //           // token expirado → limpa
+  //           await AsyncStorage.removeItem("token");
+  //           await AsyncStorage.removeItem("tipoUsuario");
+  //           await logout();
+  //           setToken(null);
+  //           setTipoUsuario(null);
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.error("Erro ao validar token:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+
+  //   checkToken();
+  // }, []);
+ 
   useEffect(() => {
     const checkToken = async () => {
       try {
         const savedToken = await AsyncStorage.getItem("token");
         const savedTipo = await AsyncStorage.getItem("tipoUsuario");
-
+  
         if (savedToken) {
-          // verifica expiração
           const decoded: JWTPayload = jwtDecode(savedToken);
-          const now = Date.now() / 1000; // segundos
-
+          const now = Date.now() / 1000;
+  
           if (decoded.exp && decoded.exp > now) {
             setToken(savedToken);
             if (savedTipo) setTipoUsuario(savedTipo as "ONG" | "VOLUNTARIO");
           } else {
-            // token expirado → limpa
-            await AsyncStorage.removeItem("token");
-            await AsyncStorage.removeItem("tipoUsuario");
-            await logout();
-            setToken(null);
-            setTipoUsuario(null);
+            await logout(); // Token expirou → logout automático
           }
+        } else {
+          setToken(null);
+          setTipoUsuario(null);
         }
       } catch (error) {
         console.error("Erro ao validar token:", error);
@@ -116,10 +147,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setLoading(false);
       }
     };
-
-
+  
+    // Verifica uma vez ao iniciar
     checkToken();
+  
+    // 🔹 Verifica a cada 30 segundos (ajuste conforme necessário)
+    const interval = setInterval(checkToken, 30000);
+  
+    // Limpa o intervalo quando o componente desmontar
+    return () => clearInterval(interval);
   }, []);
+  
+
+
+
+
+
+
+
+
+
+
+
 
   const login = async (t: string, tipo: "ONG" | "VOLUNTARIO") => {
     try {
@@ -131,6 +180,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error("Erro ao salvar no AsyncStorage:", error);
     }
   };
+
+
 
   const logout = async () => {
     try {

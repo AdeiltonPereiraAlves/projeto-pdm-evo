@@ -27,6 +27,8 @@ export interface Vaga {
     descricao: string;
     tipoTrabalho: string;
     categoria: string;
+    latitude: any,
+    longitude:any
 }
 
 export default function Home() {
@@ -45,6 +47,7 @@ export default function Home() {
     useEffect(() => {
         if (token) {
             atualizarVagas();
+            
         }
     }, [token]);
 
@@ -96,7 +99,7 @@ export default function Home() {
             <HeaderHome
               
                 nomeUsuario="Voluntário"
-                 
+                imagem={imagem} 
                 onProfilePress={() => Alert.alert("Perfil", "Abrir perfil")}
                 onNotificationPress={() => Alert.alert("Notificações", "Ver notificações")}
             />
