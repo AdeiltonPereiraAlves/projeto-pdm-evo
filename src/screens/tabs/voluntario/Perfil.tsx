@@ -2,6 +2,7 @@ import Avatar from "@/components/shared/Avatar";
 import Icone from "@/components/shared/Icone";
 import Botao from "@/components/ui/Botao";
 import { AuthContext } from "@/data/context/AuthContext";
+import { useVagas } from "@/data/context/VagaContext";
 import useAPI from "@/data/hooks/useAPI";
 import { arrayParaString, mascaraCPF, mascaraTelefone, stringParaArray } from "@/utils/masks";
 import { useContext, useEffect, useState } from "react";
@@ -38,6 +39,7 @@ export default function Perfil() {
     const [editMode, setEditMode] = useState(false);
     const [saving, setSaving] = useState(false);
     const [lista, setLista] = useState([]);
+    const {carregarFotoPerfil} =useVagas()
     
     const [perfil, setPerfil] = useState<VoluntarioData>({
         id: "",
@@ -77,6 +79,7 @@ export default function Perfil() {
             };
             console.log(data,"dataPerfil")
             setPerfil(dataFormatada);
+           
             setEditData(dataFormatada);
         } catch (error) {
             console.error("Erro ao carregar perfil:", error);

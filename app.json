@@ -3,7 +3,6 @@
     "name": "evo",
     "slug": "evo",
     "version": "1.0.0",
-   
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
     "scheme": "evo",
@@ -24,7 +23,7 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/icon.png"
     },
     "plugins": [
       "expo-router",
@@ -39,11 +38,19 @@
             "backgroundColor": "#000000"
           }
         }
+      ],
+      "expo-maps",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Permitir que o aplicativo acesse sua localização."
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
     }
+    
   }
 }

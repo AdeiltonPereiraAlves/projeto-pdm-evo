@@ -31,17 +31,15 @@ function AppNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {!token ? (
-        // 🔹 Usuário sem token válido → começa no Welcome
         <>
           <Stack.Screen name="Inicio" component={Inicio} />
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="Cadastro" component={Cadastro} />
         </>
       ) : (
-        // 🔹 Usuário logado (ONG ou Voluntário) → vai para Abas
         <>
           <Stack.Screen name="Abas" component={Abas} />
-          <Stack.Screen name="DetalheVaga" component={DetalheVaga} options={{ title: "Detalhe da Vaga" }} />
+          <Stack.Screen name="DetalheVaga" component={DetalheVaga} />
         </>
       )}
     </Stack.Navigator>
@@ -52,8 +50,8 @@ export default function App() {
   return (
     <AuthProvider>
       <VagaProvider>
-
         <NavigationContainer>
+
           <AppNavigator />
         </NavigationContainer>
       </VagaProvider>

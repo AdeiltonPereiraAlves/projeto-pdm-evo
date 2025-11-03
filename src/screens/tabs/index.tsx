@@ -1,5 +1,6 @@
 import Icone from "@/components/shared/Icone";
 import { AuthContext } from "@/data/context/AuthContext";
+import { useAuthRedirect } from "@/data/hooks/useAuthRedirect";
 import { createBottomTabNavigator, } from "@react-navigation/bottom-tabs";
 import { useContext } from "react";
 import { StyleSheet, Text, View } from 'react-native';
@@ -12,7 +13,11 @@ import Perfil from "./voluntario/Perfil";
 const Tab = createBottomTabNavigator();
 
 export default function Abas({navigation}:any) {
-    const{tipoUsuario} = useContext(AuthContext)
+    const{tipoUsuario,token} = useContext(AuthContext)
+
+
+    useAuthRedirect()
+    
     function tab(nome: string, componente: any, label: string, icone: string) {
         return (
             <Tab.Screen

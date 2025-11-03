@@ -28,14 +28,14 @@
 //     const verificarToken = async () => {
 //       try {
 //          await atualizarVagas()
-        
+
 //       } catch (error: any) {
 //         if (error.response?.status === 401) { // token expirado
 //           logout(); // dispara o logout global
 //         }
 //       }
 //     };
-  
+
 //     verificarToken();
 //   }, [token]);
 
@@ -61,8 +61,8 @@ interface VagaContextType {
   vagas: Vaga[];
   atualizarVagas: () => Promise<void>;
   loading: boolean;
-  imagem: any, 
-  carregarFotoPerfil: (imagem:any)=> any
+  imagem: any,
+  carregarFotoPerfil: (imagem: any) => any
 }
 
 export const VagaContext = createContext<VagaContextType | undefined>(undefined);
@@ -73,11 +73,11 @@ export const VagaProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const [imagem, setImagem] = useState()
   const { listarVagas } = useAPI();
- 
-function carregarFotoPerfil(imagem:any){
-     setImagem(imagem)
+
+  function carregarFotoPerfil(imagem: any) {
+    setImagem(imagem)
   }
- 
+
 
 
   const atualizarVagas = async () => {
@@ -92,11 +92,15 @@ function carregarFotoPerfil(imagem:any){
         imagemOng: vaga.ong?.imagem || "",
         areaAtuacao: Array.isArray(vaga.areaAtuacao) ? vaga.areaAtuacao : [],
         localizacao: vaga.localizacao || "Local não informado",
-        data: formatarData(vaga.createdAt) ,
+        latitude: Number(vaga.latitude),
+        longitude: Number(vaga.longitude),
+        data: formatarData(vaga.createdAt),
         descricao: vaga.descricao || "Descrição não disponível",
         tipoTrabalho: vaga.tipoTrabalho || "",
         categoria: vaga.categoria || "Geral",
       }));
+      console.log(vagasFormatadas, "vagasFormatadas")
+      carregarFotoPerfil(vagasFormatadas.imagemOng)
       setVagas(vagasFormatadas);
     } catch (error: any) {
       console.error("Erro ao atualizar vagas:", error);
@@ -114,7 +118,7 @@ function carregarFotoPerfil(imagem:any){
   }, [token]);
 
   return (
-    <VagaContext.Provider value={{ vagas, atualizarVagas, loading ,carregarFotoPerfil, imagem}}>
+    <VagaContext.Provider value={{ vagas, atualizarVagas, loading, carregarFotoPerfil, imagem }}>
       {children}
     </VagaContext.Provider>
   );
