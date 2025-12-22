@@ -60,10 +60,10 @@ export default function Login() {
           
           if (res.ok) {
                 const responseData = await res.json();
-                console.log(responseData, "data")
+                console.log(responseData, "dataUsuario")
                 
                 const tipoUsuario = responseData.usuario.tipo as "ONG" | "VOLUNTARIO";
-                await login(responseData.token, responseData.usuario.tipo);
+                await login(responseData.token, responseData.usuario.tipo, responseData.usuario);
                 console.log("Login realizado com sucesso", tipoUsuario);
                 
             navigation.reset({

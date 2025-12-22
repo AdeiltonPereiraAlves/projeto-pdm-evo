@@ -33,7 +33,7 @@ export interface Vaga {
 
 export default function Home() {
     const navigation = useNavigation<HomeNavigationProp>();
-    const { token } = useContext(AuthContext);
+    const { token , usuario} = useContext(AuthContext);
     const { vagas, atualizarVagas, loading, carregarFotoPerfil, imagem } = useVagas(); // ✅ pega tudo do contexto
 
     const [vagasFiltradas, setVagasFiltradas] = useState<Vaga[]>([]);
@@ -99,7 +99,7 @@ export default function Home() {
             <HeaderHome
               
                 nomeUsuario="Voluntário"
-                imagem={imagem} 
+                imagem={usuario.imagem!} 
                 onProfilePress={() => Alert.alert("Perfil", "Abrir perfil")}
                 onNotificationPress={() => Alert.alert("Notificações", "Ver notificações")}
             />
