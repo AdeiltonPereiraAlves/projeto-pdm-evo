@@ -92,14 +92,14 @@ export default function Perfil() {
     const handleSalvar = async () => {
         try {
             setSaving(true);
-            const response = await httpPut("voluntario/editar", editData, token || "");
             console.log(editData, "editeData")
             const dataParaSalvar = {
                 ...editData,
                 // interesses: stringParaArray(editData.interesses),
                 habilidades: stringParaArray(editData.habilidades),
                 // disponibilidade: stringParaArray(editData.disponibilidade),
-              };
+            };
+            const response = await httpPut("voluntario/editar", dataParaSalvar, token || "");
            
           
             
