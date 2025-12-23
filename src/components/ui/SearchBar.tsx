@@ -59,6 +59,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 2,
         marginRight: 12,
+        marginTop:50
     },
     input: {
         flex: 1,

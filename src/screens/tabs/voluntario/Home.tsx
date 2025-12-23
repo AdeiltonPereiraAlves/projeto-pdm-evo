@@ -1,5 +1,4 @@
 import CategoryFilter from "@/components/ui/CategoryFilter";
-import HeaderHome from "@/components/ui/HeaderHome";
 import SearchBar from "@/components/ui/SearchBar";
 import VagaCard from "@/components/vagas/VagaCard";
 import { AuthContext } from "@/data/context/AuthContext";
@@ -96,13 +95,13 @@ export default function Home() {
 
     return (
         <View style={styles.container}>
-            <HeaderHome
+            {/* <HeaderHome
               
                 nomeUsuario="Voluntário"
                 imagem={usuario.imagem!} 
                 onProfilePress={() => Alert.alert("Perfil", "Abrir perfil")}
                 onNotificationPress={() => Alert.alert("Notificações", "Ver notificações")}
-            />
+            /> */}
               
 
             <SearchBar
