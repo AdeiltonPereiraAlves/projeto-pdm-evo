@@ -46,13 +46,15 @@ export default function Home() {
     useEffect(() => {
         if (token) {
             atualizarVagas();
-            
+            console.log(vagas, "vagasFiltradas")
         }
+        console.log(vagas, "vagasFiltradas")
     }, [token]);
 
     // Filtra vagas sempre que mudar o array ou filtros
     useEffect(() => {
         filtrarVagas();
+        console.log(vagas, "vagasFiltradas")
     }, [vagas, searchText, selectedCategory]);
 
     const filtrarVagas = () => {
