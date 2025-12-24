@@ -5,7 +5,10 @@ import { AuthContext } from "@/data/context/AuthContext";
 import { useVagas } from "@/data/context/VagaContext";
 import useAPI from "@/data/hooks/useAPI";
 import { arrayParaString, mascaraCPF, mascaraTelefone, stringParaArray } from "@/utils/masks";
+import { API_URL } from "@env";
+import * as ImagePicker from "expo-image-picker";
 import { useContext, useEffect, useState } from "react";
+
 import {
     ActivityIndicator,
     Alert,
@@ -32,15 +35,15 @@ interface VoluntarioData {
 
 export default function Perfil() {
     const { token, logout } = useContext(AuthContext);
-    
-    const { httpGet, httpPost,httpPut } = useAPI();
-    
+
+    const { httpGet, httpPost, httpPut } = useAPI();
+
     const [loading, setLoading] = useState(true);
     const [editMode, setEditMode] = useState(false);
     const [saving, setSaving] = useState(false);
     const [lista, setLista] = useState([]);
-    const {carregarFotoPerfil} =useVagas()
-    
+    const { carregarFotoPerfil } = useVagas()
+
     const [perfil, setPerfil] = useState<VoluntarioData>({
         id: "",
         nome: "",
@@ -69,17 +72,17 @@ export default function Perfil() {
         try {
             setLoading(true);
             const data = await httpGet("buscar", token || "");
-            
+
             // Aplica máscaras nos dados recebidos
             const dataFormatada = {
                 ...data,
                 cpf: mascaraCPF(data.cpf || ""),
                 contato: mascaraTelefone(data.contato || ""),
-                habilidades:arrayParaString(data.habilidades)
+                habilidades: arrayParaString(data.habilidades)
             };
-            console.log(data,"dataPerfil")
+            console.log(data, "dataPerfil")
             setPerfil(dataFormatada);
-           
+
             setEditData(dataFormatada);
         } catch (error) {
             console.error("Erro ao carregar perfil:", error);
@@ -100,9 +103,9 @@ export default function Perfil() {
                 // disponibilidade: stringParaArray(editData.disponibilidade),
             };
             const response = await httpPut("voluntario/editar", dataParaSalvar, token || "");
-           
-          
-            
+
+
+
             if (response.ok) {
                 const data = await response.json();
                 setPerfil(data);
@@ -144,13 +147,69 @@ export default function Perfil() {
             </View>
         );
     }
+    // trocar foto de perfil
+    const escolherImagem = async () => {
+        const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+        if (!permission.granted) {
+            Alert.alert("Permissão necessária", "Permita acesso à galeria");
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            quality: 0.8,
+            allowsEditing: true,
+            aspect: [1, 1],
+        });
+
+        if (!result.canceled) {
+            await uploadImagem(result.assets[0]);
+        }
+    };
+    const uploadImagem = async (image: ImagePicker.ImagePickerAsset) => {
+        try {
+            const formData = new FormData();
+
+            formData.append("imagem", {
+                uri: image.uri,
+                name: "perfil.jpg",
+                type: "image/jpeg",
+            } as any);
+
+            const response = await fetch(
+                `${API_URL}/voluntario/imagem/perfil`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        // ❌ NÃO colocar Content-Type
+                    },
+                    body: formData,
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Erro ao enviar imagem");
+            }
+
+            const data = await response.json();
+
+            setPerfil((prev) => ({ ...prev, imagem: data.imagem }));
+            Alert.alert("Sucesso", "Foto atualizada!");
+
+        } catch (error) {
+            console.error(error);
+            Alert.alert("Erro", "Não foi possível atualizar a foto");
+        }
+    };
 
     return (
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <Pressable 
-                    onPress={() => Alert.alert("Configurações", "Navegação para configurações em desenvolvimento")} 
+                <Pressable
+                    onPress={() => Alert.alert("Configurações", "Navegação para configurações em desenvolvimento")}
                     style={styles.settingsButton}
                 >
                     <Icone nome="settings-outline" tamanho={24} color="#295CA9" />
@@ -163,21 +222,22 @@ export default function Perfil() {
                 )}
             </View>
 
-            <ScrollView 
+            <ScrollView
                 style={styles.scrollView}
                 showsVerticalScrollIndicator={false}
             >
                 {/* Foto de Perfil */}
                 <View style={styles.profileImageContainer}>
 
-                  
+
                     <Avatar
                         uri={perfil.imagem}
                         size={120}
                         iconName="person"
                         editable={editMode}
-                        onPress={() => Alert.alert("Foto", "Funcionalidade de troca de foto em desenvolvimento",)}
-                       
+                        onPress={editMode ? escolherImagem : undefined}
+
+
                     />
                     <Text style={styles.profileName}>{perfil.nome}</Text>
                     <Text style={styles.profileType}>Voluntário</Text>
@@ -206,7 +266,7 @@ export default function Perfil() {
                     {/* Email */}
                     <View style={styles.inputGroup}>
                         <Text style={styles.label}>E-mail</Text>
-                        {editMode ? (
+                        {/* {editMode ? (
                             <TextInput
                                 style={styles.input}
                                 value={editData.email}
@@ -216,17 +276,17 @@ export default function Perfil() {
                                 autoCapitalize="none"
                                 placeholderTextColor="#939EAA"
                             />
-                        ) : (
-                            <View style={styles.infoCard}>
-                                <Icone nome="mail-outline" tamanho={20} color="#295CA9" />
-                                <Text style={styles.infoText}>{perfil.email}</Text>
-                            </View>
-                        )}
+                        ) : ( */}
+                        <View style={styles.infoCard}>
+                            <Icone nome="mail-outline" tamanho={20} color="#295CA9" />
+                            <Text style={styles.infoText}>{perfil.email}</Text>
+                        </View>
+                        {/* )} */}
                     </View>
 
                     {/* CPF */}
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>CPF</Text>
+                        {/* <Text style={styles.label}>CPF</Text>
                         {editMode ? (
                             <TextInput
                                 style={styles.input}
@@ -240,12 +300,12 @@ export default function Perfil() {
                                 placeholderTextColor="#939EAA"
                                 maxLength={14}
                             />
-                        ) : (
-                            <View style={styles.infoCard}>
-                                <Icone nome="card-outline" tamanho={20} color="#295CA9" />
-                                <Text style={styles.infoText}>{perfil.cpf || "Não informado"}</Text>
-                            </View>
-                        )}
+                        ) : ( */}
+                        <View style={styles.infoCard}>
+                            <Icone nome="card-outline" tamanho={20} color="#295CA9" />
+                            <Text style={styles.infoText}>{perfil.cpf || "Não informado"}</Text>
+                        </View>
+                        {/* )} */}
                     </View>
 
                     {/* Contato */}
@@ -449,7 +509,7 @@ const styles = StyleSheet.create({
         fontSize: screenWidth < 350 ? 14 : 16,
         color: "#1A1A1A",
         flex: 1,
-        margin:4,
+        margin: 4,
         lineHeight: screenWidth < 350 ? 20 : 22,
     },
     buttonContainer: {
