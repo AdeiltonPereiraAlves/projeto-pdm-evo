@@ -1,6 +1,6 @@
 import InscricaoCard from '@/components/inscricoes/InscricaoCard';
 import { AuthContext } from '@/data/context/AuthContext';
-import useAPI from '@/data/hooks/useAPI';
+import useInscricoes from '@/data/hooks/useIncricoes';
 import { useNavigation } from "expo-router";
 import { useContext, useEffect, useState } from 'react';
 import {
@@ -16,32 +16,28 @@ import { HomeNavigationProp, Vaga } from './Home';
 export default function Inscricoes() {
     const navigation = useNavigation<HomeNavigationProp>();
     const { token } = useContext(AuthContext);
-    const { httpGet } = useAPI();
+    const { fetchInscricoes,cancelarInscricao } = useInscricoes();
+    
 
     const [inscricoes, setInscricoes] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
-    async function fetchInscricoes() {
-        try {
-            const res = await httpGet('listar/inscricoes', token!);
-            setInscricoes(res.inscricoes || []);
-        } catch (error) {
-            console.log('Erro ao buscar inscrições:', error);
-        } finally {
-            setLoading(false);
-        }
-    }
+    async  function carregarIncricoes(){
+      const res = await fetchInscricoes(token!);
+      setInscricoes(res);
+      setLoading(false);
+   }
 
     const onRefresh = async () => {
         setRefreshing(true);
-        await fetchInscricoes();
+        carregarIncricoes()
         setRefreshing(false);
     };
 
     useEffect(() => {
-        if (token) fetchInscricoes();
-    }, [token]);
+        if (token) carregarIncricoes();
+    }, [token, inscricoes]);
     
         const handleVagaPress = (vaga: Vaga) => {
             navigation.navigate("DetalheVaga", { vagaId: vaga.id });
@@ -71,7 +67,7 @@ export default function Inscricoes() {
                         localizacao={item.vaga?.localizacao}
                         onPress={() => handleVagaPress(item.vaga)}
                         onCancelar={() =>
-                            console.log('Cancelar inscrição:', item.id)
+                           cancelarInscricao(item.id, token!)
                         }
                     />
                 )}
