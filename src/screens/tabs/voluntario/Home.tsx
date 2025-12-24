@@ -1,5 +1,4 @@
 import CategoryFilter from "@/components/ui/CategoryFilter";
-import HeaderHome from "@/components/ui/HeaderHome";
 import SearchBar from "@/components/ui/SearchBar";
 import VagaCard from "@/components/vagas/VagaCard";
 import { AuthContext } from "@/data/context/AuthContext";
@@ -33,7 +32,7 @@ export interface Vaga {
 
 export default function Home() {
     const navigation = useNavigation<HomeNavigationProp>();
-    const { token } = useContext(AuthContext);
+    const { token , usuario} = useContext(AuthContext);
     const { vagas, atualizarVagas, loading, carregarFotoPerfil, imagem } = useVagas(); // ✅ pega tudo do contexto
 
     const [vagasFiltradas, setVagasFiltradas] = useState<Vaga[]>([]);
@@ -47,13 +46,15 @@ export default function Home() {
     useEffect(() => {
         if (token) {
             atualizarVagas();
-            
+            console.log(vagas, "vagasFiltradas")
         }
+        console.log(vagas, "vagasFiltradas")
     }, [token]);
 
     // Filtra vagas sempre que mudar o array ou filtros
     useEffect(() => {
         filtrarVagas();
+        console.log(vagas, "vagasFiltradas")
     }, [vagas, searchText, selectedCategory]);
 
     const filtrarVagas = () => {
@@ -96,13 +97,13 @@ export default function Home() {
 
     return (
         <View style={styles.container}>
-            <HeaderHome
+            {/* <HeaderHome
               
                 nomeUsuario="Voluntário"
-                imagem={imagem} 
+                imagem={usuario.imagem!} 
                 onProfilePress={() => Alert.alert("Perfil", "Abrir perfil")}
                 onNotificationPress={() => Alert.alert("Notificações", "Ver notificações")}
-            />
+            /> */}
               
 
             <SearchBar

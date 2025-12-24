@@ -1,17 +1,18 @@
 import Icone from "@/components/shared/Icone";
 import Botao from "@/components/ui/Botao";
 import { AuthContext } from "@/data/context/AuthContext";
+import useAPI from "@/data/hooks/useAPI";
 import { mascaraCNPJ, mascaraCPF, mascaraTelefone } from "@/utils/masks";
 import { useNavigation } from "@react-navigation/native";
 import { useContext, useState } from "react";
 import {
-    Dimensions,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  Dimensions,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
@@ -20,26 +21,29 @@ type TipoUsuario = "ONG" | "VOLUNTARIO";
 
 export default function Cadastro() {
   const { login } = useContext(AuthContext);
+  const { httpPost } = useAPI()
   const navigation = useNavigation<any>();
-  
+
   // Estado para tipo de usuário
   const [tipoUsuario, setTipoUsuario] = useState<TipoUsuario>("VOLUNTARIO");
-  
+
   // Estados comuns
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
-  
+
   // Estados específicos ONG
   const [cnpj, setCnpj] = useState("");
   const [areaAtuacao, setAreaAtuacao] = useState("");
   const [endereco, setEndereco] = useState("");
-  
+
   // Estados específicos Voluntário
   const [cpf, setCpf] = useState("");
   const [contato, setContato] = useState("");
   const [habilidades, setHabilidades] = useState("");
+  const [interesses, setInteresses] = useState("");
+  const [disponibilidade, setDisponibilidade] = useState("");
 
   const handleCadastro = async () => {
     // Validações básicas
@@ -58,30 +62,63 @@ export default function Cadastro() {
       return;
     }
 
-    if (tipoUsuario === "VOLUNTARIO" && (!cpf || !contato || !habilidades)) {
+    if (tipoUsuario === "VOLUNTARIO" && (!cpf || !contato || !habilidades || !disponibilidade || !interesses)) {
       alert("Por favor, preencha todos os campos do Voluntário");
       return;
     }
 
     try {
-      const body = tipoUsuario === "ONG" 
+      const contatoLimpo = contato.replace(/\D/g, "");
+      
+      const body = tipoUsuario === "ONG"
         ? { nome, email, senha, cnpj, areaAtuacao, endereco, tipo: "ONG" }
-        : { nome, email, senha, cpf, contato, habilidades, tipo: "VOLUNTARIO" };
+        : {
+          nome,
+          email,
+          tipo: "VOLUNTARIO",
+          senha,
+          contato: contatoLimpo,
+          cpf,
+          habilidades: habilidades
+            .split(",")
+            .map(h => h.trim())
+            .filter(h => h.length > 0),
+          interesses: interesses
+            .split(",")
+            .map(i => i.trim())
+            .filter(i => i.length > 0),
+          disponibilidade: disponibilidade
+            .split(",")
+            .map(d =>
+              d
+                .trim()
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+            )
+            .filter(d => d.length > 0),
+        };
 
-      const res = await fetch("http://10.3.147.119:3000/cadastro", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
+      console.log(body, "bodyCadastro")
+      const res = await httpPost("registrar", body);
+
+
+
+      // const res = await fetch("http://10.3.147.119:3000/cadastro", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify(body),
+      // });
 
       const data = await res.json();
-
+      console.log(data, "dataCadastro")
       if (res.ok) {
-        await login(data.token, tipoUsuario);
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "Abas" }],
-        });
+        await login(data.token, tipoUsuario, data.usuario);
+        // navigation.reset({
+        //   index: 0,
+        //   routes: [{ name: "Abas" }],
+        // });
+        navigation.navigate("Abas");
       } else {
         alert(data.msg || "Erro ao cadastrar");
       }
@@ -259,6 +296,33 @@ export default function Cadastro() {
                     placeholderTextColor="#939EAA"
                   />
                 </View>
+                {/* Interesses */}
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Interesses</Text>
+                  <TextInput
+                    style={[styles.input, styles.inputMultiline]}
+                    placeholder="Ex: Ensino, Tecnologia, Culinária"
+                    value={interesses}
+                    onChangeText={setInteresses}
+                    multiline
+                    numberOfLines={3}
+                    placeholderTextColor="#939EAA"
+                  />
+                </View>
+                {/* Disponibilidae */}
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Disponibilidade</Text>
+                  <TextInput
+                    style={[styles.input, styles.inputMultiline]}
+                    placeholder="Ex: Manhã, Tarde, Noite"
+                    value={disponibilidade}
+                    onChangeText={setDisponibilidade}
+                    multiline
+                    numberOfLines={3}
+                    placeholderTextColor="#939EAA"
+                  />
+                </View>
+
               </>
             )}
 

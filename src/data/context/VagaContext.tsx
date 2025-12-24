@@ -85,22 +85,29 @@ export const VagaProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     try {
       const dados = await listarVagas(token);
+
+      console.log(dados, "dadosVagas")
+      if (!Array.isArray(dados)) {
+        setVagas([]);
+        return;
+      }
       const vagasFormatadas = dados.map((vaga: any) => ({
-        id: vaga.id || vaga._id,
+        id: vaga.id,
         titulo: vaga.titulo,
         nomeOng: vaga.ong?.nome || "ONG",
         imagemOng: vaga.ong?.imagem || "",
-        areaAtuacao: Array.isArray(vaga.areaAtuacao) ? vaga.areaAtuacao : [],
+        areaAtuacao: vaga.ong?.areaAtuacao ?? [],
         localizacao: vaga.localizacao || "Local não informado",
         latitude: Number(vaga.latitude),
         longitude: Number(vaga.longitude),
         data: formatarData(vaga.createdAt),
         descricao: vaga.descricao || "Descrição não disponível",
         tipoTrabalho: vaga.tipoTrabalho || "",
-        categoria: vaga.categoria || "Geral",
+        categoria: vaga.ong?.areaAtuacao?.[0] || "Geral",
       }));
+
       console.log(vagasFormatadas, "vagasFormatadas")
-      carregarFotoPerfil(vagasFormatadas.imagemOng)
+      // carregarFotoPerfil(vagasFormatadas.imagemOng)
       setVagas(vagasFormatadas);
     } catch (error: any) {
       console.error("Erro ao atualizar vagas:", error);

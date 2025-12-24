@@ -71,9 +71,10 @@ import React, { createContext, useEffect, useState } from "react";
 export interface AuthContextType {
   token: string | null;
   tipoUsuario: "ONG" | "VOLUNTARIO" | null;
-  login: (token: string, tipo: "ONG" | "VOLUNTARIO") => Promise<void>;
+  login: (token: string, tipo: "ONG" | "VOLUNTARIO", dat:any) => Promise<void>;
   logout: () => Promise<void>;
   loading: boolean;
+  usuario:any
 }
 
 interface JWTPayload {
@@ -86,6 +87,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [tipoUsuario, setTipoUsuario] = useState<"ONG" | "VOLUNTARIO" | null>(null);
   const [loading, setLoading] = useState(true);
+  const [usuario, setUsuario] = useState()
 
   // useEffect(() => {
   //   const checkToken = async () => {
@@ -170,10 +172,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 
 
-  const login = async (t: string, tipo: "ONG" | "VOLUNTARIO") => {
+  const login = async (t: string, tipo: "ONG" | "VOLUNTARIO", data :any) => {
     try {
       setToken(t);
       setTipoUsuario(tipo);
+      setUsuario(data)
       await AsyncStorage.setItem("token", t);
       await AsyncStorage.setItem("tipoUsuario", tipo);
     } catch (error) {
@@ -198,7 +201,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   
 
   return (
-    <AuthContext.Provider value={{ token, tipoUsuario, login, logout, loading }}>
+    <AuthContext.Provider value={{ token, tipoUsuario, login, logout, loading, usuario }}>
       {children}
     </AuthContext.Provider>
   );

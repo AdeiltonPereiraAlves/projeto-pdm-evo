@@ -25,8 +25,7 @@ export default function VagaCard({
     tag,
     onPress
 }: VagaCardProps) {
-    // const baseURL = "http://192.168.0.104:3001"; // seu backend
-    // const imagemURL = `${baseURL}/images/${imagemOng}`;
+   
  
     return (
         <TouchableOpacity style={styles.card} onPress={onPress}>

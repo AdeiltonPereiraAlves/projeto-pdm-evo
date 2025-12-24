@@ -66,8 +66,8 @@ export default function useAPI() {
     }, [])
 
     const listarVagas = useCallback(async function (token: string): Promise<any> {
-        console.log('listarVagas called with token:', token);
         try {
+            console.log('listarVagas called with token:', token, URL_BASE);
             const response = await fetch(`${URL_BASE}/listar/vagas`, {
                 method: 'GET',
                 headers: {
