@@ -2,7 +2,7 @@ import { useVagas } from '@/data/context/VagaContext';
 import * as Location from 'expo-location';
 import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import MapView, { Callout, Marker, Region } from "react-native-maps";
+import MapView, { Marker, Region } from "react-native-maps";
 
 // Calcula distância aproximada entre duas coordenadas (km)
 function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
@@ -99,23 +99,6 @@ export default function Map() {
 
       {/* Marcadores das vagas */}
       {vagasProximas.map((vaga) => (
-        // <Marker
-        //   key={vaga.id}
-        //   coordinate={{
-        //     latitude: Number(vaga.latitude),
-        //     longitude: Number(vaga.longitude),
-        //   }}
-        //   pinColor="red"
-        //   title={vaga.titulo}
-        //   description={vaga.descricao}
-        // >
-        //   {/* <Callout>
-        //     <View style={styles.calloutContainer}>
-        //       <Text style={styles.calloutTitle}>{vaga.titulo}</Text>
-        //       <Text style={styles.calloutDescription}>{vaga.descricao}</Text>
-        //     </View>
-        //   </Callout> */}
-        // </Marker>
         <Marker
           key={vaga.id}
           coordinate={{
@@ -123,22 +106,39 @@ export default function Map() {
             longitude: Number(vaga.longitude),
           }}
           pinColor="red"
-           tracksViewChanges={false}
+          title={vaga.titulo}
+          description={vaga.descricao}
         >
-          <Callout tooltip>
-            <View style={styles.calloutSmall}>
-              <Text style={styles.calloutTitleSmall}>
-                {vaga.titulo}
-              </Text>
-              <Text
-                style={styles.calloutDescriptionSmall}
-                numberOfLines={2}   // 👈 limita o texto
-              >
-                {vaga.descricao}
-              </Text>
+          {/* <Callout>
+            <View style={styles.calloutContainer}>
+              <Text style={styles.calloutTitle}>{vaga.titulo}</Text>
+              <Text style={styles.calloutDescription}>{vaga.descricao}</Text>
             </View>
-          </Callout>
+          </Callout> */}
         </Marker>
+        // <Marker
+        //   key={vaga.id}
+        //   coordinate={{
+        //     latitude: Number(vaga.latitude),
+        //     longitude: Number(vaga.longitude),
+        //   }}
+        //   pinColor="red"
+        //    tracksViewChanges={false}
+        // >
+        //   <Callout tooltip>
+        //     <View style={styles.calloutSmall}>
+        //       <Text style={styles.calloutTitleSmall}>
+        //         {vaga.titulo}
+        //       </Text>
+        //       <Text
+        //         style={styles.calloutDescriptionSmall}
+        //         numberOfLines={2}   // 👈 limita o texto
+        //       >
+        //         {vaga.descricao}
+        //       </Text>
+        //     </View>
+        //   </Callout>
+        // </Marker>
       ))}
     </MapView>
   );

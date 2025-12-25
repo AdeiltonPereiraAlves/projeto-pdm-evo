@@ -1,19 +1,417 @@
+// import Avatar from "@/components/shared/Avatar";
+// import Icone from "@/components/shared/Icone";
+// import Botao from "@/components/ui/Botao";
+// import { AuthContext } from "@/data/context/AuthContext";
+// import { useVagas } from "@/data/context/VagaContext";
+// import useAPI from "@/data/hooks/useAPI";
+// import { arrayParaString, mascaraCPF, mascaraTelefone, stringParaArray } from "@/utils/masks";
+// import { API_URL } from "@env";
+// import * as ImagePicker from "expo-image-picker";
+// import { useContext, useEffect, useState } from "react";
+
+// import {
+//     ActivityIndicator,
+//     Alert,
+//     Dimensions,
+//     Pressable,
+//     ScrollView,
+//     StyleSheet,
+//     Text,
+//     TextInput,
+//     View,
+// } from "react-native";
+
+// const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
+
+// interface VoluntarioData {
+//     id: string;
+//     nome: string;
+//     email: string;
+//     cpf: string;
+//     contato: string;
+//     habilidades: string;
+//     imagem?: string;
+// }
+
+// export default function Perfil() {
+//     const { token, logout } = useContext(AuthContext);
+
+//     const { httpGet, httpPost, httpPut } = useAPI();
+
+//     const [loading, setLoading] = useState(true);
+//     const [editMode, setEditMode] = useState(false);
+//     const [saving, setSaving] = useState(false);
+//     const [lista, setLista] = useState([]);
+//     const { carregarFotoPerfil } = useVagas()
+
+//     const [perfil, setPerfil] = useState<VoluntarioData>({
+//         id: "",
+//         nome: "",
+//         email: "",
+//         cpf: "",
+//         contato: "",
+//         habilidades: "",
+//         imagem: "",
+//     });
+
+//     const [editData, setEditData] = useState<VoluntarioData>({
+//         id: "",
+//         nome: "",
+//         email: "",
+//         cpf: "",
+//         contato: "",
+//         habilidades: "",
+//         imagem: "",
+//     });
+
+//     useEffect(() => {
+//         carregarPerfil();
+//     }, []);
+
+//     const carregarPerfil = async () => {
+//         try {
+//             setLoading(true);
+//             const data = await httpGet("buscar", token || "");
+
+//             // Aplica máscaras nos dados recebidos
+//             const dataFormatada = {
+//                 ...data,
+//                 cpf: mascaraCPF(data.cpf || ""),
+//                 contato: mascaraTelefone(data.contato || ""),
+//                 habilidades: arrayParaString(data.habilidades)
+//             };
+//             console.log(data, "dataPerfil")
+//             setPerfil(dataFormatada);
+
+//             setEditData(dataFormatada);
+//         } catch (error) {
+//             console.error("Erro ao carregar perfil:", error);
+//             Alert.alert("Erro", "Não foi possível carregar os dados do perfil");
+//         } finally {
+//             setLoading(false);
+//         }
+//     };
+
+//     const handleSalvar = async () => {
+//         try {
+//             setSaving(true);
+//             console.log(editData, "editeData")
+//             const dataParaSalvar = {
+//                 ...editData,
+//                 // interesses: stringParaArray(editData.interesses),
+//                 habilidades: stringParaArray(editData.habilidades),
+//                 // disponibilidade: stringParaArray(editData.disponibilidade),
+//             };
+//             const response = await httpPut("voluntario/editar", dataParaSalvar, token || "");
+
+
+
+//             if (response.ok) {
+//                 const data = await response.json();
+//                 setPerfil(data);
+//                 setEditMode(false);
+//                 Alert.alert("Sucesso", "Perfil atualizado com sucesso!");
+//                 await carregarPerfil()
+//             } else {
+//                 Alert.alert("Erro", "Não foi possível atualizar o perfil");
+//             }
+//         } catch (error) {
+//             console.error("Erro ao salvar perfil:", error);
+//             Alert.alert("Erro", "Erro ao salvar as alterações");
+//         } finally {
+//             setSaving(false);
+//         }
+//     };
+
+//     const handleCancelar = () => {
+//         setEditData(perfil);
+//         setEditMode(false);
+//     };
+
+//     const handleLogout = () => {
+//         Alert.alert(
+//             "Sair",
+//             "Tem certeza que deseja sair?",
+//             [
+//                 { text: "Cancelar", style: "cancel" },
+//                 { text: "Sair", onPress: logout, style: "destructive" }
+//             ]
+//         );
+//     };
+
+//     if (loading) {
+//         return (
+//             <View style={styles.loadingContainer}>
+//                 <ActivityIndicator size="large" color="#295CA9" />
+//                 <Text style={styles.loadingText}>Carregando perfil...</Text>
+//             </View>
+//         );
+//     }
+//     // trocar foto de perfil
+//     const escolherImagem = async () => {
+//         const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+//         if (!permission.granted) {
+//             Alert.alert("Permissão necessária", "Permita acesso à galeria");
+//             return;
+//         }
+
+//         const result = await ImagePicker.launchImageLibraryAsync({
+//             mediaTypes: ImagePicker.MediaTypeOptions.Images,
+//             quality: 0.8,
+//             allowsEditing: true,
+//             aspect: [1, 1],
+//         });
+
+//         if (!result.canceled) {
+//             await uploadImagem(result.assets[0]);
+//         }
+//     };
+//     const uploadImagem = async (image: ImagePicker.ImagePickerAsset) => {
+//         try {
+//             const formData = new FormData();
+
+//             formData.append("imagem", {
+//                 uri: image.uri,
+//                 name: "perfil.jpg",
+//                 type: "image/jpeg",
+//             } as any);
+
+//             const response = await fetch(
+//                 `${API_URL}/voluntario/imagem/perfil`,
+//                 {
+//                     method: "PATCH",
+//                     headers: {
+//                         Authorization: `Bearer ${token}`,
+//                         // ❌ NÃO colocar Content-Type
+//                     },
+//                     body: formData,
+//                 }
+//             );
+
+//             if (!response.ok) {
+//                 throw new Error("Erro ao enviar imagem");
+//             }
+
+//             const data = await response.json();
+
+//             setPerfil((prev) => ({ ...prev, imagem: data.imagem }));
+//             Alert.alert("Sucesso", "Foto atualizada!");
+
+//         } catch (error) {
+//             console.error(error);
+//             Alert.alert("Erro", "Não foi possível atualizar a foto");
+//         }
+//     };
+
+//     return (
+//         <View style={styles.container}>
+//             {/* Header */}
+//             <View style={styles.header}>
+//                 <Pressable
+//                     onPress={() => Alert.alert("Configurações", "Navegação para configurações em desenvolvimento")}
+//                     style={styles.settingsButton}
+//                 >
+//                     <Icone nome="settings-outline" tamanho={24} color="#295CA9" />
+//                 </Pressable>
+//                 <Text style={styles.headerTitle}>Meu Perfil</Text>
+//                 {!editMode && (
+//                     <Pressable onPress={() => setEditMode(true)} style={styles.editButton}>
+//                         <Icone nome="create-outline" tamanho={24} color="#295CA9" />
+//                     </Pressable>
+//                 )}
+//             </View>
+
+//             <ScrollView
+//                 style={styles.scrollView}
+//                 showsVerticalScrollIndicator={false}
+//             >
+//                 {/* Foto de Perfil */}
+//                 <View style={styles.profileImageContainer}>
+
+
+//                     <Avatar
+//                         uri={perfil.imagem}
+//                         size={120}
+//                         iconName="person"
+//                         editable={editMode}
+//                         onPress={editMode ? escolherImagem : undefined}
+
+
+//                     />
+//                     <Text style={styles.profileName}>{perfil.nome}</Text>
+//                     <Text style={styles.profileType}>Voluntário</Text>
+//                 </View>
+
+//                 {/* Informações do Perfil */}
+//                 <View style={styles.formContainer}>
+//                     {/* Nome */}
+//                     <View style={styles.inputGroup}>
+//                         <Text style={styles.label}>Nome Completo</Text>
+//                         {editMode ? (
+//                             <TextInput
+//                                 style={styles.input}
+//                                 value={editData.nome}
+//                                 onChangeText={(text) => setEditData({ ...editData, nome: text })}
+//                                 placeholder="Seu nome completo"
+//                                 placeholderTextColor="#939EAA"
+//                             />
+//                         ) : (
+//                             <View style={styles.infoCard}>
+//                                 <Text style={styles.infoText}>{perfil.nome}</Text>
+//                             </View>
+//                         )}
+//                     </View>
+
+//                     {/* Email */}
+//                     <View style={styles.inputGroup}>
+//                         <Text style={styles.label}>E-mail</Text>
+//                         {/* {editMode ? (
+//                             <TextInput
+//                                 style={styles.input}
+//                                 value={editData.email}
+//                                 onChangeText={(text) => setEditData({ ...editData, email: text })}
+//                                 placeholder="seu.email@exemplo.com"
+//                                 keyboardType="email-address"
+//                                 autoCapitalize="none"
+//                                 placeholderTextColor="#939EAA"
+//                             />
+//                         ) : ( */}
+//                         <View style={styles.infoCard}>
+//                             <Icone nome="mail-outline" tamanho={20} color="#295CA9" />
+//                             <Text style={styles.infoText}>{perfil.email}</Text>
+//                         </View>
+//                         {/* )} */}
+//                     </View>
+
+//                     {/* CPF */}
+//                     <View style={styles.inputGroup}>
+//                         {/* <Text style={styles.label}>CPF</Text>
+//                         {editMode ? (
+//                             <TextInput
+//                                 style={styles.input}
+//                                 value={editData.cpf}
+//                                 onChangeText={(text) => {
+//                                     const cpfFormatado = mascaraCPF(text);
+//                                     setEditData({ ...editData, cpf: cpfFormatado });
+//                                 }}
+//                                 placeholder="000.000.000-00"
+//                                 keyboardType="numeric"
+//                                 placeholderTextColor="#939EAA"
+//                                 maxLength={14}
+//                             />
+//                         ) : ( */}
+//                         <View style={styles.infoCard}>
+//                             <Icone nome="card-outline" tamanho={20} color="#295CA9" />
+//                             <Text style={styles.infoText}>{perfil.cpf || "Não informado"}</Text>
+//                         </View>
+//                         {/* )} */}
+//                     </View>
+
+//                     {/* Contato */}
+//                     <View style={styles.inputGroup}>
+//                         <Text style={styles.label}>Contato</Text>
+//                         {editMode ? (
+//                             <TextInput
+//                                 style={styles.input}
+//                                 value={editData.contato}
+//                                 onChangeText={(text) => {
+//                                     const telefoneFormatado = mascaraTelefone(text);
+//                                     setEditData({ ...editData, contato: telefoneFormatado });
+//                                 }}
+//                                 placeholder="(00) 00000-0000"
+//                                 keyboardType="phone-pad"
+//                                 placeholderTextColor="#939EAA"
+//                                 maxLength={15}
+//                             />
+//                         ) : (
+//                             <View style={styles.infoCard}>
+//                                 <Icone nome="call-outline" tamanho={20} color="#295CA9" />
+//                                 <Text style={styles.infoText}>{perfil.contato || "Não informado"}</Text>
+//                             </View>
+//                         )}
+//                     </View>
+
+//                     {/* Habilidades */}
+//                     <View style={styles.inputGroup}>
+//                         <Text style={styles.label}>Habilidades</Text>
+//                         {editMode ? (
+//                             <TextInput
+//                                 style={[styles.input, styles.inputMultiline]}
+//                                 value={editData.habilidades}
+//                                 onChangeText={(text) => setEditData({ ...editData, habilidades: text })}
+//                                 placeholder="Ex: Ensino, Tecnologia, Culinária"
+//                                 multiline
+//                                 numberOfLines={4}
+//                                 textAlignVertical="top"
+//                                 placeholderTextColor="#939EAA"
+//                             />
+//                         ) : (
+//                             <View style={[styles.infoCard, styles.habilidadesCard]}>
+//                                 <Icone nome="star-outline" tamanho={20} color="#295CA9" />
+//                                 <Text style={styles.infoText}>{perfil.habilidades}</Text>
+//                             </View>
+//                         )}
+//                     </View>
+//                 </View>
+
+//                 {/* Botões de Ação */}
+//                 <View style={styles.buttonContainer}>
+//                     {editMode ? (
+//                         <>
+//                             <Botao
+//                                 title={saving ? "Salvando..." : "Salvar Alterações"}
+//                                 color="#295CA9"
+//                                 textColor="#fff"
+//                                 onPress={handleSalvar}
+//                                 disabled={saving}
+//                             />
+//                             <View style={{ marginTop: 12 }}>
+//                                 <Botao
+//                                     title="Cancelar"
+//                                     color="#fff"
+//                                     textColor="#295CA9"
+//                                     onPress={handleCancelar}
+//                                     variant="secondary"
+//                                 />
+//                             </View>
+//                         </>
+//                     ) : (
+//                         <Botao
+//                             title="Sair da Conta"
+//                             color="#DC2626"
+//                             textColor="#fff"
+//                             onPress={handleLogout}
+//                         />
+//                     )}
+//                 </View>
+//             </ScrollView>
+//         </View>
+//     );
+// }
+
+
 import Avatar from "@/components/shared/Avatar";
 import Icone from "@/components/shared/Icone";
 import Botao from "@/components/ui/Botao";
 import { AuthContext } from "@/data/context/AuthContext";
 import { useVagas } from "@/data/context/VagaContext";
 import useAPI from "@/data/hooks/useAPI";
-import { arrayParaString, mascaraCPF, mascaraTelefone, stringParaArray } from "@/utils/masks";
+import {
+    arrayParaString,
+    mascaraCPF,
+    mascaraTelefone,
+    stringParaArray
+} from "@/utils/masks";
 import { API_URL } from "@env";
 import * as ImagePicker from "expo-image-picker";
 import { useContext, useEffect, useState } from "react";
-
 import {
     ActivityIndicator,
     Alert,
     Dimensions,
     Pressable,
+    RefreshControl,
     ScrollView,
     StyleSheet,
     Text,
@@ -35,14 +433,13 @@ interface VoluntarioData {
 
 export default function Perfil() {
     const { token, logout } = useContext(AuthContext);
-
-    const { httpGet, httpPost, httpPut } = useAPI();
+    const { httpGet, httpPut } = useAPI();
+    const { carregarFotoPerfil } = useVagas();
 
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [saving, setSaving] = useState(false);
-    const [lista, setLista] = useState([]);
-    const { carregarFotoPerfil } = useVagas()
 
     const [perfil, setPerfil] = useState<VoluntarioData>({
         id: "",
@@ -54,15 +451,7 @@ export default function Perfil() {
         imagem: "",
     });
 
-    const [editData, setEditData] = useState<VoluntarioData>({
-        id: "",
-        nome: "",
-        email: "",
-        cpf: "",
-        contato: "",
-        habilidades: "",
-        imagem: "",
-    });
+    const [editData, setEditData] = useState<VoluntarioData>({ ...perfil });
 
     useEffect(() => {
         carregarPerfil();
@@ -70,87 +459,57 @@ export default function Perfil() {
 
     const carregarPerfil = async () => {
         try {
-            setLoading(true);
             const data = await httpGet("buscar", token || "");
 
-            // Aplica máscaras nos dados recebidos
             const dataFormatada = {
                 ...data,
                 cpf: mascaraCPF(data.cpf || ""),
                 contato: mascaraTelefone(data.contato || ""),
-                habilidades: arrayParaString(data.habilidades)
+                habilidades: arrayParaString(data.habilidades),
             };
-            console.log(data, "dataPerfil")
-            setPerfil(dataFormatada);
 
+            setPerfil(dataFormatada);
             setEditData(dataFormatada);
         } catch (error) {
-            console.error("Erro ao carregar perfil:", error);
-            Alert.alert("Erro", "Não foi possível carregar os dados do perfil");
+            Alert.alert("Erro", "Não foi possível carregar o perfil");
         } finally {
             setLoading(false);
+            setRefreshing(false);
         }
+    };
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await carregarPerfil();
     };
 
     const handleSalvar = async () => {
         try {
             setSaving(true);
-            console.log(editData, "editeData")
-            const dataParaSalvar = {
+
+            const payload = {
                 ...editData,
-                // interesses: stringParaArray(editData.interesses),
                 habilidades: stringParaArray(editData.habilidades),
-                // disponibilidade: stringParaArray(editData.disponibilidade),
             };
-            const response = await httpPut("voluntario/editar", dataParaSalvar, token || "");
 
-
+            const response = await httpPut("voluntario/editar", payload, token || "");
 
             if (response.ok) {
-                const data = await response.json();
-                setPerfil(data);
+                Alert.alert("Sucesso", "Perfil atualizado!");
                 setEditMode(false);
-                Alert.alert("Sucesso", "Perfil atualizado com sucesso!");
-                await carregarPerfil()
+                carregarPerfil();
             } else {
-                Alert.alert("Erro", "Não foi possível atualizar o perfil");
+                Alert.alert("Erro", "Erro ao atualizar perfil");
             }
-        } catch (error) {
-            console.error("Erro ao salvar perfil:", error);
-            Alert.alert("Erro", "Erro ao salvar as alterações");
+        } catch {
+            Alert.alert("Erro", "Erro ao salvar alterações");
         } finally {
             setSaving(false);
         }
     };
 
-    const handleCancelar = () => {
-        setEditData(perfil);
-        setEditMode(false);
-    };
-
-    const handleLogout = () => {
-        Alert.alert(
-            "Sair",
-            "Tem certeza que deseja sair?",
-            [
-                { text: "Cancelar", style: "cancel" },
-                { text: "Sair", onPress: logout, style: "destructive" }
-            ]
-        );
-    };
-
-    if (loading) {
-        return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#295CA9" />
-                <Text style={styles.loadingText}>Carregando perfil...</Text>
-            </View>
-        );
-    }
-    // trocar foto de perfil
     const escolherImagem = async () => {
         const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
         if (!permission.granted) {
             Alert.alert("Permissão necessária", "Permita acesso à galeria");
             return;
@@ -164,56 +523,51 @@ export default function Perfil() {
         });
 
         if (!result.canceled) {
-            await uploadImagem(result.assets[0]);
+            uploadImagem(result.assets[0]);
         }
     };
+
     const uploadImagem = async (image: ImagePicker.ImagePickerAsset) => {
         try {
             const formData = new FormData();
-
             formData.append("imagem", {
                 uri: image.uri,
                 name: "perfil.jpg",
                 type: "image/jpeg",
             } as any);
 
-            const response = await fetch(
-                `${API_URL}/voluntario/imagem/perfil`,
-                {
-                    method: "PATCH",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        // ❌ NÃO colocar Content-Type
-                    },
-                    body: formData,
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error("Erro ao enviar imagem");
-            }
+            const response = await fetch(`${API_URL}/voluntario/imagem/perfil`, {
+                method: "PATCH",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                body: formData,
+            });
 
             const data = await response.json();
-
-            setPerfil((prev) => ({ ...prev, imagem: data.imagem }));
+            setPerfil(prev => ({ ...prev, imagem: data.imagem }));
             Alert.alert("Sucesso", "Foto atualizada!");
-
-        } catch (error) {
-            console.error(error);
-            Alert.alert("Erro", "Não foi possível atualizar a foto");
+        } catch {
+            Alert.alert("Erro", "Erro ao atualizar foto");
         }
     };
+
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#295CA9" />
+                <Text style={styles.loadingText}>Carregando perfil...</Text>
+            </View>
+        );
+    }
 
     return (
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <Pressable
-                    onPress={() => Alert.alert("Configurações", "Navegação para configurações em desenvolvimento")}
-                    style={styles.settingsButton}
-                >
+                <View style={styles.settingsButton}>
                     <Icone nome="settings-outline" tamanho={24} color="#295CA9" />
-                </Pressable>
+                </View>
                 <Text style={styles.headerTitle}>Meu Perfil</Text>
                 {!editMode && (
                     <Pressable onPress={() => setEditMode(true)} style={styles.editButton}>
@@ -223,165 +577,76 @@ export default function Perfil() {
             </View>
 
             <ScrollView
-                style={styles.scrollView}
                 showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        colors={["#295CA9"]}
+                    />
+                }
             >
-                {/* Foto de Perfil */}
+                {/* Avatar */}
                 <View style={styles.profileImageContainer}>
-
-
                     <Avatar
                         uri={perfil.imagem}
                         size={120}
-                        iconName="person"
                         editable={editMode}
+                        iconName="person"
                         onPress={editMode ? escolherImagem : undefined}
-
-
                     />
                     <Text style={styles.profileName}>{perfil.nome}</Text>
                     <Text style={styles.profileType}>Voluntário</Text>
                 </View>
 
-                {/* Informações do Perfil */}
+                {/* Form */}
                 <View style={styles.formContainer}>
-                    {/* Nome */}
-                    <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Nome Completo</Text>
-                        {editMode ? (
-                            <TextInput
-                                style={styles.input}
-                                value={editData.nome}
-                                onChangeText={(text) => setEditData({ ...editData, nome: text })}
-                                placeholder="Seu nome completo"
-                                placeholderTextColor="#939EAA"
-                            />
-                        ) : (
-                            <View style={styles.infoCard}>
-                                <Text style={styles.infoText}>{perfil.nome}</Text>
-                            </View>
-                        )}
-                    </View>
+                    <Campo label="Nome" valor={perfil.nome} editMode={editMode}>
+                        <TextInput
+                            style={styles.input}
+                            value={editData.nome}
+                            onChangeText={nome => setEditData({ ...editData, nome })}
+                        />
+                    </Campo>
 
-                    {/* Email */}
-                    <View style={styles.inputGroup}>
-                        <Text style={styles.label}>E-mail</Text>
-                        {/* {editMode ? (
-                            <TextInput
-                                style={styles.input}
-                                value={editData.email}
-                                onChangeText={(text) => setEditData({ ...editData, email: text })}
-                                placeholder="seu.email@exemplo.com"
-                                keyboardType="email-address"
-                                autoCapitalize="none"
-                                placeholderTextColor="#939EAA"
-                            />
-                        ) : ( */}
-                        <View style={styles.infoCard}>
-                            <Icone nome="mail-outline" tamanho={20} color="#295CA9" />
-                            <Text style={styles.infoText}>{perfil.email}</Text>
-                        </View>
-                        {/* )} */}
-                    </View>
+                    <Campo label="Email" valor={perfil.email} icone="mail-outline" />
+                    <Campo label="CPF" valor={perfil.cpf} icone="card-outline" />
+                    <Campo label="Contato" valor={perfil.contato} icone="call-outline" />
 
-                    {/* CPF */}
-                    <View style={styles.inputGroup}>
-                        {/* <Text style={styles.label}>CPF</Text>
-                        {editMode ? (
-                            <TextInput
-                                style={styles.input}
-                                value={editData.cpf}
-                                onChangeText={(text) => {
-                                    const cpfFormatado = mascaraCPF(text);
-                                    setEditData({ ...editData, cpf: cpfFormatado });
-                                }}
-                                placeholder="000.000.000-00"
-                                keyboardType="numeric"
-                                placeholderTextColor="#939EAA"
-                                maxLength={14}
-                            />
-                        ) : ( */}
-                        <View style={styles.infoCard}>
-                            <Icone nome="card-outline" tamanho={20} color="#295CA9" />
-                            <Text style={styles.infoText}>{perfil.cpf || "Não informado"}</Text>
-                        </View>
-                        {/* )} */}
-                    </View>
-
-                    {/* Contato */}
-                    <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Contato</Text>
-                        {editMode ? (
-                            <TextInput
-                                style={styles.input}
-                                value={editData.contato}
-                                onChangeText={(text) => {
-                                    const telefoneFormatado = mascaraTelefone(text);
-                                    setEditData({ ...editData, contato: telefoneFormatado });
-                                }}
-                                placeholder="(00) 00000-0000"
-                                keyboardType="phone-pad"
-                                placeholderTextColor="#939EAA"
-                                maxLength={15}
-                            />
-                        ) : (
-                            <View style={styles.infoCard}>
-                                <Icone nome="call-outline" tamanho={20} color="#295CA9" />
-                                <Text style={styles.infoText}>{perfil.contato || "Não informado"}</Text>
-                            </View>
-                        )}
-                    </View>
-
-                    {/* Habilidades */}
-                    <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Habilidades</Text>
-                        {editMode ? (
-                            <TextInput
-                                style={[styles.input, styles.inputMultiline]}
-                                value={editData.habilidades}
-                                onChangeText={(text) => setEditData({ ...editData, habilidades: text })}
-                                placeholder="Ex: Ensino, Tecnologia, Culinária"
-                                multiline
-                                numberOfLines={4}
-                                textAlignVertical="top"
-                                placeholderTextColor="#939EAA"
-                            />
-                        ) : (
-                            <View style={[styles.infoCard, styles.habilidadesCard]}>
-                                <Icone nome="star-outline" tamanho={20} color="#295CA9" />
-                                <Text style={styles.infoText}>{perfil.habilidades}</Text>
-                            </View>
-                        )}
-                    </View>
+                    <Campo label="Habilidades" valor={perfil.habilidades} editMode={editMode}>
+                        <TextInput
+                            style={[styles.input, styles.inputMultiline]}
+                            multiline
+                            value={editData.habilidades}
+                            onChangeText={habilidades =>
+                                setEditData({ ...editData, habilidades })
+                            }
+                        />
+                    </Campo>
                 </View>
 
-                {/* Botões de Ação */}
+                {/* Ações */}
                 <View style={styles.buttonContainer}>
                     {editMode ? (
                         <>
                             <Botao
-                                title={saving ? "Salvando..." : "Salvar Alterações"}
-                                color="#295CA9"
-                                textColor="#fff"
+                                title={saving ? "Salvando..." : "Salvar"}
                                 onPress={handleSalvar}
                                 disabled={saving}
+                                color="#295CA9"
                             />
-                            <View style={{ marginTop: 12 }}>
-                                <Botao
-                                    title="Cancelar"
-                                    color="#fff"
-                                    textColor="#295CA9"
-                                    onPress={handleCancelar}
-                                    variant="secondary"
-                                />
-                            </View>
+                            <Botao
+                                textColor="#295CA9"
+                                title="Cancelar"
+                                onPress={() => setEditMode(false)}
+                                variant="secondary"
+                            />
                         </>
                     ) : (
                         <Botao
                             title="Sair da Conta"
+                            onPress={logout}
                             color="#DC2626"
-                            textColor="#fff"
-                            onPress={handleLogout}
                         />
                     )}
                 </View>
@@ -389,6 +654,24 @@ export default function Perfil() {
         </View>
     );
 }
+
+/* ===== COMPONENTE AUXILIAR ===== */
+function Campo({ label, valor, editMode, children, icone }: any) {
+    return (
+        <View style={{ gap: 8 }}>
+            <Text style={styles.label}>{label}</Text>
+            {editMode && children ? (
+                children
+            ) : (
+                <View style={styles.infoCard}>
+                    {icone && <Icone nome={icone} tamanho={18} color="#295CA9" />}
+                    <Text style={styles.infoText}>{valor || "Não informado"}</Text>
+                </View>
+            )}
+        </View>
+    );
+}
+
 
 const styles = StyleSheet.create({
     container: {
@@ -516,6 +799,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: screenWidth * 0.05,
         paddingVertical: screenWidth < 350 ? 20 : 30,
         maxWidth: 600,
+        gap: 6,
         width: "100%",
         alignSelf: "center",
     },

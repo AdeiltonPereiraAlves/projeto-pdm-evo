@@ -13,7 +13,7 @@ type StackParamList = {
     DetalheVaga: { vagaId: string };
 };
 
-type HomeNavigationProp = NativeStackNavigationProp<StackParamList, "Abas">;
+export type HomeNavigationProp = NativeStackNavigationProp<StackParamList, "Abas">;
 
 export interface Vaga {
     id: string;
