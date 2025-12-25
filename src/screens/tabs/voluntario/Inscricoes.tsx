@@ -1,8 +1,9 @@
 import InscricaoCard from '@/components/inscricoes/InscricaoCard';
 import { AuthContext } from '@/data/context/AuthContext';
 import useInscricoes from '@/data/hooks/useIncricoes';
+import { useFocusEffect } from '@react-navigation/native';
 import { useNavigation } from "expo-router";
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import {
     ActivityIndicator,
     FlatList,
@@ -16,18 +17,27 @@ import { HomeNavigationProp, Vaga } from './Home';
 export default function Inscricoes() {
     const navigation = useNavigation<HomeNavigationProp>();
     const { token } = useContext(AuthContext);
-    const { fetchInscricoes,cancelarInscricao } = useInscricoes();
-    
+    const { fetchInscricoes, cancelarInscricao } = useInscricoes();
+
 
     const [inscricoes, setInscricoes] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
-    async  function carregarIncricoes(){
-      const res = await fetchInscricoes(token!);
-      setInscricoes(res);
-      setLoading(false);
-   }
+
+    const handleCancelar = async (id: string) => {
+        await cancelarInscricao(id, token!);
+
+        setInscricoes(prev =>
+            prev.filter(inscricao => inscricao.id !== id)
+        );
+    };
+
+    async function carregarIncricoes() {
+        const res = await fetchInscricoes(token!);
+        setInscricoes(res);
+        setLoading(false);
+    }
 
     const onRefresh = async () => {
         setRefreshing(true);
@@ -35,13 +45,15 @@ export default function Inscricoes() {
         setRefreshing(false);
     };
 
-    useEffect(() => {
-        if (token) carregarIncricoes();
-    }, [token, inscricoes]);
-    
-        const handleVagaPress = (vaga: Vaga) => {
-            navigation.navigate("DetalheVaga", { vagaId: vaga.id });
-        };
+    useFocusEffect(
+        useCallback(() => {
+            if (!token) return;
+            carregarIncricoes();
+        }, [token])
+    );
+    const handleVagaPress = (vaga: Vaga) => {
+        navigation.navigate("DetalheVaga", { vagaId: vaga.id });
+    };
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
@@ -67,7 +79,7 @@ export default function Inscricoes() {
                         localizacao={item.vaga?.localizacao}
                         onPress={() => handleVagaPress(item.vaga)}
                         onCancelar={() =>
-                           cancelarInscricao(item.id, token!)
+                            handleCancelar(item.id)
                         }
                     />
                 )}
