@@ -4,17 +4,21 @@ import Botao from "@/components/ui/Botao";
 import { AuthContext } from "@/data/context/AuthContext";
 import useAPI from "@/data/hooks/useAPI";
 import { mascaraCNPJ } from "@/utils/masks";
+import { API_URL } from "@env";
+import { useRoute } from '@react-navigation/native';
+import * as ImagePicker from "expo-image-picker";
 import { useContext, useEffect, useState } from "react";
 import {
     ActivityIndicator,
     Alert,
     Dimensions,
     Pressable,
+    RefreshControl,
     ScrollView,
     StyleSheet,
     Text,
     TextInput,
-    View,
+    View
 } from "react-native";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
@@ -23,58 +27,73 @@ interface OngData {
     id: string;
     nome: string;
     email: string;
-    cnpj: string;
+    imagem: string;
+    cnpj?: string;
     areaAtuacao: string;
     endereco: string;
-    fotoPerfil?: string;
     descricao?: string;
+    visao?: string;
+    missao?: string;
 }
-
 export default function PerfilOng() {
     const { token, logout } = useContext(AuthContext);
     const { httpGet, httpPut } = useAPI();
-    
+    const [refreshing, setRefreshing] = useState(false);
     const [loading, setLoading] = useState(true);
     const [editMode, setEditMode] = useState(false);
     const [saving, setSaving] = useState(false);
-    
+    const [prevImg, setPrevImg] = useState<string>("");
+    const route = useRoute();
+   
     const [perfil, setPerfil] = useState<OngData>({
         id: "",
         nome: "",
         email: "",
+        imagem: "",
         cnpj: "",
         areaAtuacao: "",
         endereco: "",
-        fotoPerfil: "",
         descricao: "",
+        missao: "",
+        visao: "",
     });
 
-    const [editData, setEditData] = useState<OngData>({
+    const [editData, setEditData] = useState<any>({
         id: "",
         nome: "",
         email: "",
-        cnpj: "",
+        imagem: "",
+        
         areaAtuacao: "",
         endereco: "",
-        fotoPerfil: "",
         descricao: "",
+        missao: "",
+        visao: "",
     });
 
     useEffect(() => {
         carregarPerfil();
     }, []);
 
+
+    //refresh 
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await carregarPerfil();
+    };
+    //carregar perfil
     const carregarPerfil = async () => {
         try {
             setLoading(true);
-            const data = await httpGet("perfil/ong", token || "");
-            
+            const data = await httpGet('perfil', token || "");
+            console.log("Dados do perfil recebidos:", data);
             // Aplica máscara no CNPJ recebido
             const dataFormatada = {
                 ...data,
                 cnpj: mascaraCNPJ(data.cnpj || ""),
             };
-            
+            console.log("Dados do perfil carregados:", dataFormatada);
+
             setPerfil(dataFormatada);
             setEditData(dataFormatada);
         } catch (error) {
@@ -82,6 +101,7 @@ export default function PerfilOng() {
             Alert.alert("Erro", "Não foi possível carregar os dados do perfil");
         } finally {
             setLoading(false);
+            setRefreshing(false);
         }
     };
 
@@ -89,10 +109,11 @@ export default function PerfilOng() {
         try {
             setSaving(true);
             const response = await httpPut("ong/editar", editData, token || "");
-            
+            console.log("Resposta da atualização do perfil:", response);
+
             if (response.ok) {
-                const data = await response.json();
-                setPerfil(data);
+               
+                setPerfil(response.data);
                 setEditMode(false);
                 Alert.alert("Sucesso", "Perfil atualizado com sucesso!");
             } else {
@@ -121,6 +142,51 @@ export default function PerfilOng() {
             ]
         );
     };
+    //escolher imagem 
+     const escolherImagem = async () => {
+            const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (!permission.granted) {
+                Alert.alert("Permissão necessária", "Permita acesso à galeria");
+                return;
+            }
+    
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                quality: 0.8,
+                allowsEditing: true,
+                aspect: [1, 1],
+            });
+    
+            if (!result.canceled) {
+                uploadImagem(result.assets[0]);
+            }
+        };
+
+     //upload imagem
+      const uploadImagem = async (image: ImagePicker.ImagePickerAsset) => {
+        try {
+            const formData = new FormData();
+            formData.append("imagem", {
+                uri: image.uri,
+                name: "perfil.jpg",
+                type: "image/jpeg",
+            } as any);
+
+            const response = await fetch(`${API_URL}/ong/imagem/perfil`, {
+                method: "PATCH",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                body: formData,
+            });
+
+            const data = await response.json();
+            setPerfil(prev => ({ ...prev, imagem: data.imagem }));
+            Alert.alert("Sucesso", "Foto atualizada!");
+        } catch {
+            Alert.alert("Erro", "Erro ao atualizar foto");
+        }
+    };
 
     if (loading) {
         return (
@@ -135,8 +201,8 @@ export default function PerfilOng() {
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <Pressable 
-                    onPress={() => Alert.alert("Configurações", "Navegação para configurações em desenvolvimento")} 
+                <Pressable
+                    onPress={() => Alert.alert("Configurações", "Navegação para configurações em desenvolvimento")}
                     style={styles.settingsButton}
                 >
                     <Icone nome="settings-outline" tamanho={24} color="#295CA9" />
@@ -149,18 +215,25 @@ export default function PerfilOng() {
                 )}
             </View>
 
-            <ScrollView 
+            <ScrollView
                 style={styles.scrollView}
                 showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        colors={["#295CA9"]}
+                    />
+                }
             >
                 {/* Foto de Perfil */}
                 <View style={styles.profileImageContainer}>
                     <Avatar
-                        uri={perfil.fotoPerfil}
+                        uri={perfil.imagem}
                         size={120}
                         iconName="business"
                         editable={editMode}
-                        onPress={() => Alert.alert("Foto", "Funcionalidade de troca de foto em desenvolvimento")}
+                        onPress={editMode ? escolherImagem : undefined}
                     />
                     <Text style={styles.profileName}>{perfil.nome}</Text>
                     <Text style={styles.profileType}>Organização Não Governamental</Text>
@@ -189,46 +262,23 @@ export default function PerfilOng() {
                     {/* Email */}
                     <View style={styles.inputGroup}>
                         <Text style={styles.label}>E-mail</Text>
-                        {editMode ? (
-                            <TextInput
-                                style={styles.input}
-                                value={editData.email}
-                                onChangeText={(text) => setEditData({ ...editData, email: text })}
-                                placeholder="contato@ong.org.br"
-                                keyboardType="email-address"
-                                autoCapitalize="none"
-                                placeholderTextColor="#939EAA"
-                            />
-                        ) : (
+                       
                             <View style={styles.infoCard}>
                                 <Icone nome="mail-outline" tamanho={20} color="#295CA9" />
                                 <Text style={styles.infoText}>{perfil.email}</Text>
                             </View>
-                        )}
+                        
                     </View>
 
                     {/* CNPJ */}
                     <View style={styles.inputGroup}>
                         <Text style={styles.label}>CNPJ</Text>
-                        {editMode ? (
-                            <TextInput
-                                style={styles.input}
-                                value={editData.cnpj}
-                                onChangeText={(text) => {
-                                    const cnpjFormatado = mascaraCNPJ(text);
-                                    setEditData({ ...editData, cnpj: cnpjFormatado });
-                                }}
-                                placeholder="00.000.000/0000-00"
-                                keyboardType="numeric"
-                                placeholderTextColor="#939EAA"
-                                maxLength={18}
-                            />
-                        ) : (
+                        
                             <View style={styles.infoCard}>
                                 <Icone nome="document-text-outline" tamanho={20} color="#295CA9" />
                                 <Text style={styles.infoText}>{perfil.cnpj || "Não informado"}</Text>
                             </View>
-                        )}
+                        
                     </View>
 
                     {/* Área de Atuação */}
@@ -271,7 +321,53 @@ export default function PerfilOng() {
                             </View>
                         )}
                     </View>
-
+                    {/* Missão */}
+                     <View style={styles.inputGroup}>
+                        <Text style={styles.label}>Missão</Text>
+                        {editMode ? (
+                            <TextInput
+                                style={[styles.input, styles.inputMultiline, styles.inputLarge]}
+                                value={editData.missao}
+                                onChangeText={(text) => setEditData({ ...editData, missao: text })}
+                                placeholder="Conte mais sobre a missão e os projetos da sua organização"
+                                multiline
+                                numberOfLines={5}
+                                textAlignVertical="top"
+                                placeholderTextColor="#939EAA"
+                            />
+                        ) : (
+                            <View style={[styles.infoCard, styles.descricaoCard]}>
+                                <Icone nome="information-circle-outline" tamanho={20} color="#295CA9" />
+                                <Text style={styles.infoText}>
+                                    {perfil.missao || "Nenhuma descrição adicionada"}
+                                </Text>
+                            </View>
+                        )}
+                    </View>
+                    {/* Visão */}
+                   
+                     <View style={styles.inputGroup}>
+                        <Text style={styles.label}>Visão</Text>
+                        {editMode ? (
+                            <TextInput
+                                style={[styles.input, styles.inputMultiline, styles.inputLarge]}
+                                value={editData.visao}
+                                onChangeText={(text) => setEditData({ ...editData, visao: text })}
+                                placeholder="Conte mais sobre a missão e os projetos da sua organização"
+                                multiline
+                                numberOfLines={5}
+                                textAlignVertical="top"
+                                placeholderTextColor="#939EAA"
+                            />
+                        ) : (
+                            <View style={[styles.infoCard, styles.descricaoCard]}>
+                                <Icone nome="information-circle-outline" tamanho={20} color="#295CA9" />
+                                <Text style={styles.infoText}>
+                                    {perfil.visao || "Nenhuma descrição adicionada"}
+                                </Text>
+                            </View>
+                        )}
+                    </View>
                     {/* Descrição */}
                     <View style={styles.inputGroup}>
                         <Text style={styles.label}>Sobre a ONG</Text>
@@ -295,6 +391,7 @@ export default function PerfilOng() {
                             </View>
                         )}
                     </View>
+
                 </View>
 
                 {/* Estatísticas (Opcional) */}
