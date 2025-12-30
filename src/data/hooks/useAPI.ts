@@ -11,23 +11,23 @@ export default function useAPI() {
         if (token) {
             headers.Authorization = `Bearer ${token}`
         }
-        
+
         const res = await fetch(`${URL_BASE}/${uri}`, { headers })
         const data = await res.json()
         return data
     }, [])
 
     const httpPost = useCallback(async function (uri: string, body: any, token?: string): Promise<Response> {
-        console.log('httpPost called with:',URL_BASE,uri, body);
+        console.log('httpPost called with:', URL_BASE, uri, body);
         try {
             const headers: HeadersInit = {
                 'Content-Type': 'application/json',
             }
-            
+
             if (token) {
                 headers.Authorization = `Bearer ${token}`
             }
-            
+
             const response = await fetch(`${URL_BASE}/${uri}`, {
                 method: 'POST',
                 headers,
@@ -41,29 +41,42 @@ export default function useAPI() {
         }
     }, [])
 
-    const httpPut = useCallback(async function (uri: string, body: any, token?: string): Promise<Response> {
-        console.log('httpPut called with:', uri, body);
-        try {
-            const headers: HeadersInit = {
-                'Content-Type': 'application/json',
+    const httpPut = useCallback(
+        async (uri: string, body: any, token?: string) => {
+            console.log('httpPut called with:', uri, body);
+
+            try {
+                const headers: HeadersInit = {
+                    'Content-Type': 'application/json',
+                };
+
+                if (token) {
+                    headers.Authorization = `Bearer ${token}`;
+                }
+
+                const response = await fetch(`${URL_BASE}/${uri}`, {
+                    method: 'PUT',
+                    headers,
+                    body: JSON.stringify(body),
+                });
+
+                const data = await response.json(); // 🔥 AQUI ESTAVA O ERRO
+
+                console.log('httpPut parsed response:', data);
+
+                return {
+                    ok: response.ok,
+                    status: response.status,
+                    data,
+                };
+            } catch (error) {
+                console.error('Erro na requisição:', error);
+                throw error;
             }
-            
-            if (token) {
-                headers.Authorization = `Bearer ${token}`
-            }
-            
-            const response = await fetch(`${URL_BASE}/${uri}`, {
-                method: 'PUT',
-                headers,
-                body: JSON.stringify(body),
-            });
-            console.log('httpPut response:', response);
-            return response;
-        } catch (error) {
-            console.error('Erro na requisição:', error);
-            throw error;
-        }
-    }, [])
+        },
+        []
+    );
+
 
     const listarVagas = useCallback(async function (token: string): Promise<any> {
         try {
@@ -76,11 +89,11 @@ export default function useAPI() {
                 },
             });
             console.log('listarVagas response:', response);
-            
+
             if (response.ok) {
                 const data = await response.json();
                 console.log('listarVagas data:', data);
-                
+
                 // Verificar se a resposta tem o formato esperado
                 if (Array.isArray(data)) {
                     return data;
@@ -115,11 +128,11 @@ export default function useAPI() {
                 },
             });
             console.log('listarVagas response:', response);
-            
+
             if (response.ok) {
                 const data = await response.json();
                 console.log('listarVagas data:', data);
-                
+
                 // Verificar se a resposta tem o formato esperado
                 // if (Array.isArray(data)) {
                 //     return data;
@@ -145,11 +158,11 @@ export default function useAPI() {
         console.log('httpDelete called with:', uri);
         try {
             const headers: HeadersInit = {}
-            
+
             if (token) {
                 headers.Authorization = `Bearer ${token}`
             }
-            
+
             const response = await fetch(`${URL_BASE}/${uri}`, {
                 method: 'DELETE',
                 headers,
@@ -167,6 +180,18 @@ export default function useAPI() {
         if (token) headers.Authorization = `Bearer ${token}`;
         return fetch(`${URL_BASE}/${uri}`, { method: "GET", headers });
     };
-    
+
+
+    //   const buscarOngId = useCallback(async function (uri: string, token?: string, ): Promise<any> {
+
+    //     const headers: HeadersInit = {}
+    //     if (token) {
+    //         headers.Authorization = `Bearer ${token}`
+    //     }
+
+    //     const res = await fetch(`${URL_BASE}/${uri}`, { headers })
+    //     const data = await res.json()
+    //     return data
+    // }, [])
     return { httpGet, httpPost, httpPut, httpDelete, listarVagas, buscarStatusInscricao }
 }

@@ -5,6 +5,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useContext } from "react";
 import Abas from "../tabs/index";
+import PerfilOng from "../tabs/ongs/PerfilOng";
 import Autenticacao from "./Autenticacao";
 import Cadastro from "./Auth/Cadastro";
 import Inicio from "./Auth/Inicio";
@@ -40,6 +41,7 @@ function AppNavigator() {
         <>
           <Stack.Screen name="Abas" component={Abas} />
           <Stack.Screen name="DetalheVaga" component={DetalheVaga} />
+           <Stack.Screen name="PerfilOng" component={PerfilOng} />
         </>
       )}
     </Stack.Navigator>
