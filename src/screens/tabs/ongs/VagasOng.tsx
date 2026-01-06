@@ -164,6 +164,9 @@
 
 
 //
+
+import { Alert } from 'react-native';
+
 import { AuthContext } from "@/data/context/AuthContext";
 import { useVagas } from "@/data/context/VagaContext";
 import useAPI from "@/data/hooks/useAPI";
@@ -228,14 +231,35 @@ export default function VagasOng() {
       setRefreshing(false);
     }
   }, [atualizarVagas, vagasOng]);
+  
 
-  const renderItem = ({ item }: { item: Vaga }) => (
+   const handleVerVaga = (vagaId: string) => {
+    navigation.navigate("DetalheVagaOng", { vagaId });
+  };
+
+  const handleVerInscricoes = (vaga: Vaga) => {
+    if (!vaga.inscricoes || vaga.inscricoes.length === 0) {
+      Alert.alert(
+        "Sem inscrições",
+        "Esta vaga ainda não possui candidaturas.",
+        [{ text: "OK" }]
+      );
+      return;
+    }
+   navigation.navigate("InscricoesScreen", {
+      vagaId: vaga.id,
+      vagaTitulo: vaga.titulo,
+      inscricoes: vaga.inscricoes
+    });
+  };
+   const renderItem = ({ item }: { item: Vaga }) => (
     <VagaCardSimple
       id={item.id}
       titulo={item.titulo}
       status={item.status}
-      onPress={() => navigation.navigate("DetalheVagaOng", { vagaId: item.id })}
-      onVerInscricoes={() => navigation.navigate("Inscricoes", { vagaId: item.id })}
+      inscricoesCount={item.inscricoes || []}
+      onPress={() => handleVerVaga(item.id)}
+      onVerInscricoes={() => handleVerInscricoes(item)}
     />
   );
 

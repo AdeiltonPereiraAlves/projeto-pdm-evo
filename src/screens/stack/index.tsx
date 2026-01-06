@@ -5,6 +5,7 @@ import DetalheVaga from "@/screens/stack/DetalheVaga";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useContext } from "react";
+import IncricoesScreen from "../../components/ong/incricoes/InscricoesScreen";
 import Abas from "../tabs/index";
 import PerfilOng from "../tabs/ongs/PerfilOng";
 import Autenticacao from "./Autenticacao";
@@ -21,6 +22,7 @@ export type RootStackParamList = {
   Abas: undefined;
   DetalheVaga: { vagaId: string }; // passando ID da vaga
   VagaDetalheOng: { vagaId: string }; Inscricoes: { vagaId: string };
+  inscricoesScreen: undefined;
 };
 
 
@@ -51,7 +53,7 @@ function AppNavigator() {
           <Stack.Screen name="PerfilOng" component={PerfilOng} />
 
 
-          {/* <Stack.Screen name="Inscricoes" component={Inscricoes} /> */}
+          <Stack.Screen name="InscricoesScreen" component={IncricoesScreen} />
 
         </>
       )}
