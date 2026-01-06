@@ -7,6 +7,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import CriarVaga from "./ongs/CriarVaga";
 import Dashboard from "./ongs/Dashboard";
 import PerfilOng from "./ongs/PerfilOng";
+import VagasOng from "./ongs/VagasOng";
 import Home from "./voluntario/Home";
 import Inscricoes from "./voluntario/Inscricoes";
 import Mapa from "./voluntario/Mapa";
@@ -94,6 +95,7 @@ export default function Abas({ navigation }: any) {
         >
             {tab('Dashboard', Dashboard, 'Dashboard', 'grid-outline')}
             {tab('CriarVaga', CriarVaga, 'Criar Vaga', 'add-circle-outline')}
+            {tab('MinhasVagas',VagasOng , 'Minhas Vagas', 'briefcase-outline')}
             {tab('PerfilOng', PerfilOng, 'Perfil', 'person-outline')}
         </Tab.Navigator>
     );
