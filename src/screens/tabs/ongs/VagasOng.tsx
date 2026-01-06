@@ -175,13 +175,13 @@ import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    RefreshControl,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import VagaCardSimple from "../../../components/vagas/vagaOng/VagaCardSimple";
 
@@ -192,7 +192,7 @@ export default function VagasOng() {
   const { token } = useContext(AuthContext);
   const { httpGet } = useAPI(); // mantido caso queira usar futuramente
   const navigation = useNavigation<NavProp>();
-  const { vagasOng, atualizarVagas } = useVagas();
+  const { vagasOng, listarVagasOng } = useVagas();
 
   const [vagas, setVagas] = useState<Vaga[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -218,8 +218,8 @@ export default function VagasOng() {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      if (typeof atualizarVagas === "function") {
-        await atualizarVagas();
+      if (typeof listarVagasOng === "function") {
+        await listarVagasOng(token!);
       } else {
         // fallback: apenas re-sincroniza com o contexto
         setVagas(Array.isArray(vagasOng) ? vagasOng : []);
@@ -230,7 +230,7 @@ export default function VagasOng() {
     } finally {
       setRefreshing(false);
     }
-  }, [atualizarVagas, vagasOng]);
+  }, [listarVagasOng, vagasOng]);
   
 
    const handleVerVaga = (vagaId: string) => {

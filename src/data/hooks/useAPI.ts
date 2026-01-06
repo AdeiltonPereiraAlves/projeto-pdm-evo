@@ -156,6 +156,36 @@ export default function useAPI() {
             throw error;
         }
     }, [])
+    //patch
+
+   const httpPatch = useCallback(async function (uri: string, body: any, token?: string): Promise<Response> {
+    try {
+        const headers: HeadersInit = {
+            'Content-Type': 'application/json',
+        };
+
+        if (token) {
+            headers.Authorization = `Bearer ${token}`;
+        }
+
+        const response = await fetch(`${URL_BASE}/${uri}`, {
+            method: 'PATCH',
+            headers,
+            body: JSON.stringify(body),
+        });
+
+        // NÃO faça response.json() aqui
+        // Apenas retorne o objeto Response
+        console.log('httpPatch response status:', response.status);
+        console.log('httpPatch response ok:', response.ok);
+        
+        return response; // ← Retorne o Response, não o JSON
+        
+    } catch (error) {
+        console.error('Erro na requisição:', error);
+        throw error;
+    }
+}, []);
     const httpDelete = useCallback(async function (uri: string, token?: string): Promise<Response> {
         console.log('httpDelete called with:', uri);
         try {
@@ -195,5 +225,5 @@ export default function useAPI() {
     //     const data = await res.json()
     //     return data
     // }, [])
-    return { httpGet, httpPost, httpPut, httpDelete, listarVagas, buscarStatusInscricao }
+    return { httpGet, httpPost, httpPut, httpDelete, listarVagas, buscarStatusInscricao, httpPatch }
 }

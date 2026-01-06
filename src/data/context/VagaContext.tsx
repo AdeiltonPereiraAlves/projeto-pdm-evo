@@ -64,6 +64,7 @@ interface VagaContextType {
   loading: boolean;
   imagem: any,
   carregarFotoPerfil: (imagem: any) => any
+  listarVagasOng: (token: string) => Promise<any>;
 }
 
 export const VagaContext = createContext<VagaContextType | undefined>(undefined);
@@ -149,8 +150,10 @@ export const VagaProvider = ({ children }: { children: ReactNode }) => {
 
     }, [token]);
 
+ 
+
     return (
-      <VagaContext.Provider value={{ vagas, atualizarVagas, loading, carregarFotoPerfil, imagem, vagasOng }}>
+      <VagaContext.Provider value={{ vagas, atualizarVagas, loading, carregarFotoPerfil, imagem, vagasOng, listarVagasOng}}>
         {children}
       </VagaContext.Provider>
     );

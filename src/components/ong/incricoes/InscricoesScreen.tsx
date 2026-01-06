@@ -4,14 +4,14 @@ import Icone from '@/components/shared/Icone';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useState } from 'react';
 import {
-    Alert,
-    FlatList,
-    RefreshControl,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Alert,
+  FlatList,
+  RefreshControl,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 type RootStackParamList = {
@@ -27,7 +27,7 @@ type InscricoesScreenRouteProp = RouteProp<RootStackParamList, 'InscricoesScreen
 interface Inscricao {
   id: string;
   ativo: boolean;
-  status: 'pendente' | 'aceito' | 'recusado' | 'cancelado';
+  status: 'pendente' | 'aprovado' | 'rejeitado' | 'cancelado';
   voluntario: {
     id: string;
     nome: string;
@@ -44,8 +44,10 @@ interface Inscricao {
 export default function InscricoesScreen() {
   const navigation = useNavigation();
   const route = useRoute<InscricoesScreenRouteProp>();
-  const { vagaId, vagaTitulo, inscricoes: inscricoesIniciais } = route.params;
+  
+   const { vagaId, vagaTitulo, inscricoes: inscricoesIniciais } = route.params;
 
+ 
   const [inscricoes, setInscricoes] = useState<Inscricao[]>(inscricoesIniciais || []);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -142,14 +144,32 @@ export default function InscricoesScreen() {
   );
 
   // Componente de item da lista
+  // const renderItem = ({ item }: { item: Inscricao }) => (
+  //   <InscricaoItem
+  //     inscricao={item}
+  //     onStatusChange={atualizarStatus}
+  //     loading={loading}
+  //   />
+  // );
+  const handleStatusChange = (inscricaoId: string, novoStatus: string) => {
+    setInscricoes(prev => prev.map(inscricao => 
+      inscricao.id === inscricaoId 
+        ? { ...inscricao, status: novoStatus as any }
+        : inscricao
+    ));
+  };
+
+  // Componente de item da lista
   const renderItem = ({ item }: { item: Inscricao }) => (
+
+    console.log('Rendering InscricaoItem for:', item),
     <InscricaoItem
       inscricao={item}
-      onStatusChange={atualizarStatus}
+      vagaId={vagaId} 
+      onStatusChange={handleStatusChange}
       loading={loading}
     />
   );
-
   // Tela vazia
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
