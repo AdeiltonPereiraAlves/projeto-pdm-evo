@@ -1,5 +1,6 @@
 import Icone from "@/components/shared/Icone";
 import { AuthContext } from "@/data/context/AuthContext";
+import { useVagas } from "@/data/context/VagaContext";
 import useAPI from "@/data/hooks/useAPI";
 import { useNavigation } from "@react-navigation/native";
 import { useContext, useEffect, useState } from "react";
@@ -54,7 +55,7 @@ export default function Dashboard() {
         candidatosAprovados: 0,
         totalCandidaturas: 0,
     });
-
+    const {vagasOng } = useVagas()
     useEffect(() => {
         carregarDados();
     }, []);
@@ -64,14 +65,15 @@ export default function Dashboard() {
             setLoading(true);
             const vagasData = await httpGet("listar/vagas/ong", token || "");
             
+         
             console.log("Dashboard - vagasData recebida:", vagasData);
-            console.log("Dashboard - tipo de vagasData:", typeof vagasData);
-            console.log("Dashboard - é array?", Array.isArray(vagasData));
+            console.log("Dashboard - tipo de vagasData:", typeof vagasData.vagas);
+            console.log("Dashboard - é array?", Array.isArray(vagasOng));
             
             // Garantir que sempre temos um array
-            const vagasArray = Array.isArray(vagasData) ? vagasData : [];
-            
-            setVagas(vagasArray);
+            const vagasArray = Object.values(vagasData.vagas) ? vagasData.vagas : [];
+             console.log("Dashboard - vagasArray processada:", vagasArray);
+            setVagas(vagasOng);
             calcularEstatisticas(vagasArray);
         } catch (error) {
             console.error("Erro ao carregar dashboard:", error);
@@ -114,6 +116,8 @@ export default function Dashboard() {
 
         // Calcular candidaturas (se disponível)
         vagasData.forEach((vaga) => {
+
+            console.log("Calculando estatísticas para vaga:", vaga.id, vaga.inscricoes);
             if (vaga.inscricoes && Array.isArray(vaga.inscricoes)) {
                 estatisticas.totalCandidaturas += vaga.inscricoes.length;
                 estatisticas.candidatosPendentes += vaga.inscricoes.filter(

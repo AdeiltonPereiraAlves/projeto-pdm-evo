@@ -59,6 +59,7 @@ import { AuthContext } from "./AuthContext";
 
 interface VagaContextType {
   vagas: Vaga[];
+  vagasOng: any[];
   atualizarVagas: () => Promise<void>;
   loading: boolean;
   imagem: any,
@@ -70,69 +71,93 @@ export const VagaContext = createContext<VagaContextType | undefined>(undefined)
 export const VagaProvider = ({ children }: { children: ReactNode }) => {
   const { logout, token } = useContext(AuthContext);
   const [vagas, setVagas] = useState<Vaga[]>([]);
+  const [vagasOng, setVagasOng] = useState<any>([]);
   const [loading, setLoading] = useState(false);
   const [imagem, setImagem] = useState()
-  const { listarVagas } = useAPI();
+  const { listarVagas, httpGet } = useAPI();
 
   function carregarFotoPerfil(imagem: any) {
     setImagem(imagem)
   }
+  
+  
 
+  // vagas criadas pela ong
 
-
-  const atualizarVagas = async () => {
-    if (!token) return;
-    setLoading(true);
+  const listarVagasOng = async (token: string): Promise<any> => {
     try {
-      const dados = await listarVagas(token);
-
-      console.log(dados, "dadosVagas")
-      if (!Array.isArray(dados)) {
-        setVagas([]);
-        return;
+      if (!token) return;
+      setLoading(true);
+        const dados = await httpGet("listar/vagas/ong", token);
+        const vagas = await dados.vagas;
+        console.log(vagas, "dadosVagas")
+        if (!Array.isArray(vagas)) {
+          setVagas([]);
+          return;
+        }
+       setVagasOng(vagas);
+      } catch (error) {
+        console.error("Erro ao listar vagas da ong:", error);
+        throw error;
       }
-      const vagasFormatadas = dados.map((vaga: any) => ({
-        id: vaga.id,
-        titulo: vaga.titulo,
-        nomeOng: vaga.ong?.nome || "ONG",
-        imagemOng: vaga.ong?.imagem || "",
-        areaAtuacao: vaga.ong?.areaAtuacao ?? [],
-        localizacao: vaga.localizacao || "Local não informado",
-        latitude: Number(vaga.latitude),
-        longitude: Number(vaga.longitude),
-        data: formatarData(vaga.createdAt),
-        descricao: vaga.descricao || "Descrição não disponível",
-        tipoTrabalho: vaga.tipoTrabalho || "",
-        categoria: vaga.ong?.areaAtuacao?.[0] || "Geral",
-      }));
+    };
+   
 
-      console.log(vagasFormatadas, "vagasFormatadas")
-      // carregarFotoPerfil(vagasFormatadas.imagemOng)
-      setVagas(vagasFormatadas);
-    } catch (error: any) {
-      console.error("Erro ao atualizar vagas:", error);
-      // Logout automático se token expirado
-      if (error.response?.status === 401) {
-        logout();
+
+    const atualizarVagas = async () => {
+      if (!token) return;
+      setLoading(true);
+      try {
+        const dados = await listarVagas(token);
+       
+        if (!Array.isArray(dados)) {
+          setVagas([]);
+          return;
+        }
+        const vagasFormatadas = dados.map((vaga: any) => ({
+          id: vaga.id,
+          titulo: vaga.titulo,
+          nomeOng: vaga.ong?.nome || "ONG",
+          imagemOng: vaga.ong?.imagem || "",
+          areaAtuacao: vaga.ong?.areaAtuacao ?? [],
+          localizacao: vaga.localizacao || "Local não informado",
+          latitude: Number(vaga.latitude),
+          longitude: Number(vaga.longitude),
+          data: formatarData(vaga.createdAt),
+          descricao: vaga.descricao || "Descrição não disponível",
+          tipoTrabalho: vaga.tipoTrabalho || "",
+          categoria: vaga.ong?.areaAtuacao?.[0] || "Geral",
+        }));
+
+
+        // carregarFotoPerfil(vagasFormatadas.imagemOng)
+        setVagas(vagasFormatadas);
+      } catch (error: any) {
+        console.error("Erro ao atualizar vagas:", error);
+        // Logout automático se token expirado
+        if (error.response?.status === 401) {
+          logout();
+        }
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
-    }
+    };
+
+    useEffect(() => {
+      atualizarVagas();
+      listarVagasOng(token!);
+
+    }, [token]);
+
+    return (
+      <VagaContext.Provider value={{ vagas, atualizarVagas, loading, carregarFotoPerfil, imagem, vagasOng }}>
+        {children}
+      </VagaContext.Provider>
+    );
   };
 
-  useEffect(() => {
-    atualizarVagas();
-  }, [token]);
-
-  return (
-    <VagaContext.Provider value={{ vagas, atualizarVagas, loading, carregarFotoPerfil, imagem }}>
-      {children}
-    </VagaContext.Provider>
-  );
-};
-
-export const useVagas = () => {
-  const context = useContext(VagaContext);
-  if (!context) throw new Error("useVagas deve ser usado dentro de VagaProvider");
-  return context;
-};
+  export const useVagas = () => {
+    const context = useContext(VagaContext);
+    if (!context) throw new Error("useVagas deve ser usado dentro de VagaProvider");
+    return context;
+  };

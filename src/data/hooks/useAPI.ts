@@ -13,7 +13,9 @@ export default function useAPI() {
         }
 
         const res = await fetch(`${URL_BASE}/${uri}`, { headers })
+        console.log('httpGet response:', res);
         const data = await res.json()
+        console.log('httpGet data:', data);
         return data
     }, [])
 
