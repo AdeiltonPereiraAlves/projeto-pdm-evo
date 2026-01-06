@@ -165,32 +165,50 @@
 
 //
 
-import { Alert } from 'react-native';
-
 import { AuthContext } from "@/data/context/AuthContext";
 import { useVagas } from "@/data/context/VagaContext";
 import useAPI from "@/data/hooks/useAPI";
-import { RootStackParamList } from "@/navigation/types";
 import { useNavigation } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  FlatList,
+  ActivityIndicator, Alert, FlatList,
   RefreshControl,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
-} from "react-native";
+  View
+} from 'react-native';
 import VagaCardSimple from "../../../components/vagas/vagaOng/VagaCardSimple";
 
-type NavProp = StackNavigationProp<RootStackParamList>;
-type Vaga = { id: string; titulo: string; status: string; inscricoes?: any[] };
+// Defina os tipos de navegação localmente
+type RootStackParamList = {
+  VagasOng: undefined;
+  DetalheVagaOng: { vagaId: string };
+  InscricoesScreen: {
+    vagaId: string;
+    vagaTitulo: string;
+    inscricoes: any[];
+  };
+};
+
+// Se precisar usar NativeStackNavigationProp (mais moderno)
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+type NavProp = NativeStackNavigationProp<RootStackParamList>;
+
+// OU se ainda quiser usar StackNavigationProp, instale o pacote primeiro:
+// import { StackNavigationProp } from '@react-navigation/stack';
+// type NavProp = StackNavigationProp<RootStackParamList>;
+
+type Vaga = { 
+  id: string; 
+  titulo: string; 
+  status: string; 
+  inscricoes?: any[] 
+};
 
 export default function VagasOng() {
   const { token } = useContext(AuthContext);
-  const { httpGet } = useAPI(); // mantido caso queira usar futuramente
+  const { httpGet } = useAPI();
   const navigation = useNavigation<NavProp>();
   const { vagasOng, listarVagasOng } = useVagas();
 
@@ -202,7 +220,7 @@ export default function VagasOng() {
   // Sincroniza lista local com o contexto sempre que vagasOng mudar
   useEffect(() => {
     try {
-        console.log(vagasOng, "VagasOng useEffect")
+      console.log(vagasOng, "VagasOng useEffect");
       setError(null);
       setVagas(Array.isArray(vagasOng) ? vagasOng : []);
     } catch (e) {
@@ -230,10 +248,9 @@ export default function VagasOng() {
     } finally {
       setRefreshing(false);
     }
-  }, [listarVagasOng, vagasOng]);
-  
+  }, [listarVagasOng, vagasOng, token]);
 
-   const handleVerVaga = (vagaId: string) => {
+  const handleVerVaga = (vagaId: string) => {
     navigation.navigate("DetalheVagaOng", { vagaId });
   };
 
@@ -246,14 +263,16 @@ export default function VagasOng() {
       );
       return;
     }
-   navigation.navigate("InscricoesScreen", {
+    navigation.navigate("InscricoesScreen", {
       vagaId: vaga.id,
       vagaTitulo: vaga.titulo,
       inscricoes: vaga.inscricoes
     });
   };
-   const renderItem = ({ item }: { item: Vaga }) => (
+
+  const renderItem = ({ item }: { item: Vaga }) => (
     <VagaCardSimple
+      key={item.id}
       id={item.id}
       titulo={item.titulo}
       status={item.status}
@@ -267,6 +286,7 @@ export default function VagasOng() {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color="#295CA9" />
+        <Text style={{ marginTop: 12, color: "#6B7280" }}>Carregando vagas...</Text>
       </View>
     );
   }
@@ -279,9 +299,8 @@ export default function VagasOng() {
           <TouchableOpacity style={styles.retryBtn} onPress={() => {
             setLoading(true);
             setError(null);
-            // tenta re-sincronizar
-            if (typeof atualizarVagas === "function") {
-              atualizarVagas().finally(() => setLoading(false));
+            if (typeof listarVagasOng === "function") {
+              listarVagasOng(token!).finally(() => setLoading(false));
             } else {
               setVagas(Array.isArray(vagasOng) ? vagasOng : []);
               setLoading(false);
@@ -296,11 +315,14 @@ export default function VagasOng() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Vagas Criadas</Text>
+      </View>
       <FlatList
         data={vagas}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
-        contentContainerStyle={vagas.length === 0 ? styles.emptyContainer : undefined}
+        contentContainerStyle={vagas.length === 0 ? styles.emptyContainer : styles.listContainer}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#295CA9" />
         }
@@ -316,13 +338,71 @@ export default function VagasOng() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F9FAFB" },
-  center: { flex: 1, justifyContent: "center", alignItems: "center", padding: 16, marginTop: 200 },
-  errorText: { color: "#B91C1C", marginBottom: 12, fontWeight: "600" },
-  retryBtn: { backgroundColor: "#295CA9", paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8 },
-  retryText: { color: "#fff", fontWeight: "700" },
-  emptyContainer: { flexGrow: 1, justifyContent: "center", alignItems: "center", padding: 24 },
-  emptyBox: { alignItems: "center" },
-  emptyText: { color: "#6B7280", fontSize: 16, marginBottom: 8 },
-  hintText: { color: "#9CA3AF", fontSize: 13 },
+  container: { 
+    flex: 1, 
+    backgroundColor: "#F9FAFB" 
+  },
+  header: { 
+    paddingTop: 60,
+    paddingBottom: 16,
+    paddingHorizontal: 16,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1, 
+    borderBottomColor: "#E5E7EB" 
+  },
+  headerTitle: { 
+    fontSize: 24, 
+    fontWeight: "600", 
+    color: "#1A1A1A" 
+  },
+  listContainer: {
+    padding: 16,
+  },
+  center: { 
+    flex: 1, 
+    justifyContent: "center", 
+    alignItems: "center", 
+    padding: 16 
+  },
+  errorText: { 
+    color: "#B91C1C", 
+    marginBottom: 12, 
+    fontWeight: "600",
+    fontSize: 16,
+    textAlign: 'center'
+  },
+  retryBtn: { 
+    backgroundColor: "#295CA9", 
+    paddingHorizontal: 24, 
+    paddingVertical: 12, 
+    borderRadius: 8 
+  },
+  retryText: { 
+    color: "#fff", 
+    fontWeight: "600",
+    fontSize: 16 
+  },
+  emptyContainer: { 
+    flexGrow: 1, 
+    justifyContent: "center", 
+    alignItems: "center", 
+    padding: 24 
+  },
+  emptyBox: { 
+    alignItems: "center",
+    paddingVertical: 60
+  },
+  emptyText: { 
+    color: "#6B7280", 
+    fontSize: 18, 
+    fontWeight: "600",
+    marginBottom: 8,
+    textAlign: 'center'
+  },
+  hintText: { 
+    color: "#9CA3AF", 
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20
+  },
 });

@@ -149,12 +149,12 @@ export default function Dashboard() {
                     <Text style={styles.headerTitle}>Dashboard</Text>
                     <Text style={styles.headerSubtitle}>Visão geral da sua ONG</Text>
                 </View>
-                <Pressable onPress={() => navigation.navigate("ConfiguracoesOng" as never)}>
+                {/* <Pressable onPress={() => navigation.navigate("ConfiguracoesOng" as never)}>
                     <Icone nome="settings-outline" tamanho={24} color="#295CA9" />
                 </Pressable>
                 <Pressable onPress={() => logout()}>
                     <Icone nome="log-out" tamanho={24} color="#295CA9" />
-                </Pressable>
+                </Pressable> */}
             </View>
 
             <ScrollView

@@ -395,7 +395,7 @@ export default function PerfilOng() {
                 </View>
 
                 {/* Estatísticas (Opcional) */}
-                {!editMode && (
+                {/* {!editMode && (
                     <View style={styles.statsContainer}>
                         <View style={styles.statCard}>
                             <Icone nome="briefcase" tamanho={32} color="#295CA9" />
@@ -408,7 +408,7 @@ export default function PerfilOng() {
                             <Text style={styles.statLabel}>Voluntários</Text>
                         </View>
                     </View>
-                )}
+                )} */}
 
                 {/* Botões de Ação */}
                 <View style={styles.buttonContainer}>
