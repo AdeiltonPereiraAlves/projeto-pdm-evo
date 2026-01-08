@@ -86,7 +86,12 @@ export default function PerfilOng() {
         try {
             setLoading(true);
             const data = await httpGet('perfil', token || "");
+
+            if(!data){
+                throw new Error("Dados do perfil não encontrados");
+            }
             console.log("Dados do perfil recebidos:", data);
+           
             // Aplica máscara no CNPJ recebido
             const dataFormatada = {
                 ...data,

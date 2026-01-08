@@ -166,7 +166,6 @@
 //
 
 import { AuthContext } from "@/data/context/AuthContext";
-import { useVagas } from "@/data/context/VagaContext";
 import useAPI from "@/data/hooks/useAPI";
 import { useNavigation } from "@react-navigation/native";
 import React, { useCallback, useContext, useEffect, useState } from "react";
@@ -192,6 +191,7 @@ type RootStackParamList = {
 };
 
 // Se precisar usar NativeStackNavigationProp (mais moderno)
+import { useOng } from "@/data/context/ongContext";
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 type NavProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -210,12 +210,13 @@ export default function VagasOng() {
   const { token } = useContext(AuthContext);
   const { httpGet } = useAPI();
   const navigation = useNavigation<NavProp>();
-  const { vagasOng, listarVagasOng } = useVagas();
+  // const { vagasOng, listarVagasOng } = useVagas();
 
   const [vagas, setVagas] = useState<Vaga[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const {vagasOng,carregarVagasOng, loadingVagas} = useOng()
 
   // Sincroniza lista local com o contexto sempre que vagasOng mudar
   useEffect(() => {
@@ -228,7 +229,7 @@ export default function VagasOng() {
       setError("Erro ao carregar vagas");
       setVagas([]);
     } finally {
-      setLoading(false);
+      setLoading(loadingVagas);
     }
   }, [vagasOng]);
 
@@ -236,8 +237,8 @@ export default function VagasOng() {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      if (typeof listarVagasOng === "function") {
-        await listarVagasOng(token!);
+      if (typeof carregarVagasOng === "function") {
+        await carregarVagasOng()
       } else {
         // fallback: apenas re-sincroniza com o contexto
         setVagas(Array.isArray(vagasOng) ? vagasOng : []);
@@ -248,13 +249,14 @@ export default function VagasOng() {
     } finally {
       setRefreshing(false);
     }
-  }, [listarVagasOng, vagasOng, token]);
+  }, [carregarVagasOng, vagasOng, token]);
 
   const handleVerVaga = (vagaId: string) => {
     navigation.navigate("DetalheVagaOng", { vagaId });
   };
 
   const handleVerInscricoes = (vaga: Vaga) => {
+    console.log(vaga, "Vaga selecionada para ver inscrições");
     if (!vaga.inscricoes || vaga.inscricoes.length === 0) {
       Alert.alert(
         "Sem inscrições",
@@ -282,7 +284,7 @@ export default function VagasOng() {
     />
   );
 
-  if (loading) {
+  if (loadingVagas) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color="#295CA9" />
@@ -299,8 +301,8 @@ export default function VagasOng() {
           <TouchableOpacity style={styles.retryBtn} onPress={() => {
             setLoading(true);
             setError(null);
-            if (typeof listarVagasOng === "function") {
-              listarVagasOng(token!).finally(() => setLoading(false));
+            if (typeof carregarVagasOng === "function") {
+              carregarVagasOng().finally(() => setLoading(false));
             } else {
               setVagas(Array.isArray(vagasOng) ? vagasOng : []);
               setLoading(false);

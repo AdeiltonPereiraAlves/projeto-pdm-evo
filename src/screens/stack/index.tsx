@@ -1,5 +1,6 @@
 import DetalheVagaOng from "@/components/vagas/vagaOng/DetalheVagaOng";
 import { AuthContext, AuthProvider } from "@/data/context/AuthContext";
+import { OngProvider } from "@/data/context/ongContext";
 import { VagaProvider } from "@/data/context/VagaContext";
 import DetalheVaga from "@/screens/stack/DetalheVaga";
 import { NavigationContainer } from "@react-navigation/native";
@@ -65,10 +66,13 @@ export default function App() {
   return (
     <AuthProvider>
       <VagaProvider>
-        <NavigationContainer>
+        <OngProvider>
 
-          <AppNavigator />
-        </NavigationContainer>
+          <NavigationContainer>
+
+            <AppNavigator />
+          </NavigationContainer>
+        </OngProvider>
       </VagaProvider>
     </AuthProvider>
   );

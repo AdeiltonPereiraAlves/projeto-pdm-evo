@@ -44,6 +44,9 @@ export default function Home() {
 
     // Atualiza vagas ao carregar
     useEffect(() => {
+        if(!vagas){
+            loading
+        }
         if (token) {
             atualizarVagas();
             console.log(vagas, "vagasFiltradas")

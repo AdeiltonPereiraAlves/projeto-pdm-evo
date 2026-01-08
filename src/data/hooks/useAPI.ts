@@ -5,18 +5,75 @@ const URL_BASE = API_URL
 
 export default function useAPI() {
 
-    const httpGet = useCallback(async function (uri: string, token?: string): Promise<any> {
+    // const httpGet = useCallback(async function (uri: string, token?: string): Promise<any> {
 
-        const headers: HeadersInit = {}
-        if (token) {
-            headers.Authorization = `Bearer ${token}`
+    //     const headers: HeadersInit = {}
+    //     if (token) {
+    //         headers.Authorization = `Bearer ${token}`
+    //     }
+
+    //     const res = await fetch(`${URL_BASE}/${uri}`, { headers })
+    //     console.log('httpGet response:', res);
+    //     const data = await res.json()
+    //     console.log('httpGet data:', data);
+    //     return data
+    // }, [])
+
+     const httpGet = useCallback(async function (uri: string, token?: string): Promise<any> {
+        try {
+            const headers: HeadersInit = {}
+            if (token) {
+                headers.Authorization = `Bearer ${token}`
+            }
+
+            const res = await fetch(`${URL_BASE}/${uri}`, { headers })
+            console.log('httpGet response status:', res.status);
+            
+            // Verifica se a resposta está OK
+            if (!res.ok) {
+                console.error('httpGet error status:', res.status);
+                throw new Error(`Erro HTTP: ${res.status}`);
+            }
+
+            // Verifica se há conteúdo
+            const contentLength = res.headers.get('content-length');
+            const contentType = res.headers.get('content-type');
+            
+            console.log('httpGet content-length:', contentLength);
+            console.log('httpGet content-type:', contentType);
+
+            // Se não houver conteúdo ou for muito pequeno, retorna null
+            if (contentLength && parseInt(contentLength) <= 4) {
+                console.log('Resposta muito pequena, retornando null');
+                return null;
+            }
+
+            // Verifica se é JSON
+            if (contentType && contentType.includes('application/json')) {
+                const text = await res.text();
+                console.log('httpGet raw text:', text.substring(0, 200)); // Log parcial
+                
+                if (!text || text.trim() === '') {
+                    return null;
+                }
+                
+                try {
+                    const data = JSON.parse(text);
+                    console.log('httpGet parsed data:', data);
+                    return data;
+                } catch (parseError) {
+                    console.error('Erro ao parsear JSON:', parseError, 'Texto:', text);
+                    return null;
+                }
+            } else {
+                // Se não for JSON, retorna o texto
+                const text = await res.text();
+                return text || null;
+            }
+        } catch (error) {
+            console.error('httpGet error:', error);
+            throw error;
         }
-
-        const res = await fetch(`${URL_BASE}/${uri}`, { headers })
-        console.log('httpGet response:', res);
-        const data = await res.json()
-        console.log('httpGet data:', data);
-        return data
     }, [])
 
     const httpPost = useCallback(async function (uri: string, body: any, token?: string): Promise<Response> {
