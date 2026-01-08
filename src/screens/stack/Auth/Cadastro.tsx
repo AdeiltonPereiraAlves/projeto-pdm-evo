@@ -638,6 +638,10 @@ export default function Cadastro() {
       alert("Por favor, preencha todos os campos obrigatórios");
       return;
     }
+    else if(nome.length<10){
+      alert("O nome deve ter no mínimo 10 caracteres");
+      return;
+    }
 
     if (senha !== confirmarSenha) {
       alert("As senhas não coincidem");
@@ -707,7 +711,8 @@ export default function Cadastro() {
           await login(data.token, tipoUsuario, data.usuario);
           navigation.navigate("Abas");
         } else {
-          alert(data.msg || "Erro ao cadastrar");
+         
+          alert(data || "Erro ao cadastrar");
         }
       } else {
         const res = await httpPost("ong/registrar", body);
