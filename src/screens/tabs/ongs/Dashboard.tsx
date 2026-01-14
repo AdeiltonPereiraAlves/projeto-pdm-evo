@@ -1,6 +1,6 @@
 import Icone from "@/components/shared/Icone";
 import { AuthContext } from "@/data/context/AuthContext";
-import { useVagas } from "@/data/context/VagaContext";
+import { useOng } from "@/data/context/ongContext";
 import useAPI from "@/data/hooks/useAPI";
 import { useNavigation } from "@react-navigation/native";
 import { useContext, useEffect, useState } from "react";
@@ -55,7 +55,7 @@ export default function Dashboard() {
         candidatosAprovados: 0,
         totalCandidaturas: 0,
     });
-    const {vagasOng } = useVagas()
+    const {vagasOng } = useOng()
     useEffect(() => {
         carregarDados();
     }, []);
@@ -116,7 +116,7 @@ export default function Dashboard() {
 
         // Calcular candidaturas (se disponível)
         vagasData.forEach((vaga) => {
-
+            console.log("vagas calculadas:", vaga);
             console.log("Calculando estatísticas para vaga:", vaga.id, vaga.inscricoes);
             if (vaga.inscricoes && Array.isArray(vaga.inscricoes)) {
                 estatisticas.totalCandidaturas += vaga.inscricoes.length;
@@ -149,12 +149,12 @@ export default function Dashboard() {
                     <Text style={styles.headerTitle}>Dashboard</Text>
                     <Text style={styles.headerSubtitle}>Visão geral da sua ONG</Text>
                 </View>
-                <Pressable onPress={() => navigation.navigate("ConfiguracoesOng" as never)}>
+                {/* <Pressable onPress={() => navigation.navigate("ConfiguracoesOng" as never)}>
                     <Icone nome="settings-outline" tamanho={24} color="#295CA9" />
                 </Pressable>
                 <Pressable onPress={() => logout()}>
                     <Icone nome="log-out" tamanho={24} color="#295CA9" />
-                </Pressable>
+                </Pressable> */}
             </View>
 
             <ScrollView

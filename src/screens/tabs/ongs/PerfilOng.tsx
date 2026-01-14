@@ -86,7 +86,12 @@ export default function PerfilOng() {
         try {
             setLoading(true);
             const data = await httpGet('perfil', token || "");
+
+            if(!data){
+                throw new Error("Dados do perfil não encontrados");
+            }
             console.log("Dados do perfil recebidos:", data);
+           
             // Aplica máscara no CNPJ recebido
             const dataFormatada = {
                 ...data,
@@ -395,7 +400,7 @@ export default function PerfilOng() {
                 </View>
 
                 {/* Estatísticas (Opcional) */}
-                {!editMode && (
+                {/* {!editMode && (
                     <View style={styles.statsContainer}>
                         <View style={styles.statCard}>
                             <Icone nome="briefcase" tamanho={32} color="#295CA9" />
@@ -408,7 +413,7 @@ export default function PerfilOng() {
                             <Text style={styles.statLabel}>Voluntários</Text>
                         </View>
                     </View>
-                )}
+                )} */}
 
                 {/* Botões de Ação */}
                 <View style={styles.buttonContainer}>
