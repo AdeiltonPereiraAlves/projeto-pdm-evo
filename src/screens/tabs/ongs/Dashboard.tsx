@@ -1,3 +1,4 @@
+import Loading from "@/components/loading/Loading";
 import Icone from "@/components/shared/Icone";
 import { AuthContext } from "@/data/context/AuthContext";
 import { useOng } from "@/data/context/ongContext";
@@ -5,7 +6,6 @@ import useAPI from "@/data/hooks/useAPI";
 import { useNavigation } from "@react-navigation/native";
 import { useContext, useEffect, useState } from "react";
 import {
-    ActivityIndicator,
     Alert,
     Dimensions,
     Pressable,
@@ -13,7 +13,7 @@ import {
     ScrollView,
     StyleSheet,
     Text,
-    View,
+    View
 } from "react-native";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
@@ -134,10 +134,11 @@ export default function Dashboard() {
 
     if (loading) {
         return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#295CA9" />
-                <Text style={styles.loadingText}>Carregando dashboard...</Text>
-            </View>
+            // <View style={styles.loadingContainer}>
+            //     <ActivityIndicator size="large" color="#295CA9" />
+            //     <Text style={styles.loadingText}>Carregando dashboard...</Text>
+            // </View>
+            <Loading/>
         );
     }
 
