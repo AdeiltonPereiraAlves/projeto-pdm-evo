@@ -1,12 +1,15 @@
 import CategoryFilter from "@/components/ui/CategoryFilter";
 import SearchBar from "@/components/ui/SearchBar";
 import VagaCard from "@/components/vagas/VagaCard";
+import AnimatedCard from "@/components/shared/AnimatedCard";
+import AnimatedList from "@/components/shared/AnimatedList";
 import { AuthContext } from "@/data/context/AuthContext";
 import { useVagas } from "@/data/context/VagaContext";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "expo-router";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useMemo } from "react";
 import { Alert, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import CategoriasChart from "@/components/charts/CategoriasChart";
 
 type StackParamList = {
     Abas: undefined;
@@ -59,6 +62,15 @@ export default function Home() {
         filtrarVagas();
         console.log(vagas, "vagasFiltradas")
     }, [vagas, searchText, selectedCategory]);
+
+    const categoriasData = useMemo(() => {
+        const categoriasCount: { [key: string]: number } = {};
+        vagas.forEach((vaga) => {
+            const categoria = vaga.categoria || "Outras";
+            categoriasCount[categoria] = (categoriasCount[categoria] || 0) + 1;
+        });
+        return categoriasCount;
+    }, [vagas]);
 
     const filtrarVagas = () => {
         let filtradas = vagas;
@@ -127,6 +139,14 @@ export default function Home() {
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                 }
             >
+                {/* Gráfico de Categorias */}
+                {vagas.length > 0 && (
+                    <View style={styles.chartSection}>
+                        <AnimatedCard delay={0}>
+                            <CategoriasChart categorias={categoriasData} />
+                        </AnimatedCard>
+                    </View>
+                )}
                 {vagasFiltradas.length === 0 ? (
                     <View style={styles.emptyContainer}>
                         <Text style={styles.emptyText}>
@@ -137,9 +157,9 @@ export default function Home() {
                         </Text>
                     </View>
                 ) : (
-                    vagasFiltradas.map((vaga: Vaga) => (
+                    vagasFiltradas.map((vaga: Vaga, index: number) => (
+                        <AnimatedList key={vaga.id} index={index}>
                         <VagaCard
-                            key={vaga.id}
                             titulo={vaga.titulo}
                             nomeOng={vaga.nomeOng || "ONG"}
                             imagemOng={vaga.imagemOng}
@@ -150,6 +170,7 @@ export default function Home() {
                             tag={vaga.tipoTrabalho}
                             onPress={() => handleVagaPress(vaga)}
                         />
+                        </AnimatedList>
                     ))
                 )}
             </ScrollView>
@@ -162,6 +183,10 @@ const styles = StyleSheet.create({
     loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f5f5f5' },
     loadingText: { fontSize: 16, color: '#666' },
     scrollView: { flex: 1 },
+    chartSection: {
+        paddingHorizontal: 16,
+        paddingTop: 12,
+    },
     emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 50, paddingHorizontal: 20 },
     emptyText: { fontSize: 16, color: '#666', textAlign: 'center', lineHeight: 24 },
 });

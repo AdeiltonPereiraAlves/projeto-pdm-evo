@@ -1,5 +1,6 @@
 import Loading from "@/components/loading/Loading";
 import Icone from "@/components/shared/Icone";
+import AnimatedCard from "@/components/shared/AnimatedCard";
 import { AuthContext } from "@/data/context/AuthContext";
 import { useOng } from "@/data/context/ongContext";
 import useAPI from "@/data/hooks/useAPI";
@@ -15,6 +16,8 @@ import {
     Text,
     View
 } from "react-native";
+import VagasStatusChart from "@/components/charts/VagasStatusChart";
+import CandidaturasChart from "@/components/charts/CandidaturasChart";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -168,6 +171,7 @@ export default function Dashboard() {
                 {/* Cards de Estatísticas */}
                 <View style={styles.statsContainer}>
                     <View style={styles.statsRow}>
+                        <AnimatedCard delay={0}>
                         <View style={[styles.statCard, styles.statCardPrimary]}>
                             <View style={styles.statIconContainer}>
                                 <Icone nome="briefcase" tamanho={24} color="#295CA9" />
@@ -175,7 +179,9 @@ export default function Dashboard() {
                             <Text style={styles.statNumber}>{stats.totalVagas}</Text>
                             <Text style={styles.statLabel}>Total de Vagas</Text>
                         </View>
+                        </AnimatedCard>
 
+                        <AnimatedCard delay={100}>
                         <View style={[styles.statCard, styles.statCardSuccess]}>
                             <View style={styles.statIconContainer}>
                                 <Icone nome="checkmark-circle" tamanho={24} color="#22c55e" />
@@ -183,9 +189,11 @@ export default function Dashboard() {
                             <Text style={styles.statNumber}>{stats.vagasAbertas}</Text>
                             <Text style={styles.statLabel}>Vagas Abertas</Text>
                         </View>
+                        </AnimatedCard>
                     </View>
 
                     <View style={styles.statsRow}>
+                        <AnimatedCard delay={200}>
                         <View style={[styles.statCard, styles.statCardWarning]}>
                             <View style={styles.statIconContainer}>
                                 <Icone nome="people" tamanho={24} color="#f59e0b" />
@@ -193,7 +201,9 @@ export default function Dashboard() {
                             <Text style={styles.statNumber}>{stats.totalCandidaturas}</Text>
                             <Text style={styles.statLabel}>Candidaturas</Text>
                         </View>
+                        </AnimatedCard>
 
+                        <AnimatedCard delay={300}>
                         <View style={[styles.statCard, styles.statCardInfo]}>
                             <View style={styles.statIconContainer}>
                                 <Icone nome="time" tamanho={24} color="#3b82f6" />
@@ -201,7 +211,28 @@ export default function Dashboard() {
                             <Text style={styles.statNumber}>{stats.candidatosPendentes}</Text>
                             <Text style={styles.statLabel}>Pendentes</Text>
                         </View>
+                        </AnimatedCard>
                     </View>
+                </View>
+
+                {/* Gráficos */}
+                <View style={styles.section}>
+                    <AnimatedCard delay={400}>
+                        <VagasStatusChart
+                            vagasAbertas={stats.vagasAbertas}
+                            vagasFechadas={stats.vagasFechadas}
+                            totalVagas={stats.totalVagas}
+                        />
+                    </AnimatedCard>
+                    {stats.totalCandidaturas > 0 && (
+                        <AnimatedCard delay={500}>
+                            <CandidaturasChart
+                                pendentes={stats.candidatosPendentes}
+                                aprovados={stats.candidatosAprovados}
+                                totalCandidaturas={stats.totalCandidaturas}
+                            />
+                        </AnimatedCard>
+                    )}
                 </View>
 
                 {/* Ações Rápidas */}

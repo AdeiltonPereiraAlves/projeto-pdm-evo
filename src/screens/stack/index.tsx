@@ -5,6 +5,7 @@ import { VagaProvider } from "@/data/context/VagaContext";
 import DetalheVaga from "@/screens/stack/DetalheVaga";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { GluestackUIProvider } from "@gluestack-ui/themed";
 import { useContext } from "react";
 import IncricoesScreen from "../../components/ong/incricoes/InscricoesScreen";
 import Abas from "../tabs/index";
@@ -64,6 +65,7 @@ function AppNavigator() {
 export default function App() {
 
   return (
+    <GluestackUIProvider>
     <AuthProvider>
       <VagaProvider>
         <OngProvider>
@@ -75,5 +77,6 @@ export default function App() {
         </OngProvider>
       </VagaProvider>
     </AuthProvider>
+    </GluestackUIProvider>
   );
 }
