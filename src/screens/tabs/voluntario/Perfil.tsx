@@ -2,6 +2,7 @@
 
 import Avatar from "@/components/shared/Avatar";
 import Icone from "@/components/shared/Icone";
+import Loading from "@/components/loading/Loading";
 import Botao from "@/components/ui/Botao";
 import { AuthContext } from "@/data/context/AuthContext";
 import { useVagas } from "@/data/context/VagaContext";
@@ -181,12 +182,7 @@ export default function Perfil() {
     };
 
     if (loading) {
-        return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#295CA9" />
-                <Text style={styles.loadingText}>Carregando perfil...</Text>
-            </View>
-        );
+        return <Loading message="Carregando perfil..." />;
     }
 
     return (

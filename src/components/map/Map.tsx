@@ -1,144 +1,162 @@
-import { useVagas } from '@/data/context/VagaContext';
-import * as Location from 'expo-location';
+import Icone from "@/components/shared/Icone";
+import Loading from "@/components/loading/Loading";
+import { useVagas } from "@/data/context/VagaContext";
+import * as Location from "expo-location";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import MapView, { Marker, Region } from "react-native-maps";
+import { RootStackParamList } from "@/screens/stack/index";
+
 
 // Calcula distância aproximada entre duas coordenadas (km)
-function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
+function getDistanceFromLatLonInKm(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number {
   const R = 6371;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
   const a =
     Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon / 2) ** 2;
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) ** 2;
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
 
+function formatDistance(km: number): string {
+  if (km < 1) return `${Math.round(km * 1000)} m`;
+  return `${km.toFixed(1)} km`;
+}
+
+function formatTipoTrabalho(tipo: string): string {
+  const map: Record<string, string> = {
+    PRESENCIAL: "Presencial",
+    REMOTO: "Remoto",
+    HIBRIDO: "Híbrido",
+  };
+  return map[tipo] || tipo;
+}
+
+type VagaMapa = {
+  id: string;
+  titulo: string;
+  descricao?: string;
+  localizacao?: string;
+  tipoTrabalho?: string;
+  latitude: number;
+  longitude: number;
+  nomeOng?: string;
+  ong?: { nome?: string };
+};
+
+type MapNavigationProp = NativeStackNavigationProp<RootStackParamList, "DetalheVaga">;
+
 export default function Map() {
+  const navigation = useNavigation<MapNavigationProp>();
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [loading, setLoading] = useState(true);
   const { vagas } = useVagas();
-  const [vagasProximas, setVagasProximas] = useState<any[]>([]);
+  const [vagasProximas, setVagasProximas] = useState<VagaMapa[]>([]);
 
-  // Pega localização do usuário
   useEffect(() => {
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        console.log('Permissão de localização negada');
+      if (status !== "granted") {
         setLoading(false);
         return;
       }
-
-      const currentLocation = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+      const currentLocation = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High,
+      });
       setLocation(currentLocation);
       setLoading(false);
     })();
   }, []);
 
-  // Filtra vagas próximas
   useEffect(() => {
     if (!location || !vagas) return;
 
-    const filtradas = vagas.filter((vaga) => {
-      if (!vaga.latitude || !vaga.longitude) return false; // ignora vagas sem coordenada
-
-      const lat = Number(vaga.latitude);
-      const lon = Number(vaga.longitude);
-      const distancia = getDistanceFromLatLonInKm(
-        location.coords.latitude,
-        location.coords.longitude,
-        lat,
-        lon
-      );
-
-      return distancia <= 5000; // até 5 km
-    });
+    const filtradas = vagas
+      .filter((v) => v.latitude != null && v.longitude != null && !isNaN(Number(v.latitude)) && !isNaN(Number(v.longitude)))
+      .map((v) => {
+        const lat = Number(v.latitude);
+        const lon = Number(v.longitude);
+        const distancia = getDistanceFromLatLonInKm(
+          location.coords.latitude,
+          location.coords.longitude,
+          lat,
+          lon
+        );
+        return { ...v, latitude: lat, longitude: lon, _distancia: distancia };
+      })
+      .filter((v) => (v as any)._distancia <= 50)
+      .sort((a, b) => (a as any)._distancia - (b as any)._distancia)
+      .map(({ _distancia, ...rest }) => ({ ...rest, distancia: _distancia }));
 
     setVagasProximas(filtradas);
   }, [location, vagas]);
 
   if (loading) {
-    return (
-      <View style={styles.loader}>
-        <ActivityIndicator size="large" color="#000" />
-      </View>
-    );
+    return <Loading message="Carregando mapa..." />;
   }
 
   if (!location) {
-    return <View style={styles.error}><Text>Não foi possível obter a localização.</Text></View>;
+    return (
+      <View style={styles.error}>
+        <Icone nome="location-outline" tamanho={48} color="#94a3b8" />
+        <Text style={styles.errorText}>Não foi possível obter sua localização.</Text>
+        <Text style={styles.errorHint}>Verifique as permissões do app.</Text>
+      </View>
+    );
   }
 
   const region: Region = {
     latitude: location.coords.latitude,
     longitude: location.coords.longitude,
-    latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
+    latitudeDelta: 0.1,
+    longitudeDelta: 0.1,
   };
 
   return (
     <MapView
       style={styles.map}
       initialRegion={region}
-      showsUserLocation={true}
-      showsMyLocationButton={true}
+      showsUserLocation
+      showsMyLocationButton
+      zoomEnabled
+      zoomControlEnabled
+      scrollEnabled
+      pitchEnabled
+      rotateEnabled
+      mapType="standard"
     >
-      {/* Marcador do usuário */}
-      <Marker
-        coordinate={{
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-        }}
-        title="Você está aqui"
-        description="Localização atual"
-      />
-
-      {/* Marcadores das vagas */}
       {vagasProximas.map((vaga) => (
         <Marker
           key={vaga.id}
           coordinate={{
-            latitude: Number(vaga.latitude),
-            longitude: Number(vaga.longitude),
+            latitude: vaga.latitude,
+            longitude: vaga.longitude,
           }}
-          pinColor="red"
-          title={vaga.titulo}
-          description={vaga.descricao}
-        >
-          {/* <Callout>
-            <View style={styles.calloutContainer}>
-              <Text style={styles.calloutTitle}>{vaga.titulo}</Text>
-              <Text style={styles.calloutDescription}>{vaga.descricao}</Text>
-            </View>
-          </Callout> */}
-        </Marker>
-        // <Marker
-        //   key={vaga.id}
-        //   coordinate={{
-        //     latitude: Number(vaga.latitude),
-        //     longitude: Number(vaga.longitude),
-        //   }}
-        //   pinColor="red"
-        //    tracksViewChanges={false}
-        // >
-        //   <Callout tooltip>
-        //     <View style={styles.calloutSmall}>
-        //       <Text style={styles.calloutTitleSmall}>
-        //         {vaga.titulo}
-        //       </Text>
-        //       <Text
-        //         style={styles.calloutDescriptionSmall}
-        //         numberOfLines={2}   // 👈 limita o texto
-        //       >
-        //         {vaga.descricao}
-        //       </Text>
-        //     </View>
-        //   </Callout>
-        // </Marker>
+          pinColor="#295CA9"
+          tracksViewChanges={false}
+          title={vaga.titulo || "Vaga"}
+          description={
+            [
+              formatDistance((vaga as any).distancia ?? 0),
+              vaga.tipoTrabalho ? formatTipoTrabalho(vaga.tipoTrabalho) : null,
+              vaga.nomeOng || vaga.ong?.nome || null,
+            ]
+              .filter(Boolean)
+              .join(" • ") + " — Toque para abrir"
+          }
+          onCalloutPress={() => navigation.navigate("DetalheVaga", { vagaId: vaga.id })}
+        />
       ))}
     </MapView>
   );
@@ -146,49 +164,23 @@ export default function Map() {
 
 const styles = StyleSheet.create({
   map: { flex: 1 },
-  loader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  error: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  calloutContainer: {
-    minWidth: 250,          // aumenta largura mínima
-    maxWidth: 300,          // largura máxima
-    padding: 15,            // mais espaçamento interno
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    shadowColor: "#000",
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 5,
+  error: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f8fafc",
+    padding: 24,
   },
-  calloutTitle: {
-    fontWeight: "bold",
-    fontSize: 18,          // aumenta o tamanho do título
-    marginBottom: 8,
+  errorText: {
+    fontSize: 16,
+    color: "#475569",
+    marginTop: 12,
+    textAlign: "center",
   },
-  calloutDescription: {
-    fontSize: 15,          // aumenta o tamanho do texto
-    color: "#333",
-  },
-  calloutSmall: {
-    maxWidth: 200,
-    padding: 8,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#ddd",
-  },
-
-  calloutTitleSmall: {
+  errorHint: {
     fontSize: 14,
-    fontWeight: "600",
-    marginBottom: 4,
+    color: "#94a3b8",
+    marginTop: 4,
+    textAlign: "center",
   },
-
-  calloutDescriptionSmall: {
-    fontSize: 12,
-    color: "#555",
-  },
-
 });

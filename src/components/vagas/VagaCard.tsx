@@ -6,7 +6,7 @@ export interface VagaCardProps {
     titulo: string;
     nomeOng: string;
     imagemOng: string;
-    areaAtuacao: [];
+    areaAtuacao: string[];
     localizacao: string;
     data: string;
     descricao: string;

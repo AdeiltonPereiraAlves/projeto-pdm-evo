@@ -139,7 +139,7 @@ export default function Dashboard() {
             //     <ActivityIndicator size="large" color="#295CA9" />
             //     <Text style={styles.loadingText}>Carregando dashboard...</Text>
             // </View>
-            <Loading/>
+            <Loading message="Carregando dashboard..." />
         );
     }
 

@@ -46,33 +46,33 @@
 //     };
 
 //     const validarFormulario = (): boolean => {
-//         if (!formData.titulo.trim()) {
+//         if (!formValues.titulo.trim()) {
 //             Alert.alert("Erro", "O título da vaga é obrigatório");
 //             return false;
 //         }
 
-//         if (!formData.descricao.trim()) {
+//         if (!formValues.descricao.trim()) {
 //             Alert.alert("Erro", "A descrição da vaga é obrigatória");
 //             return false;
 //         }
 
-//         if (!formData.requisitos.trim()) {
+//         if (!formValues.requisitos.trim()) {
 //             Alert.alert("Erro", "Os requisitos da vaga são obrigatórios");
 //             return false;
 //         }
 
-//         const quantidade = parseInt(formData.quantidade);
-//         if (!formData.quantidade || isNaN(quantidade) || quantidade <= 0) {
+//         const quantidade = parseInt(formValues.quantidade);
+//         if (!formValues.quantidade || isNaN(quantidade) || quantidade <= 0) {
 //             Alert.alert("Erro", "A quantidade de vagas deve ser um número maior que zero");
 //             return false;
 //         }
 
-//         if (!formData.duracao.trim()) {
+//         if (!formValues.duracao.trim()) {
 //             Alert.alert("Erro", "A duração da vaga é obrigatória");
 //             return false;
 //         }
 
-//         if (!formData.localizacao.trim()) {
+//         if (!formValues.localizacao.trim()) {
 //             Alert.alert("Erro", "A localização da vaga é obrigatória");
 //             return false;
 //         }
@@ -87,23 +87,23 @@
 //             setSalvando(true);
 
 //             // Processar requisitos (separar por vírgula ou linha)
-//             const requisitosArray = formData.requisitos
+//             const requisitosArray = formValues.requisitos
 //                 .split(/[,\n]/)
 //                 .map((r) => r.trim())
 //                 .filter((r) => r.length > 0);
 
 //             // Preparar dados para enviar
 //             const vagaData = {
-//                 titulo: formData.titulo.trim(),
-//                 descricao: formData.descricao.trim(),
+//                 titulo: formValues.titulo.trim(),
+//                 descricao: formValues.descricao.trim(),
 //                 requisitos: requisitosArray,
-//                 quantidade: parseInt(formData.quantidade),
-//                 duracao: formData.duracao.trim(),
-//                 localizacao: formData.localizacao.trim(),
-//                 tipoTrabalho: formData.tipoTrabalho,
-//                 status: formData.status,
-//                 latitude: formData.latitude ? parseFloat(formData.latitude) : -23.55052,
-//                 longitude: formData.longitude ? parseFloat(formData.longitude) : -46.633308,
+//                 quantidade: parseInt(formValues.quantidade),
+//                 duracao: formValues.duracao.trim(),
+//                 localizacao: formValues.localizacao.trim(),
+//                 tipoTrabalho: formValues.tipoTrabalho,
+//                 status: formValues.status,
+//                 latitude: formValues.latitude ? parseFloat(formValues.latitude) : -23.55052,
+//                 longitude: formValues.longitude ? parseFloat(formValues.longitude) : -46.633308,
 //             };
 
 //             console.log("Enviando vaga:", vagaData);
@@ -182,8 +182,8 @@
 //                             </Text>
 //                             <TextInput
 //                                 style={styles.input}
-//                                 value={formData.titulo}
-//                                 onChangeText={(value) => handleChange("titulo", value)}
+//                                 value={formValues.titulo}
+//                                 onChangeText={(value) => setValue("titulo", value)}
 //                                 placeholder="Ex: Voluntário para Apoio Educacional"
 //                                 placeholderTextColor="#939EAA"
 //                             />
@@ -195,8 +195,8 @@
 //                             </Text>
 //                             <TextInput
 //                                 style={[styles.input, styles.textArea]}
-//                                 value={formData.descricao}
-//                                 onChangeText={(value) => handleChange("descricao", value)}
+//                                 value={formValues.descricao}
+//                                 onChangeText={(value) => setValue("descricao", value)}
 //                                 placeholder="Descreva as atividades e responsabilidades..."
 //                                 placeholderTextColor="#939EAA"
 //                                 multiline
@@ -214,8 +214,8 @@
 //                             </Text>
 //                             <TextInput
 //                                 style={[styles.input, styles.textArea]}
-//                                 value={formData.requisitos}
-//                                 onChangeText={(value) => handleChange("requisitos", value)}
+//                                 value={formValues.requisitos}
+//                                 onChangeText={(value) => setValue("requisitos", value)}
 //                                 placeholder="Ex: Proatividade, Boa comunicação, Disponibilidade"
 //                                 placeholderTextColor="#939EAA"
 //                                 multiline
@@ -231,8 +231,8 @@
 //                                 </Text>
 //                                 <TextInput
 //                                     style={styles.input}
-//                                     value={formData.quantidade}
-//                                     onChangeText={(value) => handleChange("quantidade", value)}
+//                                     value={formValues.quantidade}
+//                                     onChangeText={(value) => setValue("quantidade", value)}
 //                                     placeholder="0"
 //                                     placeholderTextColor="#939EAA"
 //                                     keyboardType="number-pad"
@@ -245,8 +245,8 @@
 //                                 </Text>
 //                                 <TextInput
 //                                     style={styles.input}
-//                                     value={formData.duracao}
-//                                     onChangeText={(value) => handleChange("duracao", value)}
+//                                     value={formValues.duracao}
+//                                     onChangeText={(value) => setValue("duracao", value)}
 //                                     placeholder="Ex: 3 meses"
 //                                     placeholderTextColor="#939EAA"
 //                                 />
@@ -264,8 +264,8 @@
 //                             </Text>
 //                             <TextInput
 //                                 style={styles.input}
-//                                 value={formData.localizacao}
-//                                 onChangeText={(value) => handleChange("localizacao", value)}
+//                                 value={formValues.localizacao}
+//                                 onChangeText={(value) => setValue("localizacao", value)}
 //                                 placeholder="Ex: Rua Exemplo, 123 - Bairro, Cidade"
 //                                 placeholderTextColor="#939EAA"
 //                             />
@@ -276,8 +276,8 @@
 //                                 <Text style={styles.label}>Latitude (opcional)</Text>
 //                                 <TextInput
 //                                     style={styles.input}
-//                                     value={formData.latitude}
-//                                     onChangeText={(value) => handleChange("latitude", value)}
+//                                     value={formValues.latitude}
+//                                     onChangeText={(value) => setValue("latitude", value)}
 //                                     placeholder="-23.55052"
 //                                     placeholderTextColor="#939EAA"
 //                                     keyboardType="numeric"
@@ -288,8 +288,8 @@
 //                                 <Text style={styles.label}>Longitude (opcional)</Text>
 //                                 <TextInput
 //                                     style={styles.input}
-//                                     value={formData.longitude}
-//                                     onChangeText={(value) => handleChange("longitude", value)}
+//                                     value={formValues.longitude}
+//                                     onChangeText={(value) => setValue("longitude", value)}
 //                                     placeholder="-46.633308"
 //                                     placeholderTextColor="#939EAA"
 //                                     keyboardType="numeric"
@@ -307,14 +307,14 @@
 //                                     key={tipo}
 //                                     style={[
 //                                         styles.optionButton,
-//                                         formData.tipoTrabalho === tipo && styles.optionButtonActive,
+//                                         formValues.tipoTrabalho === tipo && styles.optionButtonActive,
 //                                     ]}
-//                                     onPress={() => handleChange("tipoTrabalho", tipo)}
+//                                     onPress={() => setValue("tipoTrabalho", tipo)}
 //                                 >
 //                                     <Text
 //                                         style={[
 //                                             styles.optionText,
-//                                             formData.tipoTrabalho === tipo && styles.optionTextActive,
+//                                             formValues.tipoTrabalho === tipo && styles.optionTextActive,
 //                                         ]}
 //                                     >
 //                                         {tipo}
@@ -333,14 +333,14 @@
 //                                     key={status}
 //                                     style={[
 //                                         styles.optionButton,
-//                                         formData.status === status && styles.optionButtonActive,
+//                                         formValues.status === status && styles.optionButtonActive,
 //                                     ]}
-//                                     onPress={() => handleChange("status", status)}
+//                                     onPress={() => setValue("status", status)}
 //                                 >
 //                                     <Text
 //                                         style={[
 //                                             styles.optionText,
-//                                             formData.status === status && styles.optionTextActive,
+//                                             formValues.status === status && styles.optionTextActive,
 //                                         ]}
 //                                     >
 //                                         {status}
@@ -485,16 +485,18 @@
 // });
 
 
-// Código removido para evitar redundância
+import { yupResolver } from "@hookform/resolvers/yup";
 import Icone from "@/components/shared/Icone";
+import Loading from "@/components/loading/Loading";
 import Botao from "@/components/ui/Botao";
 import { AuthContext } from "@/data/context/AuthContext";
 import useAPI from "@/data/hooks/useAPI";
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
 import React, { useCallback, useContext, useRef, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import * as yup from "yup";
 import {
-    ActivityIndicator,
     Alert,
     Dimensions,
     KeyboardAvoidingView,
@@ -515,6 +517,33 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 const TIPOS_TRABALHO = ["PRESENCIAL", "REMOTO", "HIBRIDO"];
 const STATUS_OPCOES = ["ABERTO", "FECHADO"];
 
+const criarVagaSchema = yup.object({
+  titulo: yup.string().trim().required("O título da vaga é obrigatório").min(3, "Mínimo 3 caracteres"),
+  descricao: yup.string().trim().required("A descrição da vaga é obrigatória"),
+  requisitos: yup.string().trim().required("Os requisitos da vaga são obrigatórios"),
+  quantidade: yup
+    .string()
+    .required("Informe a quantidade de vagas")
+    .test("is-valid-number", "A quantidade deve ser um número maior que zero", (val) => {
+      const n = parseInt(val || "0", 10);
+      return !isNaN(n) && n > 0;
+    }),
+  duracao: yup.string().trim().required("A duração da vaga é obrigatória"),
+  localizacao: yup.string().trim(),
+  latitude: yup.string(),
+  longitude: yup.string(),
+  tipoTrabalho: yup.string().oneOf(["PRESENCIAL", "REMOTO", "HIBRIDO"]).required(),
+  status: yup.string().oneOf(["ABERTO", "FECHADO"]).required(),
+}).test("localizacao-ou-coords", "Informe a localização (texto ou marque no mapa)", function (value) {
+  const hasText = !!value?.localizacao?.trim();
+  const lat = value?.latitude ? parseFloat(value.latitude) : NaN;
+  const lng = value?.longitude ? parseFloat(value.longitude) : NaN;
+  const hasCoords = !isNaN(lat) && !isNaN(lng);
+  return hasText || hasCoords;
+});
+
+type CriarVagaFormData = yup.InferType<typeof criarVagaSchema>;
+
 type CoordEvent = {
   nativeEvent: {
     coordinate: {
@@ -533,8 +562,11 @@ export default function CriarVaga() {
   const [mapModalVisible, setMapModalVisible] = useState(false);
   const [mapLoading, setMapLoading] = useState(false);
   const mapRef = useRef<MapView | null>(null);
+  // Requisitos: input não controlado (defaultValue + ref) para preservar acentos/cedilha no Android
+  const requisitosRef = useRef<TextInput>(null);
+  const requisitosValueRef = useRef<string>("");
 
-  const [formData, setFormData] = useState({
+  const defaultValues: CriarVagaFormData = {
     titulo: "",
     descricao: "",
     requisitos: "",
@@ -545,77 +577,48 @@ export default function CriarVaga() {
     status: "ABERTO",
     latitude: "",
     longitude: "",
+  };
+
+  const {
+    control,
+    handleSubmit: formHandleSubmit,
+    setValue,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm<CriarVagaFormData>({
+    resolver: yupResolver(criarVagaSchema),
+    defaultValues,
   });
+
+  const formValues = watch();
 
   // Coordenadas temporárias usadas no modal enquanto o usuário escolhe
   const [tempCoord, setTempCoord] = useState<{ latitude: number; longitude: number } | null>(null);
 
-  const handleChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const validarFormulario = (): boolean => {
-    if (!formData.titulo.trim()) {
-      Alert.alert("Erro", "O título da vaga é obrigatório");
-      return false;
-    }
-
-    if (!formData.descricao.trim()) {
-      Alert.alert("Erro", "A descrição da vaga é obrigatória");
-      return false;
-    }
-
-    if (!formData.requisitos.trim()) {
-      Alert.alert("Erro", "Os requisitos da vaga são obrigatórios");
-      return false;
-    }
-
-    const quantidade = parseInt(formData.quantidade);
-    if (!formData.quantidade || isNaN(quantidade) || quantidade <= 0) {
-      Alert.alert("Erro", "A quantidade de vagas deve ser um número maior que zero");
-      return false;
-    }
-
-    if (!formData.duracao.trim()) {
-      Alert.alert("Erro", "A duração da vaga é obrigatória");
-      return false;
-    }
-
-    // Aceita se houver endereço textual OU coordenadas preenchidas
-    const hasCoords = !!formData.latitude && !!formData.longitude;
-    if (!formData.localizacao.trim() && !hasCoords) {
-      Alert.alert("Erro", "A localização da vaga é obrigatória");
-      return false;
-    }
-
-    return true;
-  };
-
-  const handleSubmit = async () => {
-    if (!validarFormulario()) return;
-
+  const onSubmit = async (data: CriarVagaFormData) => {
     try {
       setSalvando(true);
 
-      const requisitosArray = formData.requisitos
+      // Usar valor do ref (não controlado) para preservar acentos/cedilha enviados ao backend
+      const requisitosRaw = requisitosValueRef.current ?? (data.requisitos || "");
+      const requisitosArray = requisitosRaw
         .split(/[,\n]/)
         .map((r) => r.trim())
         .filter((r) => r.length > 0);
 
       const vagaData = {
-        titulo: formData.titulo.trim(),
-        descricao: formData.descricao.trim(),
+        titulo: (data.titulo || "").trim(),
+        descricao: (data.descricao || "").trim(),
         requisitos: requisitosArray,
-        quantidade: parseInt(formData.quantidade),
-        duracao: formData.duracao.trim(),
-        localizacao: formData.localizacao.trim(),
-        tipoTrabalho: formData.tipoTrabalho,
-        status: formData.status,
-        latitude: formData.latitude ? parseFloat(formData.latitude) : -23.55052,
-        longitude: formData.longitude ? parseFloat(formData.longitude) : -46.633308,
+        quantidade: parseInt(String(data.quantidade), 10),
+        duracao: (data.duracao || "").trim(),
+        localizacao: (data.localizacao || "").trim(),
+        tipoTrabalho: data.tipoTrabalho,
+        status: data.status,
+        latitude: data.latitude ? parseFloat(data.latitude) : -23.55052,
+        longitude: data.longitude ? parseFloat(data.longitude) : -46.633308,
       };
-
-      console.log("Enviando vaga:", vagaData);
 
       const response = await httpPost("cadastrar/vaga", vagaData, token || "");
 
@@ -624,18 +627,9 @@ export default function CriarVaga() {
           {
             text: "OK",
             onPress: () => {
-              setFormData({
-                titulo: "",
-                descricao: "",
-                requisitos: "",
-                quantidade: "",
-                duracao: "",
-                localizacao: "",
-                tipoTrabalho: "PRESENCIAL",
-                status: "ABERTO",
-                latitude: "",
-                longitude: "",
-              });
+              reset(defaultValues);
+              requisitosValueRef.current = "";
+              requisitosRef.current?.clear();
               navigation.navigate("Dashboard" as never);
             },
           },
@@ -695,8 +689,9 @@ export default function CriarVaga() {
     if (current) {
       setTempCoord({ latitude: current.latitude, longitude: current.longitude });
     } else {
-      const lat = formData.latitude ? parseFloat(formData.latitude) : -23.55052;
-      const lng = formData.longitude ? parseFloat(formData.longitude) : -46.633308;
+      // Fallback: Cajazeiras, Paraíba
+      const lat = formValues.latitude ? parseFloat(formValues.latitude) : -6.8903;
+      const lng = formValues.longitude ? parseFloat(formValues.longitude) : -38.5572;
       setTempCoord({ latitude: lat, longitude: lng });
     }
 
@@ -706,9 +701,9 @@ export default function CriarVaga() {
     setTimeout(() => {
       const coordToAnimate =
         tempCoord ??
-        (formData.latitude && formData.longitude
-          ? { latitude: parseFloat(formData.latitude), longitude: parseFloat(formData.longitude) }
-          : { latitude: -23.55052, longitude: -46.633308 });
+        (formValues.latitude && formValues.longitude
+          ? { latitude: parseFloat(formValues.latitude), longitude: parseFloat(formValues.longitude) }
+          : { latitude: -6.8903, longitude: -38.5572 }); // Cajazeiras, PB
 
       if (mapRef.current && coordToAnimate) {
         try {
@@ -744,13 +739,8 @@ export default function CriarVaga() {
       return;
     }
 
-    // Salva apenas as coordenadas (strings) para envio; não exibe no formulário
-    setFormData((prev) => ({
-      ...prev,
-      latitude: String(tempCoord.latitude),
-      longitude: String(tempCoord.longitude),
-    }));
-
+    setValue("latitude", String(tempCoord.latitude));
+    setValue("longitude", String(tempCoord.longitude));
     setMapModalVisible(false);
   };
 
@@ -776,12 +766,16 @@ export default function CriarVaga() {
                 Título da Vaga <Text style={styles.required}>*</Text>
               </Text>
               <TextInput
-                style={styles.input}
-                value={formData.titulo}
-                onChangeText={(value) => handleChange("titulo", value)}
+                style={[styles.input, errors.titulo && styles.inputError]}
+                value={formValues.titulo}
+                onChangeText={(value) => setValue("titulo", value)}
                 placeholder="Ex: Voluntário para Apoio Educacional"
                 placeholderTextColor="#939EAA"
+                keyboardType="default"
+                autoCapitalize="sentences"
+                autoCorrect={true}
               />
+              {errors.titulo && <Text style={styles.errorText}>{errors.titulo.message}</Text>}
             </View>
 
             <View style={styles.inputGroup}>
@@ -789,15 +783,19 @@ export default function CriarVaga() {
                 Descrição <Text style={styles.required}>*</Text>
               </Text>
               <TextInput
-                style={[styles.input, styles.textArea]}
-                value={formData.descricao}
-                onChangeText={(value) => handleChange("descricao", value)}
+                style={[styles.input, styles.textArea, errors.descricao && styles.inputError]}
+                value={formValues.descricao}
+                onChangeText={(value) => setValue("descricao", value)}
                 placeholder="Descreva as atividades e responsabilidades..."
                 placeholderTextColor="#939EAA"
                 multiline
                 numberOfLines={6}
                 textAlignVertical="top"
+                keyboardType="default"
+                autoCapitalize="sentences"
+                autoCorrect={true}
               />
+              {errors.descricao && <Text style={styles.errorText}>{errors.descricao.message}</Text>}
             </View>
 
             <View style={styles.inputGroup}>
@@ -806,15 +804,24 @@ export default function CriarVaga() {
               </Text>
               <Text style={styles.hint}>Separe cada requisito por vírgula ou linha</Text>
               <TextInput
-                style={[styles.input, styles.textArea]}
-                value={formData.requisitos}
-                onChangeText={(value) => handleChange("requisitos", value)}
+                ref={requisitosRef}
+                style={[styles.input, styles.textArea, errors.requisitos && styles.inputError]}
+                defaultValue=""
+                onChangeText={(value) => {
+                  requisitosValueRef.current = value;
+                  setValue("requisitos", value);
+                }}
                 placeholder="Ex: Proatividade, Boa comunicação, Disponibilidade"
                 placeholderTextColor="#939EAA"
                 multiline
                 numberOfLines={4}
                 textAlignVertical="top"
+                keyboardType="default"
+                autoCapitalize="sentences"
+                autoCorrect={true}
+                autoComplete="off"
               />
+              {errors.requisitos && <Text style={styles.errorText}>{errors.requisitos.message}</Text>}
             </View>
 
             <View style={styles.row}>
@@ -823,13 +830,14 @@ export default function CriarVaga() {
                   Quantidade <Text style={styles.required}>*</Text>
                 </Text>
                 <TextInput
-                  style={styles.input}
-                  value={formData.quantidade}
-                  onChangeText={(value) => handleChange("quantidade", value)}
+                  style={[styles.input, errors.quantidade && styles.inputError]}
+                  value={formValues.quantidade}
+                  onChangeText={(value) => setValue("quantidade", value)}
                   placeholder="0"
                   placeholderTextColor="#939EAA"
                   keyboardType="number-pad"
                 />
+                {errors.quantidade && <Text style={styles.errorText}>{errors.quantidade.message}</Text>}
               </View>
 
               <View style={[styles.inputGroup, styles.halfWidth]}>
@@ -837,12 +845,16 @@ export default function CriarVaga() {
                   Duração <Text style={styles.required}>*</Text>
                 </Text>
                 <TextInput
-                  style={styles.input}
-                  value={formData.duracao}
-                  onChangeText={(value) => handleChange("duracao", value)}
+                  style={[styles.input, errors.duracao && styles.inputError]}
+                  value={formValues.duracao}
+                  onChangeText={(value) => setValue("duracao", value)}
                   placeholder="Ex: 3 meses"
                   placeholderTextColor="#939EAA"
+                  keyboardType="default"
+                  autoCapitalize="sentences"
+                  autoCorrect={true}
                 />
+                {errors.duracao && <Text style={styles.errorText}>{errors.duracao.message}</Text>}
               </View>
             </View>
           </View>
@@ -856,12 +868,17 @@ export default function CriarVaga() {
                 Endereço/Local <Text style={styles.required}>*</Text>
               </Text>
               <TextInput
-                style={styles.input}
-                value={formData.localizacao}
-                onChangeText={(value) => handleChange("localizacao", value)}
+                style={[styles.input, (errors.localizacao || errors.root) && styles.inputError]}
+                value={formValues.localizacao}
+                onChangeText={(value) => setValue("localizacao", value)}
                 placeholder="Ex: Rua Exemplo, 123 - Bairro, Cidade"
                 placeholderTextColor="#939EAA"
+                keyboardType="default"
+                autoCapitalize="words"
+                autoCorrect={true}
               />
+              {errors.localizacao && <Text style={styles.errorText}>{errors.localizacao.message}</Text>}
+              {errors.root?.message && !errors.localizacao && <Text style={styles.errorText}>{errors.root.message}</Text>}
             </View>
 
             {/* Preview do mapa pequeno (opcional) */}
@@ -869,13 +886,13 @@ export default function CriarVaga() {
               <Text style={styles.label}>Local no mapa</Text>
 
               <View style={styles.mapPreview}>
-                {formData.latitude && formData.longitude ? (
+                {formValues.latitude && formValues.longitude ? (
                   <MapView
                     ref={setMapRef}
                     style={styles.mapSmall}
                     initialRegion={{
-                      latitude: parseFloat(formData.latitude),
-                      longitude: parseFloat(formData.longitude),
+                      latitude: parseFloat(formValues.latitude),
+                      longitude: parseFloat(formValues.longitude),
                       latitudeDelta: 0.01,
                       longitudeDelta: 0.01,
                     }}
@@ -883,8 +900,8 @@ export default function CriarVaga() {
                   >
                     <Marker
                       coordinate={{
-                        latitude: parseFloat(formData.latitude),
-                        longitude: parseFloat(formData.longitude),
+                        latitude: parseFloat(formValues.latitude),
+                        longitude: parseFloat(formValues.longitude),
                       }}
                     />
                   </MapView>
@@ -903,7 +920,8 @@ export default function CriarVaga() {
                 <TouchableOpacity
                   style={[styles.chooseButton, { backgroundColor: "#E5E7EB" }]}
                   onPress={() => {
-                    setFormData((prev) => ({ ...prev, latitude: "", longitude: "" }));
+                    setValue("latitude", "");
+                    setValue("longitude", "");
                   }}
                 >
                   <Text style={[styles.chooseButtonText, { color: "#1A1A1A" }]}>Remover</Text>
@@ -919,10 +937,10 @@ export default function CriarVaga() {
               {TIPOS_TRABALHO.map((tipo) => (
                 <Pressable
                   key={tipo}
-                  style={[styles.optionButton, formData.tipoTrabalho === tipo && styles.optionButtonActive]}
-                  onPress={() => handleChange("tipoTrabalho", tipo)}
+                  style={[styles.optionButton, formValues.tipoTrabalho === tipo && styles.optionButtonActive]}
+                  onPress={() => setValue("tipoTrabalho", tipo)}
                 >
-                  <Text style={[styles.optionText, formData.tipoTrabalho === tipo && styles.optionTextActive]}>{tipo}</Text>
+                  <Text style={[styles.optionText, formValues.tipoTrabalho === tipo && styles.optionTextActive]}>{tipo}</Text>
                 </Pressable>
               ))}
             </View>
@@ -935,10 +953,10 @@ export default function CriarVaga() {
               {STATUS_OPCOES.map((status) => (
                 <Pressable
                   key={status}
-                  style={[styles.optionButton, formData.status === status && styles.optionButtonActive]}
-                  onPress={() => handleChange("status", status)}
+                  style={[styles.optionButton, formValues.status === status && styles.optionButtonActive]}
+                  onPress={() => setValue("status", status)}
                 >
-                  <Text style={[styles.optionText, formData.status === status && styles.optionTextActive]}>{status}</Text>
+                  <Text style={[styles.optionText, formValues.status === status && styles.optionTextActive]}>{status}</Text>
                 </Pressable>
               ))}
             </View>
@@ -946,7 +964,7 @@ export default function CriarVaga() {
 
           {/* Botão de Criar */}
           <View style={styles.buttonContainer}>
-            <Botao title={salvando ? "Criando Vaga..." : "Criar Vaga"} color="#295CA9" textColor="#fff" onPress={handleSubmit} disabled={salvando} />
+            <Botao title={salvando ? "Criando Vaga..." : "Criar Vaga"} color="#295CA9" textColor="#fff" onPress={formHandleSubmit(onSubmit)} disabled={salvando} />
           </View>
         </View>
 
@@ -965,9 +983,7 @@ export default function CriarVaga() {
 
         <View style={styles.modalContent}>
           {mapLoading && (
-            <View style={styles.mapLoading}>
-              <ActivityIndicator size="large" color="#295CA9" />
-            </View>
+            <Loading variant="overlay" message="Carregando mapa..." style={StyleSheet.absoluteFill} />
           )}
 
           {/* Mapa ocupa mais altura (70% da tela) */}
@@ -975,13 +991,20 @@ export default function CriarVaga() {
             ref={setMapRef}
             style={styles.mapFull}
             initialRegion={{
-              latitude: tempCoord ? tempCoord.latitude : -23.55052,
-              longitude: tempCoord ? tempCoord.longitude : -46.633308,
-              latitudeDelta: 0.02,
-              longitudeDelta: 0.02,
+              latitude: tempCoord ? tempCoord.latitude : -6.8903,
+              longitude: tempCoord ? tempCoord.longitude : -38.5572,
+              latitudeDelta: 0.05,
+              longitudeDelta: 0.05,
             }}
             onPress={onMapPress}
             onMapReady={() => setMapLoading(false)}
+            zoomEnabled={true}
+            zoomControlEnabled={true}
+            scrollEnabled={true}
+            pitchEnabled={true}
+            rotateEnabled={true}
+            minZoomLevel={5}
+            maxZoomLevel={20}
           >
             {tempCoord && (
               <Marker
@@ -1035,6 +1058,8 @@ const styles = StyleSheet.create({
   required: { color: "#DC2626" },
   hint: { fontSize: screenWidth < 350 ? 11 : 12, color: "#6B7280", marginBottom: 8, fontStyle: "italic" },
   input: { backgroundColor: "#fff", borderWidth: 1, borderColor: "#E5E7EB", borderRadius: 8, padding: screenWidth < 350 ? 10 : 12, fontSize: screenWidth < 350 ? 14 : 16, color: "#1A1A1A", height: screenWidth < 350 ? 44 : 48 },
+  inputError: { borderColor: "#DC2626" },
+  errorText: { fontSize: 12, color: "#DC2626", marginTop: 4 },
   textArea: { height: "auto", minHeight: 100, paddingTop: 12 },
   row: { flexDirection: "row", gap: 12 },
   halfWidth: { flex: 1 },

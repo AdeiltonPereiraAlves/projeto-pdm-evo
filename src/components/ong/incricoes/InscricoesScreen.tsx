@@ -388,8 +388,11 @@
 // InscricoesScreen.tsx
 import InscricaoItem from '@/components/ong/incricoes/InscricaoItem';
 import Icone from '@/components/shared/Icone';
+import { AuthContext } from '@/data/context/AuthContext';
+import useAPI from '@/data/hooks/useAPI';
+import { useFocusEffect } from '@react-navigation/native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import {
   FlatList,
   RefreshControl,
@@ -428,28 +431,39 @@ interface Inscricao {
 }
 
 export default function InscricoesScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const route = useRoute<InscricoesScreenRouteProp>();
+  const { token } = useContext(AuthContext);
+  const { httpGet } = useAPI();
   
   const { vagaId, vagaTitulo, inscricoes: inscricoesIniciais } = route.params;
 
   const [inscricoes, setInscricoes] = useState<Inscricao[]>(inscricoesIniciais || []);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [filter, setFilter] = useState<'all' | 'pendente' | 'aprovado' | 'rejeitado'>('all');
 
-  // Filtrar inscrições com base no status selecionado
-  const filteredInscricoes = inscricoes.filter(inscricao => {
-    if (filter === 'all') return true;
-    return inscricao.status === filter;
-  });
+  // Refetch inscricoes do servidor sempre que a tela ganhar foco (evita dados desatualizados)
+  const carregarInscricoes = useCallback(async () => {
+    if (!token || !vagaId) return;
+    try {
+      setRefreshing(true);
+      const response = await httpGet(`inscricoes/ong/${vagaId}`, token);
+      const lista = Array.isArray(response) ? response : (response?.inscricoes || response);
+      setInscricoes(lista || []);
+    } catch (error) {
+      console.error('Erro ao carregar inscrições:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [token, vagaId, httpGet]);
 
-  // Contar inscrições por status
-  const contarPorStatus = (status: string) => {
-    return inscricoes.filter(i => i.status === status).length;
-  };
+  useFocusEffect(
+    useCallback(() => {
+      carregarInscricoes();
+    }, [carregarInscricoes])
+  );
 
-  // Função para atualizar status de uma inscrição
+  // Função para atualizar status de uma inscrição (atualização otimista local + refetch)
   const handleStatusChange = (inscricaoId: string, novoStatus: string) => {
     setInscricoes(prev => prev.map(inscricao => 
       inscricao.id === inscricaoId 
@@ -458,67 +472,13 @@ export default function InscricoesScreen() {
     ));
   };
 
-  // Função para carregar inscrições
-  const carregarInscricoes = async () => {
-    try {
-      setRefreshing(true);
-      // Se precisar buscar do servidor:
-      // const response = await httpGet(`vagas/${vagaId}/inscricoes`, token);
-      // setInscricoes(response.inscricoes || []);
-    } catch (error) {
-      console.error('Erro ao carregar inscrições:', error);
-    } finally {
-      setRefreshing(false);
-    }
-  };
-
-  // Componente de filtro
-  const renderFiltros = () => (
-    <View style={styles.filtrosContainer}>
-      <TouchableOpacity
-        style={[styles.filtroButton, filter === 'all' && styles.filtroButtonActive]}
-        onPress={() => setFilter('all')}
-      >
-        <Text style={[styles.filtroText, filter === 'all' && styles.filtroTextActive]}>
-          Todas ({inscricoes.length})
-        </Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity
-        style={[styles.filtroButton, filter === 'pendente' && styles.filtroButtonActive]}
-        onPress={() => setFilter('pendente')}
-      >
-        <Text style={[styles.filtroText, filter === 'pendente' && styles.filtroTextActive]}>
-          Pendentes ({contarPorStatus('pendente')})
-        </Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity
-        style={[styles.filtroButton, filter === 'aprovado' && styles.filtroButtonActive]}
-        onPress={() => setFilter('aprovado')}
-      >
-        <Text style={[styles.filtroText, filter === 'aprovado' && styles.filtroTextActive]}>
-          Aprovadas ({contarPorStatus('aprovado')})
-        </Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity
-        style={[styles.filtroButton, filter === 'rejeitado' && styles.filtroButtonActive]}
-        onPress={() => setFilter('rejeitado')}
-      >
-        <Text style={[styles.filtroText, filter === 'rejeitado' && styles.filtroTextActive]}>
-          Rejeitadas ({contarPorStatus('rejeitado')})
-        </Text>
-      </TouchableOpacity>
-    </View>
-  );
-
   // Componente de item da lista
   const renderItem = ({ item }: { item: Inscricao }) => (
     <InscricaoItem
       inscricao={item}
       vagaId={vagaId}
       onStatusChange={handleStatusChange}
+      onVerPerfilVoluntario={(voluntarioId) => navigation.navigate("DetalheVoluntario", { voluntarioId })}
       loading={loading}
     />
   );
@@ -527,15 +487,8 @@ export default function InscricoesScreen() {
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
       <Icone nome="people-outline" tamanho={64} color="#D1D5DB" />
-      <Text style={styles.emptyTitle}>
-        {filter === 'all' ? 'Nenhuma candidatura' : `Nenhuma candidatura ${filter}`}
-      </Text>
-      <Text style={styles.emptyText}>
-        {filter === 'all' 
-          ? 'Esta vaga ainda não possui candidaturas.' 
-          : `Não há candidaturas com status "${filter}".`
-        }
-      </Text>
+      <Text style={styles.emptyTitle}>Nenhuma candidatura</Text>
+      <Text style={styles.emptyText}>Esta vaga ainda não possui candidaturas.</Text>
     </View>
   );
 
@@ -560,47 +513,9 @@ export default function InscricoesScreen() {
         <View style={styles.headerRight} />
       </View>
 
-      {/* Estatísticas */}
-      <View style={styles.statsContainer}>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{inscricoes.length}</Text>
-          <Text style={styles.statLabel}>Total</Text>
-        </View>
-        
-        <View style={styles.statDivider} />
-        
-        <View style={styles.statItem}>
-          <Text style={[styles.statNumber, { color: '#F59E0B' }]}>
-            {contarPorStatus('pendente')}
-          </Text>
-          <Text style={styles.statLabel}>Pendentes</Text>
-        </View>
-        
-        <View style={styles.statDivider} />
-        
-        <View style={styles.statItem}>
-          <Text style={[styles.statNumber, { color: '#10B981' }]}>
-            {contarPorStatus('aprovado')}
-          </Text>
-          <Text style={styles.statLabel}>Aprovadas</Text>
-        </View>
-        
-        <View style={styles.statDivider} />
-        
-        <View style={styles.statItem}>
-          <Text style={[styles.statNumber, { color: '#EF4444' }]}>
-            {contarPorStatus('rejeitado')}
-          </Text>
-          <Text style={styles.statLabel}>Rejeitadas</Text>
-        </View>
-      </View>
-
-      {/* Filtros */}
-      {renderFiltros()}
-
       {/* Lista de inscrições */}
       <FlatList
-        data={filteredInscricoes}
+        data={inscricoes}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
@@ -627,7 +542,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingTop: 56,
+    paddingBottom: 16,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
@@ -653,58 +569,6 @@ const styles = StyleSheet.create({
   },
   headerRight: {
     width: 32,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    paddingVertical: 16,
-    paddingHorizontal: 8,
-    marginTop: 8,
-  },
-  statItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#6B7280',
-    marginTop: 4,
-  },
-  statDivider: {
-    width: 1,
-    backgroundColor: '#E5E7EB',
-    marginHorizontal: 8,
-  },
-  filtrosContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  filtroButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    marginRight: 8,
-    backgroundColor: '#F3F4F6',
-  },
-  filtroButtonActive: {
-    backgroundColor: '#295CA9',
-  },
-  filtroText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#6B7280',
-  },
-  filtroTextActive: {
-    color: '#fff',
   },
   listContainer: {
     flexGrow: 1,

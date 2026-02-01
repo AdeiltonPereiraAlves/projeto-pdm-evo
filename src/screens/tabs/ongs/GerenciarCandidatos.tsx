@@ -1,11 +1,11 @@
 import CandidatoCard from "@/components/candidaturas/CandidatoCard";
 import Icone from "@/components/shared/Icone";
+import Loading from "@/components/loading/Loading";
 import { AuthContext } from "@/data/context/AuthContext";
 import useAPI from "@/data/hooks/useAPI";
 import { useNavigation } from "@react-navigation/native";
 import { useContext, useEffect, useState } from "react";
 import {
-    ActivityIndicator,
     Alert,
     Dimensions,
     Pressable,
@@ -45,14 +45,13 @@ interface Vaga {
 }
 
 export default function GerenciarCandidatos() {
-    const navigation = useNavigation();
+    const navigation = useNavigation<any>();
     const { token } = useContext(AuthContext);
     const { httpGet, httpPut } = useAPI();
 
     const [vagas, setVagas] = useState<Vaga[]>([]);
     const [vagaSelecionada, setVagaSelecionada] = useState<string | null>(null);
     const [candidatos, setCandidatos] = useState<Candidato[]>([]);
-    const [filtroStatus, setFiltroStatus] = useState<"todas" | StatusInscricao>("todas");
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
@@ -180,25 +179,10 @@ export default function GerenciarCandidatos() {
         setRefreshing(false);
     };
 
-    const candidatosFiltrados = candidatos.filter(candidato => {
-        if (filtroStatus === "todas") return true;
-        return candidato.status === filtroStatus;
-    });
-
-    const contadores = {
-        todas: candidatos.length,
-        pendente: candidatos.filter(c => c.status === "pendente").length,
-        aprovado: candidatos.filter(c => c.status === "aprovado").length,
-        rejeitado: candidatos.filter(c => c.status === "rejeitado").length,
-    };
+    const candidatosFiltrados = candidatos;
 
     if (loading) {
-        return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#295CA9" />
-                <Text style={styles.loadingText}>Carregando candidatos...</Text>
-            </View>
-        );
+        return <Loading message="Carregando candidatos..." />;
     }
 
     return (
@@ -241,85 +225,6 @@ export default function GerenciarCandidatos() {
                 </View>
             )}
 
-            {/* Filtros por Status */}
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.filtersScroll}
-                contentContainerStyle={styles.filtersContainer}
-            >
-                <Pressable
-                    style={[
-                        styles.filterButton,
-                        filtroStatus === "todas" && styles.filterButtonActive,
-                    ]}
-                    onPress={() => setFiltroStatus("todas")}
-                >
-                    <Text
-                        style={[
-                            styles.filterText,
-                            filtroStatus === "todas" && styles.filterTextActive,
-                        ]}
-                    >
-                        Todos ({contadores.todas})
-                    </Text>
-                </Pressable>
-
-                <Pressable
-                    style={[
-                        styles.filterButton,
-                        filtroStatus === "pendente" && styles.filterButtonActive,
-                    ]}
-                    onPress={() => setFiltroStatus("pendente")}
-                >
-                    <Icone nome="time" tamanho={16} color={filtroStatus === "pendente" ? "#fff" : "#F59E0B"} />
-                    <Text
-                        style={[
-                            styles.filterText,
-                            filtroStatus === "pendente" && styles.filterTextActive,
-                        ]}
-                    >
-                        Pendente ({contadores.pendente})
-                    </Text>
-                </Pressable>
-
-                <Pressable
-                    style={[
-                        styles.filterButton,
-                        filtroStatus === "aprovado" && styles.filterButtonActive,
-                    ]}
-                    onPress={() => setFiltroStatus("aprovado")}
-                >
-                    <Icone nome="checkmark-circle" tamanho={16} color={filtroStatus === "aprovado" ? "#fff" : "#22C55E"} />
-                    <Text
-                        style={[
-                            styles.filterText,
-                            filtroStatus === "aprovado" && styles.filterTextActive,
-                        ]}
-                    >
-                        Aprovados ({contadores.aprovado})
-                    </Text>
-                </Pressable>
-
-                <Pressable
-                    style={[
-                        styles.filterButton,
-                        filtroStatus === "rejeitado" && styles.filterButtonActive,
-                    ]}
-                    onPress={() => setFiltroStatus("rejeitado")}
-                >
-                    <Icone nome="close-circle" tamanho={16} color={filtroStatus === "rejeitado" ? "#fff" : "#DC2626"} />
-                    <Text
-                        style={[
-                            styles.filterText,
-                            filtroStatus === "rejeitado" && styles.filterTextActive,
-                        ]}
-                    >
-                        Rejeitados ({contadores.rejeitado})
-                    </Text>
-                </Pressable>
-            </ScrollView>
-
             {/* Lista de Candidatos */}
             <ScrollView
                 style={styles.scrollView}
@@ -338,7 +243,7 @@ export default function GerenciarCandidatos() {
                         <Text style={styles.emptyText}>
                             {vagas.length === 0
                                 ? "Crie uma vaga para receber candidaturas"
-                                : `Não há candidatos com status "${filtroStatus}" para esta vaga`}
+                                : "Esta vaga ainda não possui candidaturas"}
                         </Text>
                     </View>
                 ) : (
@@ -351,12 +256,7 @@ export default function GerenciarCandidatos() {
                                 habilidades={candidato.voluntario.habilidades || []}
                                 contato={candidato.voluntario.contato}
                                 status={candidato.status}
-                                onVerPerfil={() => {
-                                    Alert.alert(
-                                        "Perfil",
-                                        `Ver perfil de ${candidato.voluntario.nome}`,
-                                    );
-                                }}
+                                onVerPerfil={() => navigation.navigate("DetalheVoluntario", { voluntarioId: candidato.voluntario.id })}
                                 onAprovar={
                                     candidato.status === "pendente"
                                         ? () => handleAprovar(candidato.id, candidato.voluntario.nome)
@@ -394,7 +294,7 @@ const styles = StyleSheet.create({
     },
     header: {
         paddingHorizontal: screenWidth * 0.05,
-        paddingTop: screenHeight * 0.06,
+        paddingTop: 56,
         paddingBottom: screenWidth < 350 ? 16 : 20,
         backgroundColor: "#fff",
         borderBottomWidth: 1,
@@ -441,39 +341,6 @@ const styles = StyleSheet.create({
         color: "#6B7280",
     },
     vagaChipTextActive: {
-        color: "#fff",
-    },
-    filtersScroll: {
-        backgroundColor: "#fff",
-        borderBottomWidth: 1,
-        borderBottomColor: "#E5E7EB",
-    },
-    filtersContainer: {
-        paddingHorizontal: screenWidth * 0.05,
-        paddingVertical: 12,
-        gap: 8,
-    },
-    filterButton: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 6,
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 20,
-        backgroundColor: "#F3F4F6",
-        borderWidth: 1,
-        borderColor: "#E5E7EB",
-    },
-    filterButtonActive: {
-        backgroundColor: "#295CA9",
-        borderColor: "#295CA9",
-    },
-    filterText: {
-        fontSize: screenWidth < 350 ? 13 : 14,
-        fontWeight: "600",
-        color: "#6B7280",
-    },
-    filterTextActive: {
         color: "#fff",
     },
     scrollView: {

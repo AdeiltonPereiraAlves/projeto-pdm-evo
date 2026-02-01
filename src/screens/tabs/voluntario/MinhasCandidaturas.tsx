@@ -1,12 +1,12 @@
 import CandidaturaCard from "@/components/candidaturas/CandidaturaCard";
 import Icone from "@/components/shared/Icone";
+import Loading from "@/components/loading/Loading";
 import { AuthContext } from "@/data/context/AuthContext";
 import { Inscricao, useInscricoes } from "@/data/context/InscricaoContext";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "expo-router";
 import { useContext, useEffect, useState } from "react";
 import {
-    ActivityIndicator,
     Alert,
     Dimensions,
     Pressable,
@@ -82,12 +82,7 @@ export default function MinhasCandidaturas() {
     };
 
     if (loading && inscricoes.length === 0) {
-        return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#295CA9" />
-                <Text style={styles.loadingText}>Carregando candidaturas...</Text>
-            </View>
-        );
+        return <Loading message="Carregando candidaturas..." />;
     }
 
     return (

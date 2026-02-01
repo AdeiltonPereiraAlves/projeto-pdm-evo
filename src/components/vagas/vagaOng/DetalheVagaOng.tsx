@@ -1,4 +1,5 @@
 import Icone from "@/components/shared/Icone";
+import Loading from "@/components/loading/Loading";
 import { AuthContext } from "@/data/context/AuthContext";
 import useAPI from "@/data/hooks/useAPI";
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -309,8 +310,8 @@ const processarDadosVaga = (data: any) => {
         localizacao: formData.localizacao.trim(),
         tipoTrabalho: formData.tipoTrabalho,
         status: formData.status,
-        latitude: formData.latitude ? parseFloat(formData.latitude) : vagaOriginal?.latitude || -23.55052,
-        longitude: formData.longitude ? parseFloat(formData.longitude) : vagaOriginal?.longitude || -46.633308,
+        latitude: formData.latitude ? parseFloat(formData.latitude) : vagaOriginal?.latitude || -6.8903,
+        longitude: formData.longitude ? parseFloat(formData.longitude) : vagaOriginal?.longitude || -38.5572,
       };
 
       const response = await httpPut(`editar/vaga/${vagaId}`, vagaData, token || "");
@@ -402,8 +403,9 @@ const processarDadosVaga = (data: any) => {
     if (current) {
       setTempCoord({ latitude: current.latitude, longitude: current.longitude });
     } else {
-      const lat = formData.latitude ? parseFloat(formData.latitude) : vagaOriginal?.latitude || -23.55052;
-      const lng = formData.longitude ? parseFloat(formData.longitude) : vagaOriginal?.longitude || -46.633308;
+      // Fallback: Cajazeiras, Paraíba
+      const lat = formData.latitude ? parseFloat(formData.latitude) : vagaOriginal?.latitude || -6.8903;
+      const lng = formData.longitude ? parseFloat(formData.longitude) : vagaOriginal?.longitude || -38.5572;
       setTempCoord({ latitude: lat, longitude: lng });
     }
 
@@ -414,7 +416,7 @@ const processarDadosVaga = (data: any) => {
         tempCoord ??
         (formData.latitude && formData.longitude
           ? { latitude: parseFloat(formData.latitude), longitude: parseFloat(formData.longitude) }
-          : { latitude: vagaOriginal?.latitude || -23.55052, longitude: vagaOriginal?.longitude || -46.633308 });
+          : { latitude: vagaOriginal?.latitude || -6.8903, longitude: vagaOriginal?.longitude || -38.5572 });
 
       if (mapRef.current && coordToAnimate) {
         try {
@@ -795,12 +797,7 @@ const processarDadosVaga = (data: any) => {
   };
 
   if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#295CA9" />
-        <Text style={styles.loadingText}>Carregando vaga...</Text>
-      </View>
-    );
+    return <Loading message="Carregando vaga..." />;
   }
 
   return (
@@ -838,22 +835,27 @@ const processarDadosVaga = (data: any) => {
 
         <View style={styles.modalContent}>
           {mapLoading && (
-            <View style={styles.mapLoading}>
-              <ActivityIndicator size="large" color="#295CA9" />
-            </View>
+            <Loading variant="overlay" message="Carregando mapa..." style={StyleSheet.absoluteFill} />
           )}
 
           <MapView
             ref={setMapRef}
             style={styles.mapFull}
             initialRegion={{
-              latitude: tempCoord ? tempCoord.latitude : vagaOriginal?.latitude || -23.55052,
-              longitude: tempCoord ? tempCoord.longitude : vagaOriginal?.longitude || -46.633308,
-              latitudeDelta: 0.02,
-              longitudeDelta: 0.02,
+              latitude: tempCoord ? tempCoord.latitude : vagaOriginal?.latitude || -6.8903,
+              longitude: tempCoord ? tempCoord.longitude : vagaOriginal?.longitude || -38.5572,
+              latitudeDelta: 0.05,
+              longitudeDelta: 0.05,
             }}
             onPress={onMapPress}
             onMapReady={() => setMapLoading(false)}
+            zoomEnabled={true}
+            zoomControlEnabled={true}
+            scrollEnabled={true}
+            pitchEnabled={true}
+            rotateEnabled={true}
+            minZoomLevel={5}
+            maxZoomLevel={20}
           >
             {tempCoord && (
               <Marker
