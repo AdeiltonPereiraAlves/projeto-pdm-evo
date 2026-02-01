@@ -10,6 +10,7 @@ import {
     arrayParaString,
     mascaraCPF,
     mascaraTelefone,
+    removerMascara,
     stringParaArray
 } from "@/utils/masks";
 import { API_URL } from "@env";
@@ -19,6 +20,8 @@ import {
     ActivityIndicator,
     Alert,
     Dimensions,
+    Image,
+    Modal,
     Pressable,
     RefreshControl,
     ScrollView,
@@ -49,6 +52,8 @@ export default function Perfil() {
     const [refreshing, setRefreshing] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [previewFotoUri, setPreviewFotoUri] = useState<string | null>(null);
+    const [previewFotoAsset, setPreviewFotoAsset] = useState<ImagePicker.ImagePickerAsset | null>(null);
 
     const [perfil, setPerfil] = useState<VoluntarioData>({
         id: "",
@@ -98,6 +103,7 @@ export default function Perfil() {
 
             const payload = {
                 ...editData,
+                contato: removerMascara(editData.contato || ""),
                 habilidades: stringParaArray(editData.habilidades),
             };
 
@@ -132,8 +138,14 @@ export default function Perfil() {
         });
 
         if (!result.canceled) {
-            uploadImagem(result.assets[0]);
+            setPreviewFotoUri(result.assets[0].uri);
+            setPreviewFotoAsset(result.assets[0]);
         }
+    };
+
+    const fecharPreviewFoto = () => {
+        setPreviewFotoUri(null);
+        setPreviewFotoAsset(null);
     };
 
     const uploadImagem = async (image: ImagePicker.ImagePickerAsset) => {
@@ -155,9 +167,16 @@ export default function Perfil() {
 
             const data = await response.json();
             setPerfil(prev => ({ ...prev, imagem: data.imagem }));
+            fecharPreviewFoto();
             Alert.alert("Sucesso", "Foto atualizada!");
         } catch {
             Alert.alert("Erro", "Erro ao atualizar foto");
+        }
+    };
+
+    const confirmarEnvioFoto = () => {
+        if (previewFotoAsset) {
+            uploadImagem(previewFotoAsset);
         }
     };
 
@@ -220,7 +239,16 @@ export default function Perfil() {
 
                     <Campo label="Email" valor={perfil.email} icone="mail-outline" />
                     <Campo label="CPF" valor={perfil.cpf} icone="card-outline" />
-                    <Campo label="Contato" valor={perfil.contato} icone="call-outline" />
+                    <Campo label="Contato" valor={perfil.contato} editMode={editMode} icone="call-outline">
+                        <TextInput
+                            style={styles.input}
+                            value={editData.contato}
+                            onChangeText={contato => setEditData({ ...editData, contato: mascaraTelefone(contato) })}
+                            placeholder="(00) 00000-0000"
+                            placeholderTextColor="#9CA3AF"
+                            keyboardType="phone-pad"
+                        />
+                    </Campo>
 
                     <Campo label="Habilidades" valor={perfil.habilidades} editMode={editMode}>
                         <TextInput
@@ -233,6 +261,35 @@ export default function Perfil() {
                         />
                     </Campo>
                 </View>
+
+                {/* Modal: prévia da foto antes de enviar */}
+                <Modal
+                    visible={!!previewFotoUri}
+                    transparent
+                    animationType="fade"
+                    onRequestClose={fecharPreviewFoto}
+                >
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalPreviewContent}>
+                            <Text style={styles.modalPreviewTitle}>Prévia da foto</Text>
+                            {previewFotoUri && (
+                                <Image
+                                    source={{ uri: previewFotoUri }}
+                                    style={styles.modalPreviewImage}
+                                    resizeMode="cover"
+                                />
+                            )}
+                            <View style={styles.modalPreviewButtons}>
+                                <Pressable style={styles.modalPreviewBtnCancelar} onPress={fecharPreviewFoto}>
+                                    <Text style={styles.modalPreviewBtnTextCancelar}>Cancelar</Text>
+                                </Pressable>
+                                <Pressable style={styles.modalPreviewBtnEnviar} onPress={confirmarEnvioFoto}>
+                                    <Text style={styles.modalPreviewBtnTextEnviar}>Enviar</Text>
+                                </Pressable>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
 
                 {/* Ações */}
                 <View style={styles.buttonContainer}>
@@ -411,5 +468,61 @@ const styles = StyleSheet.create({
         gap: 6,
         width: "100%",
         alignSelf: "center",
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.6)",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 24,
+    },
+    modalPreviewContent: {
+        backgroundColor: "#fff",
+        borderRadius: 16,
+        padding: 20,
+        width: "100%",
+        maxWidth: 340,
+        alignItems: "center",
+    },
+    modalPreviewTitle: {
+        fontSize: 18,
+        fontWeight: "600",
+        color: "#1A1A1A",
+        marginBottom: 16,
+    },
+    modalPreviewImage: {
+        width: 200,
+        height: 200,
+        borderRadius: 100,
+        marginBottom: 20,
+    },
+    modalPreviewButtons: {
+        flexDirection: "row",
+        gap: 12,
+        width: "100%",
+    },
+    modalPreviewBtnCancelar: {
+        flex: 1,
+        paddingVertical: 14,
+        borderRadius: 12,
+        backgroundColor: "#E5E7EB",
+        alignItems: "center",
+    },
+    modalPreviewBtnTextCancelar: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: "#374151",
+    },
+    modalPreviewBtnEnviar: {
+        flex: 1,
+        paddingVertical: 14,
+        borderRadius: 12,
+        backgroundColor: "#295CA9",
+        alignItems: "center",
+    },
+    modalPreviewBtnTextEnviar: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: "#fff",
     },
 });

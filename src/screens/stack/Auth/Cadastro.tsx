@@ -549,7 +549,7 @@ import Icone from "@/components/shared/Icone";
 import Botao from "@/components/ui/Botao";
 import { AuthContext } from "@/data/context/AuthContext";
 import useAPI from "@/data/hooks/useAPI";
-import { mascaraCNPJ, mascaraCPF, mascaraTelefone } from "@/utils/masks";
+import { mascaraCNPJ, mascaraCPF, mascaraTelefone, removerMascara, validarTelefone } from "@/utils/masks";
 import { useNavigation } from "@react-navigation/native";
 import { useContext, useState } from "react";
 import {
@@ -602,6 +602,78 @@ const AREAS_ATUACAO = [
   { value: "TECNOLOGIA_SOCIAL", label: "Tecnologia Social" },
 ];
 
+/** Valores permitidos para disponibilidade (backend enum) */
+const DISPONIBILIDADE_VALIDAS = ["manha", "tarde", "noite", "integral"];
+
+/** Valida todos os campos do cadastro de voluntário. Retorna mensagem de erro ou null. */
+function validarCamposVoluntario(params: {
+  nome: string;
+  email: string;
+  senha: string;
+  confirmarSenha: string;
+  cpf: string;
+  contato: string;
+  habilidades: string;
+  interesses: string;
+  disponibilidade: string;
+}): string | null {
+  const { nome, email, senha, confirmarSenha, cpf, contato, habilidades, interesses, disponibilidade } = params;
+
+  const nomeTrim = nome.trim();
+  if (!nomeTrim) return "O nome é obrigatório.";
+  if (nomeTrim.length < 10) return "O nome deve ter no mínimo 10 caracteres.";
+  if (nomeTrim.length > 40) return "O nome deve ter no máximo 40 caracteres.";
+
+  const emailTrim = email.trim();
+  if (!emailTrim) return "O e-mail é obrigatório.";
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(emailTrim)) return "Informe um e-mail válido.";
+
+  if (!senha) return "A senha é obrigatória.";
+  if (senha.length < 6) return "A senha deve ter no mínimo 6 caracteres.";
+  if (senha.length > 20) return "A senha deve ter no máximo 20 caracteres.";
+
+  if (!confirmarSenha) return "Confirme a senha.";
+  if (senha !== confirmarSenha) return "As senhas não coincidem.";
+
+  const cpfTrim = cpf.trim();
+  if (!cpfTrim) return "O CPF é obrigatório.";
+  const cpfNumeros = removerMascara(cpfTrim);
+  if (cpfNumeros.length !== 11) return "O CPF deve ter 11 dígitos.";
+
+  if (!contato || !contato.trim()) return "O contato é obrigatório.";
+  if (!validarTelefone(contato)) return "Informe um telefone válido (DDD + número).";
+
+  const habilidadesLista = habilidades.split(",").map((h) => h.trim()).filter((h) => h.length > 0);
+  if (habilidadesLista.length === 0) return "Informe pelo menos uma habilidade.";
+
+  const interessesLista = interesses.split(",").map((i) => i.trim()).filter((i) => i.length > 0);
+  if (interessesLista.length === 0) return "Informe pelo menos um interesse.";
+
+  const disponibilidadeNormalizada = disponibilidade
+    .split(",")
+    .map((d) => d.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))
+    .filter((d) => d.length > 0);
+  if (disponibilidadeNormalizada.length === 0) return "Informe pelo menos uma disponibilidade (ex.: manhã, tarde, noite, integral).";
+  const invalidas = disponibilidadeNormalizada.filter((d) => !DISPONIBILIDADE_VALIDAS.includes(d));
+  if (invalidas.length > 0) return "Disponibilidade inválida. Use: manhã, tarde, noite ou integral.";
+
+  return null;
+}
+
+/** Parseia resposta de erro (JSON ou texto) para exibir mensagem ao usuário */
+async function parseErrorResponse(
+  res: Response
+): Promise<{ message?: string; erros?: Array<Record<string, string>> }> {
+  const text = await res.text();
+  if (!text) return { message: "Erro ao processar resposta." };
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { message: text };
+  }
+}
+
 export default function Cadastro() {
   const { login } = useContext(AuthContext);
   const { httpPost } = useAPI();
@@ -633,29 +705,39 @@ export default function Cadastro() {
   const [disponibilidade, setDisponibilidade] = useState("");
 
   const handleCadastro = async () => {
-    // Validações básicas
-    if (!nome || !email || !senha || !confirmarSenha) {
-      alert("Por favor, preencha todos os campos obrigatórios");
-      return;
-    }
-    else if(nome.length<10){
-      alert("O nome deve ter no mínimo 10 caracteres");
-      return;
-    }
-
-    if (senha !== confirmarSenha) {
-      alert("As senhas não coincidem");
-      return;
-    }
-
-    if (tipoUsuario === "ONG" && (!cnpj || areaAtuacaoSelecionadas.length === 0 || !endereco || !descricao || !visao || !missao)) {
-      alert("Por favor, preencha todos os campos da ONG");
-      return;
-    }
-
-    if (tipoUsuario === "VOLUNTARIO" && (!cpf || !contato || !habilidades || !disponibilidade || !interesses)) {
-      alert("Por favor, preencha todos os campos do Voluntário");
-      return;
+    if (tipoUsuario === "VOLUNTARIO") {
+      const erro = validarCamposVoluntario({
+        nome,
+        email,
+        senha,
+        confirmarSenha,
+        cpf,
+        contato,
+        habilidades,
+        interesses,
+        disponibilidade,
+      });
+      if (erro) {
+        alert(erro);
+        return;
+      }
+    } else {
+      if (!nome || !email || !senha || !confirmarSenha) {
+        alert("Por favor, preencha todos os campos obrigatórios");
+        return;
+      }
+      if (nome.length < 10) {
+        alert("O nome deve ter no mínimo 10 caracteres");
+        return;
+      }
+      if (senha !== confirmarSenha) {
+        alert("As senhas não coincidem");
+        return;
+      }
+      if (!cnpj || areaAtuacaoSelecionadas.length === 0 || !endereco || !descricao || !visao || !missao) {
+        alert("Por favor, preencha todos os campos da ONG");
+        return;
+      }
     }
 
     try {
@@ -705,24 +787,37 @@ export default function Cadastro() {
 
       if (body.tipo === "VOLUNTARIO") {
         const res = await httpPost("registrar", body);
-        const data = await res.json();
-        console.log(data, "dataCadastro");
         if (res.ok) {
+          const data = await res.json();
           await login(data.token, tipoUsuario, data.usuario);
           navigation.navigate("Abas");
+          return;
+        }
+        const data = await parseErrorResponse(res);
+        if (res.status === 422 && Array.isArray(data.erros)) {
+          const mensagens = data.erros
+            .map((e: Record<string, string>) => Object.values(e)[0])
+            .filter(Boolean);
+          alert(mensagens.join("\n"));
         } else {
-         
-          alert(data || "Erro ao cadastrar");
+          alert(data.message || "Erro ao cadastrar");
         }
       } else {
         const res = await httpPost("ong/registrar", body);
-        const data = await res.json();
-        console.log(data, "dataCadastro");
         if (res.ok) {
+          const data = await res.json();
           await login(data.token, tipoUsuario, data.usuario);
           navigation.navigate("Abas");
+          return;
+        }
+        const data = await parseErrorResponse(res);
+        if (res.status === 422 && Array.isArray(data.erros)) {
+          const mensagens = data.erros
+            .map((e: Record<string, string>) => Object.values(e)[0])
+            .filter(Boolean);
+          alert(mensagens.join("\n"));
         } else {
-          alert(data.msg || "Erro ao cadastrar");
+          alert(data.message || data.msg || "Erro ao cadastrar");
         }
       }
     } catch (err) {
