@@ -2,7 +2,9 @@ import DetalheVagaOng from "@/components/vagas/vagaOng/DetalheVagaOng";
 import { AuthContext, AuthProvider } from "@/data/context/AuthContext";
 import { OngProvider } from "@/data/context/ongContext";
 import { VagaProvider } from "@/data/context/VagaContext";
+import DetalheOng from "@/screens/stack/DetalheOng";
 import DetalheVaga from "@/screens/stack/DetalheVaga";
+import DetalheVoluntario from "@/screens/stack/DetalheVoluntario";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useContext } from "react";
@@ -21,9 +23,13 @@ export type RootStackParamList = {
   Login: undefined;
   Cadastro: undefined;
   Abas: undefined;
-  DetalheVaga: { vagaId: string }; // passando ID da vaga
-  VagaDetalheOng: { vagaId: string }; Inscricoes: { vagaId: string };
-  inscricoesScreen: undefined;
+  DetalheVaga: { vagaId: string };
+  DetalheVagaOng: { vagaId: string };
+  DetalheOng: { ongId: string };
+  DetalheVoluntario: { voluntarioId: string };
+  Inscricoes: { vagaId: string };
+  InscricoesScreen: undefined;
+  PerfilOng: undefined;
 };
 
 
@@ -46,6 +52,8 @@ function AppNavigator() {
         <>
           <Stack.Screen name="Abas" component={Abas} />
           <Stack.Screen name="DetalheVaga" component={DetalheVaga} />
+          <Stack.Screen name="DetalheOng" component={DetalheOng} />
+          <Stack.Screen name="DetalheVoluntario" component={DetalheVoluntario} />
           <Stack.Screen
             name="DetalheVagaOng" // Nome que deve ser usado no navigate()
             component={DetalheVagaOng}

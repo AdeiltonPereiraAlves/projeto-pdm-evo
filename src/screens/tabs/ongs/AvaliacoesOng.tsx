@@ -1,10 +1,10 @@
 import AvaliacaoCard from "@/components/avaliacoes/AvaliacaoCard";
 import Icone from "@/components/shared/Icone";
+import Loading from "@/components/loading/Loading";
 import { AuthContext } from "@/data/context/AuthContext";
 import { useAvaliacoes } from "@/data/context/AvaliacaoContext";
 import { useContext, useEffect, useState } from "react";
 import {
-    ActivityIndicator,
     Alert,
     Dimensions,
     Pressable,
@@ -79,12 +79,7 @@ export default function AvaliacoesOng() {
     
 
     if (loading && avaliacoesExibidas.length === 0) {
-        return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#295CA9" />
-                <Text style={styles.loadingText}>Carregando avaliações...</Text>
-            </View>
-        );
+        return <Loading message="Carregando avaliações..." />;
     }
 
     return (

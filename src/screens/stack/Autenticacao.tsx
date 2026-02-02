@@ -1,9 +1,10 @@
-import{View, Text} from "react-native";
+import Loading from "@/components/loading/Loading";
+import { View } from "react-native";
 
 export default function Autenticacao() {
-    return(
-        <View>
-            <Text>Autenticacao</Text>
-        </View>
-    )
+  return (
+    <View style={{ flex: 1 }}>
+      <Loading message="Carregando..." />
+    </View>
+  );
 }

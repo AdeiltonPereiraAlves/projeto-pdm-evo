@@ -1,3 +1,4 @@
+import Loading from "@/components/loading/Loading";
 import CategoryFilter from "@/components/ui/CategoryFilter";
 import SearchBar from "@/components/ui/SearchBar";
 import VagaCard from "@/components/vagas/VagaCard";
@@ -20,7 +21,7 @@ export interface Vaga {
     titulo: string;
     nomeOng: string;
     imagemOng: string;
-    areaAtuacao: [];
+    areaAtuacao: string[];
     localizacao: string;
     data: string;
     descricao: string;
@@ -42,6 +43,24 @@ export default function Home() {
 
     const categories = ["Todas", "Educação", "Saúde", "Meio Ambiente", "Social", "Tecnologia"];
 
+    // Mapeamento: label do filtro → valores enum do backend (areaAtuacao)
+    const CATEGORIA_PARA_ENUMS: Record<string, string[]> = {
+        "Educação": ["EDUCACAO", "EDUCACAO_INFANTIL"],
+        "Saúde": ["SAUDE", "SAUDE_MENTAL"],
+        "Meio Ambiente": ["AMBIENTE", "DESENVOLVIMENTO_SUSTENTAVEL", "SEGURANCA_ALIMENTAR"],
+        "Social": ["CULTURA", "DIREITOS_HUMANOS", "FOME", "POBREZA", "CRIANCA", "MULHER", "IGUALDADE", "IDOSO", "LGBTQIA", "REFUGIADOS", "JUSTICA_SOCIAL", "EMPODERAMENTO", "FAMILIA", "ANIMAL", "REABILITACAO", "VOLUNTARIADO", "ESPORTES", "ARTE", "EMPREGO", "INFRAESTRUTURA"],
+        "Tecnologia": ["TECNOLOGIA", "TECNOLOGIA_SOCIAL"],
+    };
+
+    // Termos para busca por texto (título, descrição, etc.) quando categoria selecionada
+    const TERMOS_CATEGORIA: Record<string, string[]> = {
+        "Educação": ["educação", "educacao", "educar", "ensino", "escola"],
+        "Saúde": ["saúde", "saude", "hospital", "medicina", "cuidados"],
+        "Meio Ambiente": ["meio ambiente", "ambiente", "sustentável", "sustentavel", "natureza", "ecologia"],
+        "Social": ["social", "comunidade", "assistência", "assistencia", "cultura", "direitos"],
+        "Tecnologia": ["tecnologia", "tech", "digital", "informática", "informatica", "software", "dados"],
+    };
+
     // Atualiza vagas ao carregar
     useEffect(() => {
         if(!vagas){
@@ -61,19 +80,34 @@ export default function Home() {
     }, [vagas, searchText, selectedCategory]);
 
     const filtrarVagas = () => {
-        let filtradas = vagas;
+        let filtradas = vagas || [];
 
-        // Filtro de categoria
+        // Filtro de categoria: areaAtuacao da ONG OU texto no título/descrição/nomeOng
         if (selectedCategory !== "Todas") {
-            filtradas = filtradas.filter(vaga => vaga.categoria === selectedCategory);
+            const enumsDaCategoria = CATEGORIA_PARA_ENUMS[selectedCategory] || [];
+            const termosTexto = TERMOS_CATEGORIA[selectedCategory] || [selectedCategory.toLowerCase()];
+            filtradas = filtradas.filter((vaga) => {
+                // 1) ONG tem área de atuação que bate com a categoria
+                const areas = (vaga.areaAtuacao || []) as string[];
+                const bateArea = areas.some((area) => enumsDaCategoria.includes(area));
+                // 2) OU título/descrição/nomeOng contém algum termo da categoria
+                const titulo = (vaga.titulo || "").toLowerCase();
+                const descricao = (vaga.descricao || "").toLowerCase();
+                const nomeOng = (vaga.nomeOng || "").toLowerCase();
+                const bateTexto = termosTexto.some((termo) =>
+                    titulo.includes(termo) || descricao.includes(termo) || nomeOng.includes(termo)
+                );
+                return bateArea || bateTexto;
+            });
         }
 
-        // Filtro de texto (opcional)
-        if (searchText) {
-            filtradas = filtradas.filter(vaga =>
-                vaga.titulo.toLowerCase().includes(searchText.toLowerCase()) ||
-                vaga.nomeOng.toLowerCase().includes(searchText.toLowerCase()) ||
-                vaga.descricao.toLowerCase().includes(searchText.toLowerCase())
+        // Filtro de texto na busca
+        if (searchText.trim()) {
+            const termo = searchText.toLowerCase().trim();
+            filtradas = filtradas.filter((vaga) =>
+                (vaga.titulo || "").toLowerCase().includes(termo) ||
+                (vaga.nomeOng || "").toLowerCase().includes(termo) ||
+                (vaga.descricao || "").toLowerCase().includes(termo)
             );
         }
 
@@ -91,11 +125,7 @@ export default function Home() {
     };
 
     if (loading) {
-        return (
-            <View style={styles.loadingContainer}>
-                <Text style={styles.loadingText}>Carregando vagas...</Text>
-            </View>
-        );
+        return <Loading message="Carregando vagas..." />;
     }
 
     return (
@@ -143,7 +173,7 @@ export default function Home() {
                             titulo={vaga.titulo}
                             nomeOng={vaga.nomeOng || "ONG"}
                             imagemOng={vaga.imagemOng}
-                            areaAtuacao={vaga.areaAtuacao}
+                            areaAtuacao={vaga.areaAtuacao || []}
                             localizacao={vaga.localizacao}
                             data={vaga.data}
                             descricao={vaga.descricao}

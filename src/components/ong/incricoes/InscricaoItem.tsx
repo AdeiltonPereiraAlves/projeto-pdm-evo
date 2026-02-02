@@ -646,6 +646,7 @@ import {
   Alert,
   Image,
   Modal,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -672,6 +673,7 @@ interface InscricaoItemProps {
   };
   vagaId: string;
   onStatusChange?: (inscricaoId: string, novoStatus: string) => void;
+  onVerPerfilVoluntario?: (voluntarioId: string) => void;
   loading?: boolean;
 }
 
@@ -679,6 +681,7 @@ const InscricaoItem: React.FC<InscricaoItemProps> = ({
   inscricao,
   vagaId,
   onStatusChange,
+  onVerPerfilVoluntario,
   loading = false,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -824,9 +827,18 @@ const InscricaoItem: React.FC<InscricaoItemProps> = ({
             )}
             
             <View style={styles.textContainer}>
-              <Text style={styles.nome} numberOfLines={1}>
-                {inscricao.voluntario.nome}
-              </Text>
+              {onVerPerfilVoluntario && inscricao.voluntario?.id ? (
+                <Pressable onPress={() => onVerPerfilVoluntario(inscricao.voluntario.id)}>
+                  <Text style={[styles.nome, styles.nomeLink]} numberOfLines={1}>
+                    {inscricao.voluntario.nome}
+                  </Text>
+                  <Text style={styles.linkHint}>Toque para ver perfil</Text>
+                </Pressable>
+              ) : (
+                <Text style={styles.nome} numberOfLines={1}>
+                  {inscricao.voluntario.nome}
+                </Text>
+              )}
               <Text style={styles.email} numberOfLines={1}>
                 {inscricao.voluntario.email}
               </Text>
@@ -894,7 +906,14 @@ const InscricaoItem: React.FC<InscricaoItemProps> = ({
                     </View>
                   )}
                   <View style={styles.modalVoluntarioText}>
-                    <Text style={styles.modalNome}>{inscricao.voluntario.nome}</Text>
+                    {onVerPerfilVoluntario && inscricao.voluntario?.id ? (
+                      <Pressable onPress={() => { setModalVisible(false); onVerPerfilVoluntario(inscricao.voluntario.id); }}>
+                        <Text style={[styles.modalNome, styles.nomeLink]}>{inscricao.voluntario.nome}</Text>
+                        <Text style={styles.linkHint}>Toque para ver perfil</Text>
+                      </Pressable>
+                    ) : (
+                      <Text style={styles.modalNome}>{inscricao.voluntario.nome}</Text>
+                    )}
                     <Text style={styles.modalEmail}>{inscricao.voluntario.email}</Text>
                     {inscricao.voluntario.contato && (
                       <Text style={styles.modalContact}>
@@ -1100,6 +1119,15 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#1A1A1A',
     marginBottom: 2,
+  },
+  nomeLink: {
+    color: '#295CA9',
+    textDecorationLine: 'underline',
+  },
+  linkHint: {
+    fontSize: 11,
+    color: '#94a3b8',
+    marginTop: 2,
   },
   email: {
     fontSize: 14,

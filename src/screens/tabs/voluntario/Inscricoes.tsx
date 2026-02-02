@@ -1,16 +1,11 @@
+import Loading from "@/components/loading/Loading";
 import InscricaoCard from '@/components/inscricoes/InscricaoCard';
 import { AuthContext } from '@/data/context/AuthContext';
 import useInscricoes from '@/data/hooks/useIncricoes';
 import { useFocusEffect } from '@react-navigation/native';
 import { useNavigation } from "expo-router";
 import { useCallback, useContext, useState } from 'react';
-import {
-    ActivityIndicator,
-    FlatList,
-    StyleSheet,
-    Text,
-    View,
-} from 'react-native';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { HomeNavigationProp, Vaga } from './Home';
 
 
@@ -55,14 +50,7 @@ export default function Inscricoes() {
         navigation.navigate("DetalheVaga", { vagaId: vaga.id });
     };
     if (loading) {
-        return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#295CA9" />
-                <Text style={styles.loadingText}>
-                    Carregando inscrições...
-                </Text>
-            </View>
-        );
+        return <Loading message="Carregando inscrições..." />;
     }
 
     return (

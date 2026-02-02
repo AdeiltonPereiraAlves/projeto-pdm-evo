@@ -70,36 +70,47 @@ export function removerMascara(value: string): string {
 }
 
 /**
+ * Normaliza string para dígitos: trim + converte dígitos Unicode (ex.: fullwidth) para ASCII
+ */
+function normalizarDigitos(value: string): string {
+    if (value == null || typeof value !== "string") return "";
+    return value
+        .trim()
+        .replace(/[\uFF10-\uFF19]/g, (d) => String.fromCharCode(d.charCodeAt(0) - 0xff10 + 0x30));
+}
+
+/**
  * Valida CPF (algoritmo oficial)
+ * Aceita CPF com ou sem máscara; ignora espaços e aceita dígitos Unicode (ex.: colar do Excel).
  */
 export function validarCPF(cpf: string): boolean {
-    const numeros = removerMascara(cpf);
-    
+    const numeros = removerMascara(normalizarDigitos(cpf));
+
     if (numeros.length !== 11) return false;
-    
+
     // Verifica se todos os dígitos são iguais
     if (/^(\d)\1{10}$/.test(numeros)) return false;
-    
-    // Validação do primeiro dígito verificador
+
+    // Validação do primeiro dígito verificador (pesos 10, 9, 8, 7, 6, 5, 4, 3, 2)
     let soma = 0;
     for (let i = 0; i < 9; i++) {
-        soma += parseInt(numeros.charAt(i)) * (10 - i);
+        soma += parseInt(numeros.charAt(i), 10) * (10 - i);
     }
     let digito1 = 11 - (soma % 11);
     if (digito1 > 9) digito1 = 0;
-    
-    if (parseInt(numeros.charAt(9)) !== digito1) return false;
-    
-    // Validação do segundo dígito verificador
+
+    if (parseInt(numeros.charAt(9), 10) !== digito1) return false;
+
+    // Validação do segundo dígito verificador (pesos 11, 10, 9, 8, 7, 6, 5, 4, 3, 2)
     soma = 0;
     for (let i = 0; i < 10; i++) {
-        soma += parseInt(numeros.charAt(i)) * (11 - i);
+        soma += parseInt(numeros.charAt(i), 10) * (11 - i);
     }
     let digito2 = 11 - (soma % 11);
     if (digito2 > 9) digito2 = 0;
-    
-    if (parseInt(numeros.charAt(10)) !== digito2) return false;
-    
+
+    if (parseInt(numeros.charAt(10), 10) !== digito2) return false;
+
     return true;
 }
 

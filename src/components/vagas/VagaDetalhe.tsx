@@ -40,6 +40,17 @@ const styles = StyleSheet.create({
     color: "#666",
     fontWeight: "500",
   },
+  ongLink: {
+    fontSize: 16,
+    color: "#295CA9",
+    fontWeight: "600",
+    textDecorationLine: "underline",
+  },
+  ongHint: {
+    fontSize: 12,
+    color: "#94a3b8",
+    marginTop: 2,
+  },
   favoritoContainer: {
     padding: 4,
   },
@@ -143,6 +154,7 @@ import useAPI from "@/data/hooks/useAPI";
 import React, { useContext, useEffect, useState } from "react";
 import {
   Image,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -151,6 +163,7 @@ import {
 } from "react-native";
 import { vagaDetalhe } from "../../screens/stack/DetalheVaga";
 import Icone from "../shared/Icone";
+import { useNavigation } from "@react-navigation/native";
 
 export interface Inscricao {
   vagaId: string;
@@ -169,6 +182,7 @@ export default function VagaDetalhe({
   status,
   duracao,
 }: vagaDetalhe) {
+  const navigation = useNavigation<any>();
   const [ativo, setAtivo] = useState<boolean | undefined>(undefined);
   const texto = ativo === undefined ? "Carregando..." : ativo ? "Inscrito" : "Candidatar-se";
  const [idVaga, setIdVaga] = useState(id)
@@ -252,7 +266,14 @@ export default function VagaDetalhe({
           />
           <View style={styles.tituloContainer}>
             <Text style={styles.titulo}>{titulo}</Text>
-            <Text style={styles.ong}>{ong.nome || "ONG"}</Text>
+            {ong.id ? (
+              <Pressable onPress={() => navigation.navigate("DetalheOng", { ongId: ong.id })}>
+                <Text style={styles.ongLink}>{ong.nome || "ONG"}</Text>
+                <Text style={styles.ongHint}>Toque para ver perfil da ONG</Text>
+              </Pressable>
+            ) : (
+              <Text style={styles.ong}>{ong.nome || "ONG"}</Text>
+            )}
           </View>
         </View>
 

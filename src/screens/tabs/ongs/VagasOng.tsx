@@ -165,12 +165,13 @@
 
 //
 
+import Loading from "@/components/loading/Loading";
 import { AuthContext } from "@/data/context/AuthContext";
 import useAPI from "@/data/hooks/useAPI";
 import { useNavigation } from "@react-navigation/native";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
-  ActivityIndicator, Alert, FlatList,
+  Alert, FlatList,
   RefreshControl,
   StyleSheet,
   Text,
@@ -285,12 +286,7 @@ export default function VagasOng() {
   );
 
   if (loadingVagas) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#295CA9" />
-        <Text style={{ marginTop: 12, color: "#6B7280" }}>Carregando vagas...</Text>
-      </View>
-    );
+    return <Loading message="Carregando vagas..." />;
   }
 
   if (error) {

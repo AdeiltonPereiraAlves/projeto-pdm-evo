@@ -16,7 +16,7 @@ export type vagaDetalhe = {
   descricao: string;
   localizacao: string;
   tipoTrabalho: string;
-  ong: { nome: string; imagem: string };
+  ong: { id?: string; nome: string; imagem: string };
   requisitos: [], // ✅ aqui sim
   quantidade: number;
   status: string;

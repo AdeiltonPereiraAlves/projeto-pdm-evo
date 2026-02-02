@@ -1,5 +1,6 @@
 import Avatar from "@/components/shared/Avatar";
 import Icone from "@/components/shared/Icone";
+import Loading from "@/components/loading/Loading";
 import Botao from "@/components/ui/Botao";
 import { AuthContext } from "@/data/context/AuthContext";
 import useAPI from "@/data/hooks/useAPI";
@@ -9,7 +10,6 @@ import { useRoute } from '@react-navigation/native';
 import * as ImagePicker from "expo-image-picker";
 import { useContext, useEffect, useState } from "react";
 import {
-    ActivityIndicator,
     Alert,
     Dimensions,
     Pressable,
@@ -194,12 +194,7 @@ export default function PerfilOng() {
     };
 
     if (loading) {
-        return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#295CA9" />
-                <Text style={styles.loadingText}>Carregando perfil...</Text>
-            </View>
-        );
+        return <Loading message="Carregando perfil..." />;
     }
 
     return (

@@ -1,7 +1,6 @@
 import Loading from "@/components/loading/Loading";
 import Icone from "@/components/shared/Icone";
 import { AuthContext } from "@/data/context/AuthContext";
-import { useOng } from "@/data/context/ongContext";
 import useAPI from "@/data/hooks/useAPI";
 import { useNavigation } from "@react-navigation/native";
 import { useContext, useEffect, useState } from "react";
@@ -36,6 +35,7 @@ interface Estatisticas {
     vagasFechadas: number;
     candidatosPendentes: number;
     candidatosAprovados: number;
+    candidatosRejeitados: number;
     totalCandidaturas: number;
 }
 
@@ -53,9 +53,9 @@ export default function Dashboard() {
         vagasFechadas: 0,
         candidatosPendentes: 0,
         candidatosAprovados: 0,
+        candidatosRejeitados: 0,
         totalCandidaturas: 0,
     });
-    const {vagasOng } = useOng()
     useEffect(() => {
         carregarDados();
     }, []);
@@ -63,17 +63,9 @@ export default function Dashboard() {
     const carregarDados = async () => {
         try {
             setLoading(true);
-            const vagasData = await httpGet("listar/vagas/ong", token || "");
-            
-         
-            console.log("Dashboard - vagasData recebida:", vagasData);
-            console.log("Dashboard - tipo de vagasData:", typeof vagasData.vagas);
-            console.log("Dashboard - é array?", Array.isArray(vagasOng));
-            
-            // Garantir que sempre temos um array
-            const vagasArray = Object.values(vagasData.vagas) ? vagasData.vagas : [];
-             console.log("Dashboard - vagasArray processada:", vagasArray);
-            setVagas(vagasOng);
+            const response = await httpGet("listar/vagas/ong", token || "");
+            const vagasArray = Array.isArray(response?.vagas) ? response.vagas : [];
+            setVagas(vagasArray);
             calcularEstatisticas(vagasArray);
         } catch (error) {
             console.error("Erro ao carregar dashboard:", error);
@@ -91,40 +83,44 @@ export default function Dashboard() {
     };
 
     const calcularEstatisticas = (vagasData: VagaData[]) => {
-        // Garantir que vagasData é um array
         if (!Array.isArray(vagasData)) {
-            console.warn("calcularEstatisticas recebeu dados inválidos:", vagasData);
             setStats({
                 totalVagas: 0,
                 vagasAbertas: 0,
                 vagasFechadas: 0,
                 candidatosPendentes: 0,
                 candidatosAprovados: 0,
+                candidatosRejeitados: 0,
                 totalCandidaturas: 0,
             });
             return;
         }
 
+        const aberto = (v: VagaData) => v.status === "ABERTO" || (v.status as string) === "aberto";
+        const fechado = (v: VagaData) =>
+            v.status === "ENCERRADO" || v.status === "FECHADO" || (v.status as string) === "fechado" || (v.status as string) === "encerrado";
+
         const estatisticas: Estatisticas = {
             totalVagas: vagasData.length,
-            vagasAbertas: vagasData.filter((v) => v.status === "ABERTO").length,
-            vagasFechadas: vagasData.filter((v) => v.status === "FECHADO").length,
+            vagasAbertas: vagasData.filter(aberto).length,
+            vagasFechadas: vagasData.filter(fechado).length,
             candidatosPendentes: 0,
             candidatosAprovados: 0,
+            candidatosRejeitados: 0,
             totalCandidaturas: 0,
         };
 
-        // Calcular candidaturas (se disponível)
         vagasData.forEach((vaga) => {
-            console.log("vagas calculadas:", vaga);
-            console.log("Calculando estatísticas para vaga:", vaga.id, vaga.inscricoes);
             if (vaga.inscricoes && Array.isArray(vaga.inscricoes)) {
                 estatisticas.totalCandidaturas += vaga.inscricoes.length;
                 estatisticas.candidatosPendentes += vaga.inscricoes.filter(
-                    (i) => i.status === "pendente" && i.ativo
+                    (i) => (i.status as string) === "pendente" && i.ativo
                 ).length;
                 estatisticas.candidatosAprovados += vaga.inscricoes.filter(
-                    (i) => i.status === "aprovado"
+                    (i) => (i.status as string) === "aprovado"
+                ).length;
+                estatisticas.candidatosRejeitados += vaga.inscricoes.filter(
+                    (i) => (i.status as string) === "rejeitado"
                 ).length;
             }
         });
@@ -132,13 +128,18 @@ export default function Dashboard() {
         setStats(estatisticas);
     };
 
+    const maxInscritos = Math.max(
+        1,
+        ...vagas.map((v) => (v.inscricoes && Array.isArray(v.inscricoes) ? v.inscricoes.length : 0))
+    );
+
     if (loading) {
         return (
             // <View style={styles.loadingContainer}>
             //     <ActivityIndicator size="large" color="#295CA9" />
             //     <Text style={styles.loadingText}>Carregando dashboard...</Text>
             // </View>
-            <Loading/>
+            <Loading message="Carregando dashboard..." />
         );
     }
 
@@ -202,7 +203,114 @@ export default function Dashboard() {
                             <Text style={styles.statLabel}>Pendentes</Text>
                         </View>
                     </View>
+
+                    <View style={styles.statsRow}>
+                        <View style={[styles.statCard, styles.statCardSuccess]}>
+                            <View style={styles.statIconContainer}>
+                                <Icone nome="checkmark-circle" tamanho={24} color="#22c55e" />
+                            </View>
+                            <Text style={styles.statNumber}>{stats.candidatosAprovados}</Text>
+                            <Text style={styles.statLabel}>Aprovados</Text>
+                        </View>
+
+                        <View style={[styles.statCard, styles.statCardDanger]}>
+                            <View style={styles.statIconContainer}>
+                                <Icone nome="close-circle" tamanho={24} color="#ef4444" />
+                            </View>
+                            <Text style={styles.statNumber}>{stats.candidatosRejeitados}</Text>
+                            <Text style={styles.statLabel}>Rejeitados</Text>
+                        </View>
+                    </View>
                 </View>
+
+                {/* Gráfico: Inscrições por vaga */}
+                {vagas.length > 0 && (
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Inscrições por vaga</Text>
+                        <View style={styles.chartCard}>
+                            {vagas.slice(0, 8).map((vaga) => {
+                                const count = (vaga.inscricoes && Array.isArray(vaga.inscricoes) ? vaga.inscricoes.length : 0);
+                                const pct = maxInscritos > 0 ? (count / maxInscritos) * 100 : 0;
+                                return (
+                                    <View key={vaga.id} style={styles.chartRow}>
+                                        <View style={styles.chartRowLabel}>
+                                            <Text style={styles.chartRowTitle} numberOfLines={1}>
+                                                {vaga.titulo || "Vaga"}
+                                            </Text>
+                                            <Text style={styles.chartRowValue}>{count}</Text>
+                                        </View>
+                                        <View style={styles.chartBarBg}>
+                                            <View
+                                                style={[
+                                                    styles.chartBarFill,
+                                                    { width: `${Math.max(pct, 4)}%` },
+                                                ]}
+                                            />
+                                        </View>
+                                    </View>
+                                );
+                            })}
+                        </View>
+                    </View>
+                )}
+
+                {/* Gráfico: Status das candidaturas */}
+                {stats.totalCandidaturas > 0 && (
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Status das candidaturas</Text>
+                        <View style={styles.chartCard}>
+                            <View style={styles.statusLegend}>
+                                <View style={styles.statusLegendItem}>
+                                    <View style={[styles.statusDot, { backgroundColor: "#3b82f6" }]} />
+                                    <Text style={styles.statusLegendText}>
+                                        Pendentes: {stats.candidatosPendentes}
+                                    </Text>
+                                </View>
+                                <View style={styles.statusLegendItem}>
+                                    <View style={[styles.statusDot, { backgroundColor: "#22c55e" }]} />
+                                    <Text style={styles.statusLegendText}>
+                                        Aprovados: {stats.candidatosAprovados}
+                                    </Text>
+                                </View>
+                                <View style={styles.statusLegendItem}>
+                                    <View style={[styles.statusDot, { backgroundColor: "#ef4444" }]} />
+                                    <Text style={styles.statusLegendText}>
+                                        Rejeitados: {stats.candidatosRejeitados}
+                                    </Text>
+                                </View>
+                            </View>
+                            <View style={styles.statusBarContainer}>
+                                <View
+                                    style={[
+                                        styles.statusBarSegment,
+                                        {
+                                            flex: stats.candidatosPendentes || 0.001,
+                                            backgroundColor: "#3b82f6",
+                                        },
+                                    ]}
+                                />
+                                <View
+                                    style={[
+                                        styles.statusBarSegment,
+                                        {
+                                            flex: stats.candidatosAprovados || 0.001,
+                                            backgroundColor: "#22c55e",
+                                        },
+                                    ]}
+                                />
+                                <View
+                                    style={[
+                                        styles.statusBarSegment,
+                                        {
+                                            flex: stats.candidatosRejeitados || 0.001,
+                                            backgroundColor: "#ef4444",
+                                        },
+                                    ]}
+                                />
+                            </View>
+                        </View>
+                    </View>
+                )}
 
                 {/* Ações Rápidas */}
                 <View style={styles.section}>
@@ -253,7 +361,7 @@ export default function Dashboard() {
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>Vagas Recentes</Text>
-                        <Pressable onPress={() => console.log("Ver todas")}>
+                        <Pressable onPress={() => navigation.navigate("MinhasVagas" as never)}>
                             <Text style={styles.seeAllText}>Ver todas</Text>
                         </Pressable>
                     </View>
@@ -279,7 +387,7 @@ export default function Dashboard() {
                                 <Pressable
                                     key={vaga.id}
                                     style={styles.vagaCard}
-                                    onPress={() => console.log("Vaga:", vaga.id)}
+                                    onPress={() => navigation.navigate("DetalheVagaOng" as never, { vagaId: vaga.id })}
                                 >
                                     <View style={styles.vagaHeader}>
                                         <View style={styles.vagaInfo}>
@@ -296,7 +404,7 @@ export default function Dashboard() {
                                         <View
                                             style={[
                                                 styles.statusBadge,
-                                                vaga.status === "ABERTO"
+                                                (vaga.status === "ABERTO" || (vaga.status as string) === "aberto")
                                                     ? styles.statusAberto
                                                     : styles.statusFechado,
                                             ]}
@@ -304,12 +412,12 @@ export default function Dashboard() {
                                             <Text
                                                 style={[
                                                     styles.statusText,
-                                                    vaga.status === "ABERTO"
+                                                    (vaga.status === "ABERTO" || (vaga.status as string) === "aberto")
                                                         ? styles.statusTextAberto
                                                         : styles.statusTextFechado,
                                                 ]}
                                             >
-                                                {vaga.status === "ABERTO" ? "Aberta" : "Fechada"}
+                                                {(vaga.status === "ABERTO" || (vaga.status as string) === "aberto") ? "Aberta" : "Fechada"}
                                             </Text>
                                         </View>
                                     </View>
@@ -399,6 +507,10 @@ const styles = StyleSheet.create({
         borderColor: "#93C5FD",
         backgroundColor: "#EFF6FF",
     },
+    statCardDanger: {
+        borderColor: "#FCA5A5",
+        backgroundColor: "#FEF2F2",
+    },
     statIconContainer: {
         marginBottom: 8,
     },
@@ -427,6 +539,76 @@ const styles = StyleSheet.create({
         fontSize: screenWidth < 350 ? 16 : 18,
         fontWeight: "bold",
         color: "#1A1A1A",
+    },
+    chartCard: {
+        backgroundColor: "#fff",
+        borderRadius: 12,
+        padding: screenWidth < 350 ? 14 : 18,
+        borderWidth: 1,
+        borderColor: "#E5E7EB",
+    },
+    chartRow: {
+        marginBottom: 12,
+    },
+    chartRowLabel: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 4,
+    },
+    chartRowTitle: {
+        fontSize: screenWidth < 350 ? 12 : 13,
+        color: "#374151",
+        flex: 1,
+        marginRight: 8,
+    },
+    chartRowValue: {
+        fontSize: screenWidth < 350 ? 13 : 14,
+        fontWeight: "600",
+        color: "#295CA9",
+        minWidth: 24,
+        textAlign: "right",
+    },
+    chartBarBg: {
+        height: 8,
+        backgroundColor: "#E5E7EB",
+        borderRadius: 4,
+        overflow: "hidden",
+    },
+    chartBarFill: {
+        height: "100%",
+        backgroundColor: "#295CA9",
+        borderRadius: 4,
+        minWidth: 4,
+    },
+    statusLegend: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        gap: 16,
+        marginBottom: 12,
+    },
+    statusLegendItem: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 6,
+    },
+    statusDot: {
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+    },
+    statusLegendText: {
+        fontSize: screenWidth < 350 ? 12 : 13,
+        color: "#374151",
+    },
+    statusBarContainer: {
+        flexDirection: "row",
+        height: 24,
+        borderRadius: 8,
+        overflow: "hidden",
+    },
+    statusBarSegment: {
+        minWidth: 2,
     },
     seeAllText: {
         fontSize: screenWidth < 350 ? 13 : 14,
