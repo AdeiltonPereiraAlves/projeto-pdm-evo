@@ -1,15 +1,14 @@
 
 
-import { yupResolver } from "@hookform/resolvers/yup";
 import Icone from "@/components/shared/Icone";
 import Botao from "@/components/ui/Botao";
 import { AuthContext } from "@/data/context/AuthContext";
 import useAPI from "@/data/hooks/useAPI";
 import { mascaraCNPJ, mascaraCPF, mascaraTelefone, removerMascara, validarTelefone } from "@/utils/masks";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigation } from "@react-navigation/native";
 import { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
-import * as yup from "yup";
 import {
   Dimensions,
   FlatList,
@@ -22,6 +21,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import * as yup from "yup";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -298,43 +298,43 @@ export default function Cadastro() {
 
       const body = data.tipoUsuario === "ONG"
         ? {
-            nome: (data.nome || "").trim(),
-            email: (data.email || "").trim(),
-            descricao: (data.descricao || "").trim(),
-            visao: (data.visao || "").trim(),
-            missao: (data.missao || "").trim(),
-            senha: data.senha,
-            cnpj: (data.cnpj || "").trim(),
-            areaAtuacao: data.areaAtuacao ?? [],
-            endereco: (data.endereco || "").trim(),
-            tipo: "ONG",
-          }
+          nome: (data.nome || "").trim(),
+          email: (data.email || "").trim(),
+          descricao: (data.descricao || "").trim(),
+          visao: (data.visao || "").trim(),
+          missao: (data.missao || "").trim(),
+          senha: data.senha,
+          cnpj: (data.cnpj || "").trim(),
+          areaAtuacao: data.areaAtuacao ?? [],
+          endereco: (data.endereco || "").trim(),
+          tipo: "ONG",
+        }
         : {
-            nome: (data.nome || "").trim(),
-            email: (data.email || "").trim(),
-            tipo: "VOLUNTARIO",
-            senha: data.senha,
-            contato: contatoLimpo,
-            cpf: (data.cpf || "").trim(),
-            habilidades: (data.habilidades || "")
-              .split(",")
-              .map((h) => h.trim())
-              .filter((h) => h.length > 0),
-            interesses: (data.interesses || "")
-              .split(",")
-              .map((i) => i.trim())
-              .filter((i) => i.length > 0),
-            disponibilidade: (data.disponibilidade || "")
-              .split(",")
-              .map((d) =>
-                d
-                  .trim()
-                  .toLowerCase()
-                  .normalize("NFD")
-                  .replace(/[\u0300-\u036f]/g, "")
-              )
-              .filter((d) => d.length > 0),
-          };
+          nome: (data.nome || "").trim(),
+          email: (data.email || "").trim(),
+          tipo: "VOLUNTARIO",
+          senha: data.senha,
+          contato: contatoLimpo,
+          cpf: (data.cpf || "").trim(),
+          habilidades: (data.habilidades || "")
+            .split(",")
+            .map((h) => h.trim())
+            .filter((h) => h.length > 0),
+          interesses: (data.interesses || "")
+            .split(",")
+            .map((i) => i.trim())
+            .filter((i) => i.length > 0),
+          disponibilidade: (data.disponibilidade || "")
+            .split(",")
+            .map((d) =>
+              d
+                .trim()
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+            )
+            .filter((d) => d.length > 0),
+        };
 
       console.log(body, "bodyCadastro");
 
@@ -477,11 +477,15 @@ export default function Cadastro() {
                 <View style={styles.inputGroup}>
                   <Text style={styles.label}>Descrição</Text>
                   <TextInput
-                    style={[styles.input, errors.descricao && styles.inputError]}
+                    style={[styles.input, styles.inputMultiline, errors.descricao && styles.inputError]}
                     placeholder="Descrição da ONG"
                     value={descricao}
                     onChangeText={(v) => setValue("descricao", v)}
                     placeholderTextColor="#939EAA"
+                    multiline
+                    numberOfLines={3}
+                    scrollEnabled={false}
+                    textAlignVertical="top"
                   />
                   {errors.descricao && <Text style={styles.errorText}>{errors.descricao.message}</Text>}
                 </View>
@@ -489,11 +493,15 @@ export default function Cadastro() {
                 <View style={styles.inputGroup}>
                   <Text style={styles.label}>Visão</Text>
                   <TextInput
-                    style={[styles.input, errors.visao && styles.inputError]}
+                    style={[styles.input, styles.inputMultiline, errors.visao && styles.inputError]}
                     placeholder="Visão da ONG"
                     value={visao}
                     onChangeText={(v) => setValue("visao", v)}
                     placeholderTextColor="#939EAA"
+                    multiline
+                    numberOfLines={3}
+                    scrollEnabled={false}
+                    textAlignVertical="top"
                   />
                   {errors.visao && <Text style={styles.errorText}>{errors.visao.message}</Text>}
                 </View>
@@ -501,11 +509,15 @@ export default function Cadastro() {
                 <View style={styles.inputGroup}>
                   <Text style={styles.label}>Missão</Text>
                   <TextInput
-                    style={[styles.input, errors.missao && styles.inputError]}
+                    style={[styles.input, styles.inputMultiline, errors.missao && styles.inputError]}
                     placeholder="Missão da ONG"
                     value={missao}
                     onChangeText={(v) => setValue("missao", v)}
                     placeholderTextColor="#939EAA"
+                    multiline
+                    numberOfLines={3}
+                    scrollEnabled={false}
+                    textAlignVertical="top"
                   />
                   {errors.missao && <Text style={styles.errorText}>{errors.missao.message}</Text>}
                 </View>
@@ -541,7 +553,7 @@ export default function Cadastro() {
                     </Text>
                     <Icone nome="arrow-down-outline" tamanho={24} color="#666" />
                   </Pressable>
-                  
+
                   {/* Tags das áreas selecionadas */}
                   {errors.areaAtuacao && <Text style={styles.errorText}>{errors.areaAtuacao.message}</Text>}
                   {areaAtuacaoSelecionadas.length > 0 && (
@@ -579,7 +591,7 @@ export default function Cadastro() {
                           <Icone nome="close" tamanho={24} color="#666" />
                         </TouchableOpacity>
                       </View>
-                      
+
                       <FlatList
                         data={AREAS_ATUACAO}
                         keyExtractor={(item) => item.value}
@@ -598,13 +610,13 @@ export default function Cadastro() {
                               {item.label}
                             </Text>
                             {areaAtuacaoSelecionadas.includes(item.value) && (
-                              <Icone nome="checkmark"  tamanho={20} color="#295CA9" />
+                              <Icone nome="checkmark" tamanho={20} color="#295CA9" />
                             )}
                           </TouchableOpacity>
                         )}
                         contentContainerStyle={styles.modalList}
                       />
-                      
+
                       <View style={styles.modalFooter}>
                         <TouchableOpacity
                           style={styles.modalButton}
