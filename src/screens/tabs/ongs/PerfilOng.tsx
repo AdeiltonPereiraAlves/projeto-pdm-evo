@@ -1,6 +1,6 @@
+import Loading from "@/components/loading/Loading";
 import Avatar from "@/components/shared/Avatar";
 import Icone from "@/components/shared/Icone";
-import Loading from "@/components/loading/Loading";
 import Botao from "@/components/ui/Botao";
 import { AuthContext } from "@/data/context/AuthContext";
 import useAPI from "@/data/hooks/useAPI";
@@ -12,16 +12,52 @@ import { useContext, useEffect, useState } from "react";
 import {
     Alert,
     Dimensions,
+    FlatList,
+    Modal,
     Pressable,
     RefreshControl,
     ScrollView,
     StyleSheet,
     Text,
     TextInput,
+    TouchableOpacity,
     View
 } from "react-native";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
+
+// Enum de áreas de atuação com labels amigáveis
+const AREAS_ATUACAO = [
+    { value: "EDUCACAO", label: "Educação" },
+    { value: "SAUDE", label: "Saúde" },
+    { value: "AMBIENTE", label: "Meio Ambiente" },
+    { value: "TECNOLOGIA", label: "Tecnologia" },
+    { value: "CULTURA", label: "Cultura" },
+    { value: "DIREITOS_HUMANOS", label: "Direitos Humanos" },
+    { value: "FOME", label: "Combate à Fome" },
+    { value: "POBREZA", label: "Combate à Pobreza" },
+    { value: "ANIMAL", label: "Proteção Animal" },
+    { value: "CRIANCA", label: "Crianças" },
+    { value: "MULHER", label: "Mulheres" },
+    { value: "IGUALDADE", label: "Igualdade" },
+    { value: "IDOSO", label: "Idosos" },
+    { value: "LGBTQIA", label: "LGBTQIA+" },
+    { value: "REFUGIADOS", label: "Refugiados" },
+    { value: "EDUCACAO_INFANTIL", label: "Educação Infantil" },
+    { value: "EMPREGO", label: "Emprego" },
+    { value: "VOLUNTARIADO", label: "Voluntariado" },
+    { value: "ESPORTES", label: "Esportes" },
+    { value: "ARTE", label: "Arte" },
+    { value: "FAMILIA", label: "Família" },
+    { value: "SAUDE_MENTAL", label: "Saúde Mental" },
+    { value: "REABILITACAO", label: "Reabilitação" },
+    { value: "JUSTICA_SOCIAL", label: "Justiça Social" },
+    { value: "SEGURANCA_ALIMENTAR", label: "Segurança Alimentar" },
+    { value: "DESENVOLVIMENTO_SUSTENTAVEL", label: "Desenvolvimento Sustentável" },
+    { value: "INFRAESTRUTURA", label: "Infraestrutura" },
+    { value: "EMPODERAMENTO", label: "Empoderamento" },
+    { value: "TECNOLOGIA_SOCIAL", label: "Tecnologia Social" },
+];
 
 interface OngData {
     id: string;
@@ -29,7 +65,7 @@ interface OngData {
     email: string;
     imagem: string;
     cnpj?: string;
-    areaAtuacao: string;
+    areaAtuacao: string[];
     endereco: string;
     descricao?: string;
     visao?: string;
@@ -44,14 +80,14 @@ export default function PerfilOng() {
     const [saving, setSaving] = useState(false);
     const [prevImg, setPrevImg] = useState<string>("");
     const route = useRoute();
-   
+
     const [perfil, setPerfil] = useState<OngData>({
         id: "",
         nome: "",
         email: "",
         imagem: "",
         cnpj: "",
-        areaAtuacao: "",
+        areaAtuacao: [],
         endereco: "",
         descricao: "",
         missao: "",
@@ -63,13 +99,14 @@ export default function PerfilOng() {
         nome: "",
         email: "",
         imagem: "",
-        
-        areaAtuacao: "",
+        areaAtuacao: [],
         endereco: "",
         descricao: "",
         missao: "",
         visao: "",
     });
+
+    const [modalVisivel, setModalVisivel] = useState(false);
 
     useEffect(() => {
         carregarPerfil();
@@ -87,15 +124,16 @@ export default function PerfilOng() {
             setLoading(true);
             const data = await httpGet('perfil', token || "");
 
-            if(!data){
+            if (!data) {
                 throw new Error("Dados do perfil não encontrados");
             }
             console.log("Dados do perfil recebidos:", data);
-           
-            // Aplica máscara no CNPJ recebido
+
+            // Aplica máscara no CNPJ recebido e garante que areaAtuacao seja um array
             const dataFormatada = {
                 ...data,
                 cnpj: mascaraCNPJ(data.cnpj || ""),
+                areaAtuacao: Array.isArray(data.areaAtuacao) ? data.areaAtuacao : [],
             };
             console.log("Dados do perfil carregados:", dataFormatada);
 
@@ -110,6 +148,23 @@ export default function PerfilOng() {
         }
     };
 
+    // Função para alternar área de atuação
+    const toggleAreaAtuacao = (area: string) => {
+        const areasAtuais = editData.areaAtuacao || [];
+        setEditData({
+            ...editData,
+            areaAtuacao: areasAtuais.includes(area)
+                ? areasAtuais.filter((a: string) => a !== area)
+                : [...areasAtuais, area]
+        });
+    };
+
+    // Função para obter o label da área
+    const getAreaLabel = (value: string) => {
+        const area = AREAS_ATUACAO.find(item => item.value === value);
+        return area ? area.label : value;
+    };
+
     const handleSalvar = async () => {
         try {
             setSaving(true);
@@ -117,7 +172,7 @@ export default function PerfilOng() {
             console.log("Resposta da atualização do perfil:", response);
 
             if (response.ok) {
-               
+
                 setPerfil(response.data);
                 setEditMode(false);
                 Alert.alert("Sucesso", "Perfil atualizado com sucesso!");
@@ -148,27 +203,27 @@ export default function PerfilOng() {
         );
     };
     //escolher imagem 
-     const escolherImagem = async () => {
-            const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-            if (!permission.granted) {
-                Alert.alert("Permissão necessária", "Permita acesso à galeria");
-                return;
-            }
-    
-            const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                quality: 0.8,
-                allowsEditing: true,
-                aspect: [1, 1],
-            });
-    
-            if (!result.canceled) {
-                uploadImagem(result.assets[0]);
-            }
-        };
+    const escolherImagem = async () => {
+        const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!permission.granted) {
+            Alert.alert("Permissão necessária", "Permita acesso à galeria");
+            return;
+        }
 
-     //upload imagem
-      const uploadImagem = async (image: ImagePicker.ImagePickerAsset) => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            quality: 0.8,
+            allowsEditing: true,
+            aspect: [1, 1],
+        });
+
+        if (!result.canceled) {
+            uploadImagem(result.assets[0]);
+        }
+    };
+
+    //upload imagem
+    const uploadImagem = async (image: ImagePicker.ImagePickerAsset) => {
         try {
             const formData = new FormData();
             formData.append("imagem", {
@@ -262,40 +317,126 @@ export default function PerfilOng() {
                     {/* Email */}
                     <View style={styles.inputGroup}>
                         <Text style={styles.label}>E-mail</Text>
-                       
-                            <View style={styles.infoCard}>
-                                <Icone nome="mail-outline" tamanho={20} color="#295CA9" />
-                                <Text style={styles.infoText}>{perfil.email}</Text>
-                            </View>
-                        
+
+                        <View style={styles.infoCard}>
+                            <Icone nome="mail-outline" tamanho={20} color="#295CA9" />
+                            <Text style={styles.infoText}>{perfil.email}</Text>
+                        </View>
+
                     </View>
 
                     {/* CNPJ */}
                     <View style={styles.inputGroup}>
                         <Text style={styles.label}>CNPJ</Text>
-                        
-                            <View style={styles.infoCard}>
-                                <Icone nome="document-text-outline" tamanho={20} color="#295CA9" />
-                                <Text style={styles.infoText}>{perfil.cnpj || "Não informado"}</Text>
-                            </View>
-                        
+
+                        <View style={styles.infoCard}>
+                            <Icone nome="document-text-outline" tamanho={20} color="#295CA9" />
+                            <Text style={styles.infoText}>{perfil.cnpj || "Não informado"}</Text>
+                        </View>
+
                     </View>
 
                     {/* Área de Atuação */}
                     <View style={styles.inputGroup}>
                         <Text style={styles.label}>Área de Atuação</Text>
                         {editMode ? (
-                            <TextInput
-                                style={styles.input}
-                                value={editData.areaAtuacao}
-                                onChangeText={(text) => setEditData({ ...editData, areaAtuacao: text })}
-                                placeholder="Ex: Educação, Saúde, Meio Ambiente"
-                                placeholderTextColor="#939EAA"
-                            />
+                            <>
+                                <Pressable
+                                    style={styles.selectInput}
+                                    onPress={() => setModalVisivel(true)}
+                                >
+                                    <Text style={[
+                                        styles.selectInputText,
+                                        (!editData.areaAtuacao || editData.areaAtuacao.length === 0) && styles.placeholderText
+                                    ]}>
+                                        {(!editData.areaAtuacao || editData.areaAtuacao.length === 0)
+                                            ? "Selecione as áreas de atuação"
+                                            : `${editData.areaAtuacao.length} área(s) selecionada(s)`}
+                                    </Text>
+                                    <Icone nome="arrow-down-outline" tamanho={24} color="#666" />
+                                </Pressable>
+
+                                {/* Tags das áreas selecionadas */}
+                                {editData.areaAtuacao && editData.areaAtuacao.length > 0 && (
+                                    <View style={styles.tagsContainer}>
+                                        {editData.areaAtuacao.map((area: string, index: number) => (
+                                            <View key={index} style={styles.tag}>
+                                                <Text style={styles.tagText}>{getAreaLabel(area)}</Text>
+                                                <TouchableOpacity
+                                                    onPress={() => toggleAreaAtuacao(area)}
+                                                    style={styles.tagClose}
+                                                >
+                                                    <Icone nome="close" tamanho={14} color="#666" />
+                                                </TouchableOpacity>
+                                            </View>
+                                        ))}
+                                    </View>
+                                )}
+
+                                {/* Modal de seleção */}
+                                <Modal
+                                    visible={modalVisivel}
+                                    animationType="slide"
+                                    transparent={true}
+                                    onRequestClose={() => setModalVisivel(false)}
+                                >
+                                    <View style={styles.modalOverlay}>
+                                        <View style={styles.modalContent}>
+                                            <View style={styles.modalHeader}>
+                                                <Text style={styles.modalTitle}>Selecionar Áreas de Atuação</Text>
+                                                <TouchableOpacity
+                                                    onPress={() => setModalVisivel(false)}
+                                                    style={styles.modalCloseButton}
+                                                >
+                                                    <Icone nome="close" tamanho={24} color="#666" />
+                                                </TouchableOpacity>
+                                            </View>
+
+                                            <FlatList
+                                                data={AREAS_ATUACAO}
+                                                keyExtractor={(item) => item.value}
+                                                renderItem={({ item }) => (
+                                                    <TouchableOpacity
+                                                        style={[
+                                                            styles.modalItem,
+                                                            editData.areaAtuacao?.includes(item.value) && styles.modalItemSelected
+                                                        ]}
+                                                        onPress={() => toggleAreaAtuacao(item.value)}
+                                                    >
+                                                        <Text style={[
+                                                            styles.modalItemText,
+                                                            editData.areaAtuacao?.includes(item.value) && styles.modalItemTextSelected
+                                                        ]}>
+                                                            {item.label}
+                                                        </Text>
+                                                        {editData.areaAtuacao?.includes(item.value) && (
+                                                            <Icone nome="checkmark" tamanho={20} color="#295CA9" />
+                                                        )}
+                                                    </TouchableOpacity>
+                                                )}
+                                                contentContainerStyle={styles.modalList}
+                                            />
+
+                                            <View style={styles.modalFooter}>
+                                                <TouchableOpacity
+                                                    style={styles.modalButton}
+                                                    onPress={() => setModalVisivel(false)}
+                                                >
+                                                    <Text style={styles.modalButtonText}>Confirmar</Text>
+                                                </TouchableOpacity>
+                                            </View>
+                                        </View>
+                                    </View>
+                                </Modal>
+                            </>
                         ) : (
                             <View style={styles.infoCard}>
                                 <Icone nome="briefcase-outline" tamanho={20} color="#295CA9" />
-                                <Text style={styles.infoText}>{perfil.areaAtuacao}</Text>
+                                <Text style={styles.infoText}>
+                                    {perfil.areaAtuacao && perfil.areaAtuacao.length > 0
+                                        ? perfil.areaAtuacao.map(getAreaLabel).join(', ')
+                                        : "Não informado"}
+                                </Text>
                             </View>
                         )}
                     </View>
@@ -322,7 +463,7 @@ export default function PerfilOng() {
                         )}
                     </View>
                     {/* Missão */}
-                     <View style={styles.inputGroup}>
+                    <View style={styles.inputGroup}>
                         <Text style={styles.label}>Missão</Text>
                         {editMode ? (
                             <TextInput
@@ -345,8 +486,8 @@ export default function PerfilOng() {
                         )}
                     </View>
                     {/* Visão */}
-                   
-                     <View style={styles.inputGroup}>
+
+                    <View style={styles.inputGroup}>
                         <Text style={styles.label}>Visão</Text>
                         {editMode ? (
                             <TextInput
@@ -612,5 +753,110 @@ const styles = StyleSheet.create({
         maxWidth: 600,
         width: "100%",
         alignSelf: "center",
+    },
+    // Estilos para o select e modal
+    selectInput: {
+        backgroundColor: "#fff",
+        borderWidth: 1,
+        borderColor: "#E5E7EB",
+        borderRadius: 12,
+        padding: screenWidth < 350 ? 12 : 16,
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        height: screenWidth < 350 ? 48 : 56,
+    },
+    selectInputText: {
+        fontSize: screenWidth < 350 ? 14 : 16,
+        color: "#1A1A1A",
+    },
+    placeholderText: {
+        color: "#939EAA",
+    },
+    tagsContainer: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        gap: 8,
+        marginTop: 8,
+    },
+    tag: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#EFF6FF",
+        borderRadius: 16,
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        gap: 6,
+    },
+    tagText: {
+        fontSize: 14,
+        color: "#295CA9",
+    },
+    tagClose: {
+        padding: 2,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        justifyContent: "flex-end",
+    },
+    modalContent: {
+        backgroundColor: "#fff",
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        maxHeight: "80%",
+    },
+    modalHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: "#E5E7EB",
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: "600",
+        color: "#1A1A1A",
+    },
+    modalCloseButton: {
+        padding: 4,
+    },
+    modalList: {
+        padding: 8,
+    },
+    modalItem: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: 16,
+        borderRadius: 8,
+    },
+    modalItemSelected: {
+        backgroundColor: "#EFF6FF",
+    },
+    modalItemText: {
+        fontSize: 16,
+        color: "#374151",
+    },
+    modalItemTextSelected: {
+        color: "#295CA9",
+        fontWeight: "500",
+    },
+    modalFooter: {
+        padding: 16,
+        borderTopWidth: 1,
+        borderTopColor: "#E5E7EB",
+    },
+    modalButton: {
+        backgroundColor: "#295CA9",
+        borderRadius: 12,
+        padding: 16,
+        alignItems: "center",
+    },
+    modalButtonText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "600",
     },
 });
