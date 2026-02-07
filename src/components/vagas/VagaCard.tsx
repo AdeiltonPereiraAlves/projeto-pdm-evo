@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { AuthContext } from '@/data/context/AuthContext';
+import useAPI from '@/data/hooks/useAPI';
 import Icone from '../shared/Icone';
 
 export interface VagaCardProps {
@@ -11,6 +13,7 @@ export interface VagaCardProps {
     data: string;
     descricao: string;
     tag?: string;
+    vagaId: string;
     onPress?: () => void;
 }
 
@@ -23,10 +26,63 @@ export default function VagaCard({
     data,
     descricao,
     tag,
+    vagaId,
     onPress
 }: VagaCardProps) {
-   
- 
+    const { token } = useContext(AuthContext);
+    const { httpPost, buscarStatusInscricao } = useAPI();
+    const [ativo, setAtivo] = useState<boolean | undefined>(undefined);
+    const [loading, setLoading] = useState(false);
+
+    // Buscar status da inscrição ao montar o card
+    useEffect(() => {
+        if (!token || !vagaId) return;
+        let mounted = true;
+
+        const buscarStatus = async () => {
+            try {
+                const res = await buscarStatusInscricao(`inscricao/status/${vagaId}`, token);
+                if (!res.ok) {
+                    if (mounted) setAtivo(false);
+                    return;
+                }
+                const data = await res.json();
+                if (mounted) setAtivo(Boolean(data.ativo));
+            } catch (err) {
+                console.log("Erro buscar status card:", err);
+                if (mounted) setAtivo(false);
+            }
+        };
+
+        buscarStatus();
+        return () => { mounted = false; };
+    }, [vagaId, token]);
+
+    // Toggle inscrição (mesmo padrão do VagaDetalhe)
+    const handleInscricao = async () => {
+        if (!token || loading) return;
+        setLoading(true);
+
+        const previous = ativo;
+        const novo = !previous;
+        setAtivo(novo);
+
+        try {
+            const res = await httpPost(`inscricao/${vagaId}`, { ativo: novo }, token);
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(`HTTP ${res.status}: ${text}`);
+            }
+            const data = await res.json();
+            setAtivo(Boolean(data.ativo));
+        } catch (err) {
+            console.log("Erro ao togglear inscrição card:", err);
+            setAtivo(previous);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <TouchableOpacity style={styles.card} onPress={onPress}>
             <View style={styles.header}>
@@ -65,8 +121,17 @@ export default function VagaCard({
                         <Text style={styles.tagText}>{tag}</Text>
                     </View>
                 </View>
-                <TouchableOpacity style={styles.botaoCandidatar}>
-                    <Text style={styles.botaoText}>Candidatar-se</Text>
+                <TouchableOpacity
+                    style={[styles.botaoCandidatar, ativo ? { backgroundColor: '#008EFF' } : undefined]}
+                    onPress={(e) => {
+                        e.stopPropagation();
+                        handleInscricao();
+                    }}
+                    disabled={loading || ativo === undefined}
+                >
+                    <Text style={styles.botaoText}>
+                        {ativo === undefined ? "..." : ativo ? "Inscrito" : "Candidatar-se"}
+                    </Text>
                 </TouchableOpacity>
             </View>
         </TouchableOpacity>

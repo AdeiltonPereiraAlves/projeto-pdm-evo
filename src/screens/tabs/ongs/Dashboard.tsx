@@ -331,27 +331,14 @@ export default function Dashboard() {
 
                         <Pressable
                             style={styles.actionCard}
-                            onPress={() => navigation.navigate("GerenciarCandidatos" as never)}
+                            onPress={() => navigation.navigate("MinhasVagas" as never)}
                         >
                             <View style={[styles.actionIconCircle, { backgroundColor: "#FEF3C7" }]}>
                                 <Icone nome="people" tamanho={32} color="#f59e0b" />
                             </View>
                             <Text style={styles.actionTitle}>Candidatos</Text>
                             <Text style={styles.actionDescription}>
-                                Gerenciar inscrições
-                            </Text>
-                        </Pressable>
-
-                        <Pressable
-                            style={styles.actionCard}
-                            onPress={() => navigation.navigate("AvaliacoesOng" as never)}
-                        >
-                            <View style={[styles.actionIconCircle, { backgroundColor: "#DCFCE7" }]}>
-                                <Icone nome="star" tamanho={32} color="#22c55e" />
-                            </View>
-                            <Text style={styles.actionTitle}>Avaliações</Text>
-                            <Text style={styles.actionDescription}>
-                                Ver feedback recebido
+                                Ver inscrições nas vagas
                             </Text>
                         </Pressable>
                     </View>
