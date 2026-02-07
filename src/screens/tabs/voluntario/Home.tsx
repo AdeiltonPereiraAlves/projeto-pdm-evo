@@ -170,6 +170,7 @@ export default function Home() {
                     vagasFiltradas.map((vaga: Vaga) => (
                         <VagaCard
                             key={vaga.id}
+                            vagaId={vaga.id}
                             titulo={vaga.titulo}
                             nomeOng={vaga.nomeOng || "ONG"}
                             imagemOng={vaga.imagemOng}
